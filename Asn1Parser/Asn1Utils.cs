@@ -518,15 +518,16 @@ namespace SysadminsLV.Asn1Parser {
         /// after 2050 year are required to be encoded by using Generalized Time encoding. UTC Time encoding is not allowed
         /// for periods beyond 1950 - 2049 years.
         /// </summary>
-        /// <param name="time">An instance of <see cref="DateTime"/> object.</param>
+        /// <param name="time">
+        /// An instance of <see cref="DateTime"/> object.</param> Value in this parameter is treated as local time. 
         /// <param name="zone">
         ///		Specifies the time zone for the value in <strong>time</strong> parameter.
         /// </param>
         /// <returns>ASN.1-encoded byte array.</returns>
         /// <remarks>
-        ///		If the <strong>Year</strong> value of the <strong>time</strong> object is less or equals to 2049,
-        ///		the DateTime object is encoded as a UTC time, if greater than 2049, the DateTime object is encoded
-        ///		as a generalized time.
+        ///		If the <strong>Year</strong> value of the <strong>time</strong> object is less or equals to 2049
+        ///     and greater or equals to 1950, the DateTime object is encoded as a UTC time.
+        ///     if year value is outside of 1950-2049 range, it is encoded as a generalized time.
         ///		<para>
         ///		If <strong>zone</strong> parameter is set to <strong>NULL</strong>, date and time in <strong>time</strong>
         ///		parameter will be converted to a Zulu time (Universal time). If zone information is not <strong>NULL</strong>,
@@ -537,7 +538,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <seealso cref="EncodeUTCTime"/>
         /// <seealso cref="EncodeGeneralizedTime"/>
         public static Byte[] EncodeDateTime(DateTime time, TimeZoneInfo zone = null) {
-            return time.Year < 2050 || time.Year >= 1950
+            return time.Year < 2050 && time.Year >= 1950
                 ? EncodeUTCTime(time, zone)
                 : EncodeGeneralizedTime(time, zone);
         }
