@@ -364,7 +364,7 @@ namespace SysadminsLV.Asn1Parser {
         /// method must be called prior to first call of this method. Subsequent <strong>BuildOffsetMap</strong>
         /// method calls are not necessary.
         /// </remarks>
-        public Boolean MoveToPoisition(Int32 newPosition) {
+        public Boolean MoveToPosition(Int32 newPosition) {
             if (_offsetMap == null) {
                 throw new InvalidOperationException();
             }
@@ -422,7 +422,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <param name="tag">Tag numerical value.</param>
         /// <returns>Formatted tag name</returns>
         public static String GetTagName(Byte tag) {
-            var index = tag & (Byte)Asn1Type.TAG_MASK;
+            Int32 index = tag & (Byte)Asn1Type.TAG_MASK;
             if ((tag & (Byte)Asn1Class.PRIVATE) != 0) {
                 switch (tag & (Byte)Asn1Class.PRIVATE) {
                     case (Byte)Asn1Class.CONTEXT_SPECIFIC:
