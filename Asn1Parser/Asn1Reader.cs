@@ -128,7 +128,10 @@ namespace SysadminsLV.Asn1Parser {
             if (Tag == 0) {
                 throw new Asn1InvalidTagException(Offset);
             }
-            if (_multiNestedTypes.Contains(Tag) || (Tag & (Byte) Asn1Class.CONSTRUCTED) > 0) {
+            // the idea is that SET/SEQUENCE and any explicitly constructed types are constructed by default.
+            // Though, we need to limit them for Application and higher classes which are not guaranteed to be
+            // constructed.
+            if (_multiNestedTypes.Contains(Tag) || ((Tag & (Byte)Asn1Class.CONSTRUCTED) > 0 && Tag < (Byte)Asn1Class.APPLICATION)) {
                 IsConstructed = true;
             }
             if (PayloadLength == 0) {
@@ -159,27 +162,43 @@ namespace SysadminsLV.Asn1Parser {
             // processing rules (assuming zero-based bits):
             // if bit 5 is set to "1", or the type is SEQUENCE/SET -- the type is constructed. Unroll nested types.
             // if bit 5 is set to "0", attempt to resolve nested types only for UNIVERSAL tags.
+            // some universal types cannot include nested types: skip them in advance.
             if (_excludedTags.Contains(Tag) || PayloadLength < 2) { return; }
             Int64 pstart = PayloadStartOffset;
             Int32 plength = PayloadLength;
-            if (Tag == 3) {
+            // BIT_STRING includes "unused bits" octet, do not count it in calculations
+            if (Tag == (Byte)Asn1Type.BIT_STRING) {
                 pstart = PayloadStartOffset + 1;
                 plength = PayloadLength - 1;
             }
+            // if current type is constructed or nestable by default
             if (IsConstructed) {
+                // check if map for current type exists
                 if (!_offsetMap.ContainsKey(pstart)) {
+                    // if current map doesn't contain nested types boundaries, add them to the map.
+                    // this condition occurs when we face current type for the first time.
                     predict(pstart, plength, true, out childCount);
                 }
-
                 return;
             }
-            if (Tag > 0 && Tag < (Byte)Asn1Type.TAG_MASK) {
-                IsConstructed = predict(pstart, plength, false, out childCount);
-                // reiterate again and build map for children
-                if (IsConstructed && !_offsetMap.ContainsKey(pstart)) {
-                    predict(pstart, plength, true, out childCount);
-                }
+            // universal types can contain only universal or constructed nested types.
+            if (!testNestedForUniversal(pstart)) {
+                return;
             }
+            // attempt to unroll nested type
+            IsConstructed = predict(pstart, plength, false, out childCount);
+            // reiterate again and build map for children
+            if (IsConstructed && !_offsetMap.ContainsKey(pstart)) {
+                predict(pstart, plength, true, out childCount);
+            }
+        }
+        Boolean testNestedForUniversal(Int64 pstart) {
+            // if current type is primitive, then nested type can be either, primitive or constructed only.
+            if (Tag > 0 && Tag < (Byte)Asn1Type.TAG_MASK) {
+                return RawData[pstart] < (Byte)Asn1Class.APPLICATION;
+            }
+            // otherwise return True, so we can proceed with nested type parsing which can be of any type.
+            return true;
         }
         Boolean predict(Int64 start, Int32 projectedLength, Boolean assignMap, out Int32 estimatedChildCount) {
             Int64 levelStart = start;
@@ -236,7 +255,7 @@ namespace SysadminsLV.Asn1Parser {
         }
         void moveAndExpectTypes(Func<Boolean> action, params Byte[] expectedTypes) {
             if (expectedTypes == null) { throw new ArgumentNullException(nameof(expectedTypes)); }
-            HashSet<Byte> htable = new HashSet<Byte>();
+            var htable = new HashSet<Byte>();
             foreach (Byte tag in expectedTypes) {
                 htable.Add(tag);
             }
@@ -292,7 +311,6 @@ namespace SysadminsLV.Asn1Parser {
         /// </returns>
         public Boolean MoveNext() {
             if (NextOffset == 0) { return false; }
-            //projectedIterationSize = _offsetMap[NextOffset];
             currentPosition = _offsetMap[NextOffset];
             m_initialize(null, NextOffset);
             return true;
@@ -364,7 +382,8 @@ namespace SysadminsLV.Asn1Parser {
         /// method must be called prior to first call of this method. Subsequent <strong>BuildOffsetMap</strong>
         /// method calls are not necessary.
         /// </remarks>
-        public Boolean MoveToPosition(Int32 newPosition) {
+        [Obsolete("This method contains a typo. Use MoveToPosition instead.")]
+        public Boolean MoveToPoisition(Int32 newPosition) {
             if (_offsetMap == null) {
                 throw new InvalidOperationException();
             }
@@ -374,6 +393,22 @@ namespace SysadminsLV.Asn1Parser {
             currentPosition = _offsetMap[newPosition];
             m_initialize(null, newPosition);
             return true;
+        }
+        /// <summary>
+        /// Moves to a specified start offset.
+        /// </summary>
+        /// <param name="newPosition">ASN structure start position (offset).</param>
+        /// <returns>
+        /// <strong>True</strong> if specified offset is valid and pointer was successfully set to specified position,
+        /// otherwise <strong>False</strong>.
+        /// </returns>
+        /// <remarks>
+        /// Specified position validity is determined based on internal map and <see cref="BuildOffsetMap"/>
+        /// method must be called prior to first call of this method. Subsequent <strong>BuildOffsetMap</strong>
+        /// method calls are not necessary.
+        /// </remarks>
+        public Boolean MoveToPosition(Int32 newPosition) {
+            return MoveToPoisition(newPosition);
         }
         /// <summary>
         /// Moves to the beginning of the file.
