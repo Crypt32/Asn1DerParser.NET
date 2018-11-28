@@ -3,7 +3,7 @@ using System.IO;
 
 namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
-    /// Represnts an ASN.1 <strong>NULL</strong> data type.
+    /// Represents an ASN.1 <strong>NULL</strong> data type.
     /// </summary>
     public sealed class Asn1Null : UniversalTagBase {
         const Asn1Type TYPE = Asn1Type.NULL;

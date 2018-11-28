@@ -144,7 +144,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
             for (Int32 index = 0; index < strTokens.Length; index++) {
                 try {
                     UInt64 value = UInt64.Parse(strTokens[index]);
-                    if (index == 0 && value > 2 || (index == 1 && value > 39)) { return false; }
+                    if (index == 0 && value > 2 || index == 1 && value > 39) { return false; }
                     tokens.Add(value);
                 } catch {
                     tokens = null;

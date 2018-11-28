@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
-    /// Represents ASN.1 <strong>VisibleString</strong> data type. VisibleString consist of characters from internation
+    /// Represents ASN.1 <strong>VisibleString</strong> data type. VisibleString consist of characters from international
     /// printing character set. International printing character set contains characters starting from 32 and up to 126
     /// codes in ASCII character table.
     /// </summary>

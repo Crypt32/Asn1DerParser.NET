@@ -96,7 +96,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// </summary>
         /// <param name="bytes">A byte array to process.</param>
         /// <returns>The number of unused bits.</returns>
-        /// <exception cref="ArgumentNullException"><strong>bytes</strong> paramter is null reference.</exception>
+        /// <exception cref="ArgumentNullException"><strong>bytes</strong> parameter is null reference.</exception>
         public static Byte CalculateUnusedBits(Byte[] bytes) {
             if (bytes == null) { throw new ArgumentNullException(nameof(bytes)); }
             return CalculateUnusedBits(bytes[bytes.Length - 1]);

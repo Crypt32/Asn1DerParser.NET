@@ -55,19 +55,5 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// Gets value associated with the current object.
         /// </summary>
         public Byte[] Value { get; private set; }
-
-        void m_encode(String inputString) {
-            //if (inputString.Any(c => (c < 48 || c > 57) && c != 32)) {
-            //    throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
-            //}
-            //Value = inputString;
-            //Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TAG)));
-        }
-        void m_decode(Asn1Reader asn) {
-            //if (asn.GetPayload().Any(b => (b < 48 || b > 57) && b != 32)) {
-            //    throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
-            //}
-            //Value = Encoding.ASCII.GetString(asn.GetPayload());
-        }
     }
 }

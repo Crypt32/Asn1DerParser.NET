@@ -42,7 +42,7 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         /// <param name="asn">An existing <strong>ASN1</strong> object.</param>
         /// <remarks>
-        ///		This constructor creates a copy of a current position of an exisiting <strong>ASN1</strong> object.
+        ///		This constructor creates a copy of a current position of an existing <strong>ASN1</strong> object.
         /// </remarks>
         public Asn1Reader(Asn1Reader asn) : this(asn.GetTagRawData()) { }
         /// <summary>
@@ -94,7 +94,7 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         public Int32 PayloadLength { get; private set; }
         /// <summary>
-        /// This property is sibject to change.
+        /// This property is subject to change.
         /// </summary>
         public Int32 NextCurrentLevelOffset { get; private set; }
         /// <summary>
@@ -102,7 +102,7 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         public Int32 NextOffset { get; private set; }
         /// <summary>
-        /// Indicates whether the current tag is container, so it have childs instead of explicit tag balue.
+        /// Indicates whether the current tag is container, so it have children instead of explicit tag value.
         /// </summary>
         public Boolean IsConstructed { get; private set; }
         /// <summary>
@@ -147,13 +147,13 @@ namespace SysadminsLV.Asn1Parser {
                 ? Offset + TagLength
                 : 0;
             NextOffset = IsConstructed
-                ? (Tag == 3
+                ? Tag == 3
                     // skip unused bits byte
                     ? PayloadStartOffset + 1
-                    : PayloadStartOffset)
-                : (Offset + TagLength < RawData.Length
+                    : PayloadStartOffset
+                : Offset + TagLength < RawData.Length
                     ? Offset + TagLength
-                    : 0);
+                    : 0;
         }
         void parseNestedType() {
             // processing rules (assuming zero-based bits):
@@ -204,17 +204,17 @@ namespace SysadminsLV.Asn1Parser {
                 PayloadLength = RawData[Offset + 1];
                 TagLength = PayloadLength + 2;
             } else {
-                Int32 lengthbytes = RawData[Offset + 1] - 128;
+                Int32 lengthBytes = RawData[Offset + 1] - 128;
                 // max length can be encoded by using 4 bytes.
-                if (lengthbytes > 4) {
+                if (lengthBytes > 4) {
                     throw new OverflowException("Data length is too large.");
                 }
-                PayloadStartOffset = Offset + 2 + lengthbytes;
+                PayloadStartOffset = Offset + 2 + lengthBytes;
                 PayloadLength = RawData[Offset + 2];
                 for (Int32 i = Offset + 3; i < PayloadStartOffset; i++) {
                     PayloadLength = (PayloadLength << 8) | RawData[i];
                 }
-                TagLength = PayloadLength + lengthbytes + 2;
+                TagLength = PayloadLength + lengthBytes + 2;
             }
         }
         Int64 calculatePredictLength(Int64 offset) {
@@ -222,17 +222,17 @@ namespace SysadminsLV.Asn1Parser {
             if (RawData[offset + 1] < 128) {
                 return RawData[offset + 1] + 2;
             }
-            Int32 lengthbytes = RawData[offset + 1] - 128;
+            Int32 lengthBytes = RawData[offset + 1] - 128;
             // max length can be encoded by using 4 bytes.
-            if (lengthbytes > 4) {
+            if (lengthBytes > 4) {
                 return Int32.MaxValue;
             }
             Int32 ppayloadLength = RawData[offset + 2];
-            for (Int64 i = offset + 3; i < offset + 2 + lengthbytes; i++) {
+            for (Int64 i = offset + 3; i < offset + 2 + lengthBytes; i++) {
                 ppayloadLength = (ppayloadLength << 8) | RawData[i];
             }
             // 2 -- transitional + tag
-            return ppayloadLength + lengthbytes + 2;
+            return ppayloadLength + lengthBytes + 2;
         }
         void moveAndExpectTypes(Func<Boolean> action, params Byte[] expectedTypes) {
             if (expectedTypes == null) { throw new ArgumentNullException(nameof(expectedTypes)); }
@@ -286,7 +286,7 @@ namespace SysadminsLV.Asn1Parser {
         ///     type to the next type.</para>
         /// </summary>
         /// <returns>
-        ///     <strong>True</strong> if the current tyoe is not the last in the data contained in
+        ///     <strong>True</strong> if the current type is not the last in the data contained in
         ///     <strong>RawData</strong> property and there are no inner (wrapped) types, otherwise
         ///     <strong>False</strong>
         /// </returns>
@@ -334,7 +334,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <summary>
         /// Moves over current type to the next type at the same level and checks whether the tag number of next type
         /// matches one of specified in the <strong>expectedTags</strong> parameter. If current position is the last type
-        /// in the current arrat, or next type's tag doesn't match a list of accepted types, an exception is thrown. See
+        /// in the current array, or next type's tag doesn't match a list of accepted types, an exception is thrown. See
         /// exceptions for more details. If the method succeeds, it returns nothing.
         /// </summary>
         /// <param name="expectedTags"></param>
@@ -360,7 +360,7 @@ namespace SysadminsLV.Asn1Parser {
         /// otherwise <strong>False</strong>.
         /// </returns>
         /// <remarks>
-        /// Specified poisition validity is determined based on internal map and <see cref="BuildOffsetMap"/>
+        /// Specified position validity is determined based on internal map and <see cref="BuildOffsetMap"/>
         /// method must be called prior to first call of this method. Subsequent <strong>BuildOffsetMap</strong>
         /// method calls are not necessary.
         /// </remarks>

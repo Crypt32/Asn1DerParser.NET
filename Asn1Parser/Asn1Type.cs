@@ -59,8 +59,8 @@
         REAL				= 9,
         /// <summary>
         /// The type of enumerations is declared with the keyword ENUMERATED.
-        /// <p>For an ENUMERATED type, a number is associated (implicitely or explicitely) with every
-        /// identifer whereas, for an <see cref="INTEGER">INTEGER</see> type, an identier is (explicitely) associated with each
+        /// <p>For an ENUMERATED type, a number is associated (implicitly or explicitly) with every
+        /// identifier whereas, for an <see cref="INTEGER">INTEGER</see> type, an identifier is (explicitly) associated with each
         /// integer.</p></summary>
         ENUMERATED			= 10,
         /// <summary>
@@ -75,8 +75,8 @@
         /// </summary>
         UTF8String			= 12,
         /// <summary>
-        /// <strong>RELATIVE-OID</strong> is used when many transmitted object identifers denote objects registered in
-        /// the same sub-tree of the registration tree. Otherwise said, all these identifers relate to a common reference node.
+        /// <strong>RELATIVE-OID</strong> is used when many transmitted object identifiers denote objects registered in
+        /// the same sub-tree of the registration tree. Otherwise said, all these identifiers relate to a common reference node.
         /// </summary>
         RELATIVE_OID		= 13,
         /// <summary>
@@ -112,7 +112,7 @@
         /// <summary>
         /// The '<strong>International Alphabet number 5</strong>' (or <strong>IA5</strong>) is based on 7-bit characters and
         /// was jointly published by ISO and ITU-T (1963). It has become the basic character set of most of the communicating
-        /// systems. It is generally equivalent to the ASCII alphabet (international standard de facto), but national versions,
+        /// systems. It is generally equivalent to the ASCII alphabet (international standard de-facto), but national versions,
         /// which can take into account accents or characters specific to some spoken languages may be proposed by national
         /// standardization organizations.
         /// </summary>

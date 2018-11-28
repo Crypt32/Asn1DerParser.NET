@@ -12,16 +12,16 @@ namespace SysadminsLV.Asn1Parser.Universal {
 
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1GeneralizedTime</strong> class from a date time object
-        /// to encode and value that indiciates whether to include millisecond information.
+        /// to encode and value that indicates whether to include millisecond information.
         /// </summary>
         /// <param name="time">A <see cref="DateTime"/> object.</param>
-        /// <param name="precisetime">
+        /// <param name="preciseTime">
         /// <strong>True</strong> if encoded value should contain millisecond information, otherwise <strong>False</strong>.
         /// </param>
-        public Asn1GeneralizedTime(DateTime time, Boolean precisetime) : this(time, null, precisetime) { }
+        public Asn1GeneralizedTime(DateTime time, Boolean preciseTime) : this(time, null, preciseTime) { }
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1GeneralizedTime</strong> class from a date time object
-        /// to encode, time zone information and value that indiciates whether to include millisecond information.
+        /// to encode, time zone information and value that indicates whether to include millisecond information.
         /// </summary>
         /// <param name="time">A <see cref="DateTime"/> object.</param>
         /// <param name="zone">A <see cref="TimeZoneInfo"/> object that represents time zone information.</param>

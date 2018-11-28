@@ -7,7 +7,7 @@ using SysadminsLV.Asn1Parser.Utils;
 
 namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
-    /// Represents an ASN.1 <strong>PrintableString</strong> data type. PrintableString consis of the following
+    /// Represents an ASN.1 <strong>PrintableString</strong> data type. PrintableString consists of the following
     /// characters: a-z, A-Z, ' () +,-.?:/= and SPACE.
     /// </summary>
     public sealed class Asn1PrintableString : Asn1String {

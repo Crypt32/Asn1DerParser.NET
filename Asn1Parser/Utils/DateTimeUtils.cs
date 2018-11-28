@@ -42,15 +42,15 @@ namespace SysadminsLV.Asn1Parser.Utils {
         }
 
         static DateTime extractDateTime(String strValue, out TimeZoneInfo zone) {
-            Int32 delimeterIndex;
+            Int32 delimiterIndex;
             zone = TimeZoneInfo.FindSystemTimeZoneById("Greenwich Standard Time");
             if (strValue.ToUpper().Contains("Z")) {
-                delimeterIndex = strValue.ToUpper().IndexOf('Z');
-                return extractZulu(strValue, delimeterIndex);
+                delimiterIndex = strValue.ToUpper().IndexOf('Z');
+                return extractZulu(strValue, delimiterIndex);
             }
-            Boolean hasZone = extractZoneShift(strValue, out Int32 hours, out Int32 minutes, out delimeterIndex);
-            Int32 milliseconds = extractMilliseconds(strValue, delimeterIndex, out Int32 msDelimiter);
-            DateTime retValue = extractDateTime(strValue, msDelimiter, delimeterIndex);
+            Boolean hasZone = extractZoneShift(strValue, out Int32 hours, out Int32 minutes, out delimiterIndex);
+            Int32 milliseconds = extractMilliseconds(strValue, delimiterIndex, out Int32 msDelimiter);
+            DateTime retValue = extractDateTime(strValue, msDelimiter, delimiterIndex);
             if (hasZone) {
                 zone = bindZone(hours, minutes);
                 retValue = retValue.AddHours(hours);
@@ -59,8 +59,8 @@ namespace SysadminsLV.Asn1Parser.Utils {
             retValue = retValue.AddMilliseconds(milliseconds);
             return retValue;
         }
-        static DateTime extractZulu(String strValue, Int32 zoneDelimeter) {
-            switch (zoneDelimeter) {
+        static DateTime extractZulu(String strValue, Int32 zoneDelimiter) {
+            switch (zoneDelimiter) {
                 case 12:
                     return parseExactUtc(strValue.Replace("Z", null), UTCFormat).ToLocalTime();
                 case 16:
@@ -73,30 +73,30 @@ namespace SysadminsLV.Asn1Parser.Utils {
                     throw new ArgumentException("Time zone suffix is not valid.");
             }
         }
-        static Boolean extractZoneShift(String strValue, out Int32 hours, out Int32 minutes, out Int32 delimeterIndex) {
+        static Boolean extractZoneShift(String strValue, out Int32 hours, out Int32 minutes, out Int32 delimiterIndex) {
             if (strValue.Contains('+')) {
-                delimeterIndex = strValue.IndexOf('+');
-                hours = Int32.Parse(strValue.Substring(delimeterIndex, 3));
+                delimiterIndex = strValue.IndexOf('+');
+                hours = Int32.Parse(strValue.Substring(delimiterIndex, 3));
             } else if (strValue.Contains('-')) {
-                delimeterIndex = strValue.IndexOf('-');
-                hours = -Int32.Parse(strValue.Substring(delimeterIndex, 3));
+                delimiterIndex = strValue.IndexOf('-');
+                hours = -Int32.Parse(strValue.Substring(delimiterIndex, 3));
             } else {
-                hours = minutes = delimeterIndex = 0;
+                hours = minutes = delimiterIndex = 0;
                 return false;
             }
-            minutes = strValue.Length > delimeterIndex + 3
-                ? -Int32.Parse(strValue.Substring(delimeterIndex + 3, 2))
+            minutes = strValue.Length > delimiterIndex + 3
+                ? -Int32.Parse(strValue.Substring(delimiterIndex + 3, 2))
                 : 0;
             return true;
         }
-        static Int32 extractMilliseconds(String strValue, Int32 zoneDelimeter, out Int32 msDelimeter) {
-            msDelimeter = -1;
+        static Int32 extractMilliseconds(String strValue, Int32 zoneDelimiter, out Int32 msDelimiter) {
+            msDelimiter = -1;
             if (!strValue.Contains(".")) { return 0; }
-            msDelimeter = strValue.IndexOf('.');
-            Int32 precisionLength = zoneDelimeter > 0
-                ? zoneDelimeter - msDelimeter - 1
-                : strValue.Length - msDelimeter - 1;
-            return Int32.Parse(strValue.Substring(msDelimeter + 1, precisionLength));
+            msDelimiter = strValue.IndexOf('.');
+            Int32 precisionLength = zoneDelimiter > 0
+                ? zoneDelimiter - msDelimiter - 1
+                : strValue.Length - msDelimiter - 1;
+            return Int32.Parse(strValue.Substring(msDelimiter + 1, precisionLength));
         }
         static DateTime parseExactUtc(String strValue, String format) {
             // fix: .NET 'yy' format works in range between 1930-2030. As per RFC5280,
@@ -111,12 +111,12 @@ namespace SysadminsLV.Asn1Parser.Utils {
             }
             return dateTime;
         }
-        static DateTime extractDateTime(String strValue, Int32 msDelimeter, Int32 zoneDelimeter) {
+        static DateTime extractDateTime(String strValue, Int32 msDelimiter, Int32 zoneDelimiter) {
             String rawString;
-            if (msDelimeter > zoneDelimeter) {
-                rawString = strValue.Substring(0, zoneDelimeter);
-            } else if (msDelimeter < zoneDelimeter) {
-                rawString = strValue.Substring(0, msDelimeter);
+            if (msDelimiter > zoneDelimiter) {
+                rawString = strValue.Substring(0, zoneDelimiter);
+            } else if (msDelimiter < zoneDelimiter) {
+                rawString = strValue.Substring(0, msDelimiter);
             } else {
                 rawString = strValue;
             }

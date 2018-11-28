@@ -4,7 +4,7 @@ using System.Text;
 namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
     /// Represents a <strong>BMPString</strong> ASN.1 tag object. <Strong>BMPString</Strong> is a 16-bit unicode
-    /// string where each character is encoded by using two bytes in Big Endian encoding.
+    /// string where each character is encoded by using two bytes in Big-Endian encoding.
     /// </summary>
     public sealed class Asn1BMPString : Asn1String {
         const Asn1Type TYPE = Asn1Type.BMPString;

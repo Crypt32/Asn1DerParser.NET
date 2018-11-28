@@ -2,7 +2,7 @@
 
 namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
-    /// Repesents a base class for ASN.1 primitive tag classes. This class provides
+    /// Represents a base class for ASN.1 primitive tag classes. This class provides
     /// </summary>
     public class UniversalTagBase {
         /// <summary>

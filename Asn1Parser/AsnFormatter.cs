@@ -65,7 +65,7 @@ namespace SysadminsLV.Asn1Parser {
             }
         }
         /// <summary>
-        /// Converts and formats current poisition af the <see cref="Asn1Reader"/> object.
+        /// Converts and formats current position af the <see cref="Asn1Reader"/> object.
         /// </summary>
         /// <param name="asn"><see cref="Asn1Reader"/> object in the desired state.</param>
         /// <param name="encoding">Specifies the encoding for formatting. Default is <strong>HexRaw</strong></param>
@@ -579,8 +579,8 @@ namespace SysadminsLV.Asn1Parser {
             return bytes.ToArray();
         }
         /* Rules:
-         * 1) if line is full (16 octets) loop until first non _whitespce character. Once reached, start ascii decoding
-         * 2) before and after asccii only _whitespace chars are allowed. EOL = true
+         * 1) if line is full (16 octets) loop until first non whitespace character. Once reached, start ascii decoding
+         * 2) before and after ascii only whitespace chars are allowed. EOL = true
          * 3) ascii must not contain symbols <32 or >126
          * 4) new line appears after first \n char. EOL = false
          * 5) if read octet count less than three (3) and hex is followed by hex char -- invalidate the string
@@ -766,7 +766,7 @@ namespace SysadminsLV.Asn1Parser {
         static Int32 getAddrLength(Int32 size) {
             Int32 div = size / 16;
             if (size % 16 > 0) { div++; }
-            String h = String.Format("{0:x}", div);
+            String h = $"{div:x}";
             return h.Length < 4
                 ? 4
                 : (h.Length % 2 == 0 ? h.Length : h.Length + 1);

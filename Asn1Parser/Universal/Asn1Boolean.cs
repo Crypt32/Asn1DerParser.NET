@@ -2,7 +2,7 @@
 
 namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
-    /// Represnts an ASN.1 <strong>BOOLEAN</strong> data type.
+    /// Represents an ASN.1 <strong>BOOLEAN</strong> data type.
     /// </summary>
     public sealed class Asn1Boolean : UniversalTagBase {
         const Asn1Type TYPE = Asn1Type.BOOLEAN;
@@ -33,7 +33,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1Boolean</strong> class from a boolean value.
         /// </summary>
-        /// <param name="fValue">Booelan value to encode.</param>
+        /// <param name="fValue">Boolean value to encode.</param>
         public Asn1Boolean(Boolean fValue) {
             m_encode(fValue);
         }

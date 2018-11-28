@@ -57,9 +57,9 @@ namespace SysadminsLV.Asn1Parser {
             if (asnHeader == null) { throw new ArgumentNullException(nameof(asnHeader)); }
             if (asnHeader.Length == 0) { return 0; }
             if (asnHeader[0] < 127) { return asnHeader[0]; }
-            Int32 lengthbytes = asnHeader[0] - 128;
+            Int32 lengthBytes = asnHeader[0] - 128;
             // max length can be encoded by using 4 bytes.
-            if (lengthbytes > 4 || asnHeader.Length < 1 + lengthbytes) {
+            if (lengthBytes > 4 || asnHeader.Length < 1 + lengthBytes) {
                 throw new OverflowException("Data length is too large or too small.");
             }
             Int64 payloadLength = asnHeader[1];
@@ -73,17 +73,17 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         /// <remarks>This method do not check whether the data in <strong>rawData</strong> is valid data for specified enclosing type.</remarks>
         /// <param name="rawData">A byte array to wrap.</param>
-        /// <param name="enclosingtag">An enumeration of <see cref="Asn1Type"/>.</param>
-        /// <returns>Wrapped ecnoded byte array.</returns>
+        /// <param name="enclosingTag">An enumeration of <see cref="Asn1Type"/>.</param>
+        /// <returns>Wrapped encoded byte array.</returns>
         /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
-        public static Byte[] Encode(Byte[] rawData, Byte enclosingtag) {
+        public static Byte[] Encode(Byte[] rawData, Byte enclosingTag) {
             if (rawData == null) {
-                return new Byte[] { enclosingtag, 0 };
+                return new Byte[] { enclosingTag, 0 };
             }
             Byte[] retValue;
             if (rawData.Length < 128) {
                 retValue = new Byte[rawData.Length + 2];
-                retValue[0] = enclosingtag;
+                retValue[0] = enclosingTag;
                 retValue[1] = (Byte)rawData.Length;
                 rawData.CopyTo(retValue, 2);
             } else {
@@ -98,7 +98,7 @@ namespace SysadminsLV.Asn1Parser {
                 // 3 is: len byte and enclosing tag
                 retValue = new Byte[rawData.Length + 3 + counter];
                 rawData.CopyTo(retValue, 3 + counter);
-                retValue[0] = enclosingtag;
+                retValue[0] = enclosingTag;
                 retValue[1] = (Byte)(129 + counter);
                 retValue[2] = (Byte)num;
                 Int32 n = 3;
@@ -137,7 +137,7 @@ namespace SysadminsLV.Asn1Parser {
             }
             var SB = new StringBuilder();
             foreach (Byte item in dummyPayload) {
-                SB.Append(String.Format("{0:x2}", item));
+                SB.Append($"{item:x2}");
             }
             return Int64.Parse(SB.ToString(), NumberStyles.AllowHexSpecifier);
         }
@@ -181,17 +181,9 @@ namespace SysadminsLV.Asn1Parser {
             }
             var SB = new StringBuilder();
             foreach (Byte item in asn.GetPayload()) {
-                SB.Append(String.Format("{0:x2}", item) + " ");
+                SB.Append($"{item:x2}" + " ");
             }
             return SB.ToString();
-        }
-        /// <summary>
-        /// Encodes <see cref="DateTime"/> object to an ASN.1-encoded <strong>UTCTime</strong> byte array.
-        /// </summary>
-        /// <param name="time">A <see cref="DateTime"/> object to encode.</param>
-        /// <returns>ASN.1-encoded byte array.</returns>
-        internal static Byte[] EncodeUTCTime(DateTime time) {
-            return EncodeUTCTime(time, null, false);
         }
         /// <summary>
         /// 
@@ -219,8 +211,8 @@ namespace SysadminsLV.Asn1Parser {
         internal static Byte[] EncodeUTCTime(DateTime time, TimeZoneInfo zone) {
             return EncodeUTCTime(time, zone, false);
         }
-        internal static Byte[] EncodeUTCTime(DateTime time, TimeZoneInfo zone, Boolean usePrecise) {
-            return (new Asn1UtcTime(time, zone, usePrecise)).RawData;
+        internal static Byte[] EncodeUTCTime(DateTime time, TimeZoneInfo zone = null, Boolean usePrecise = false) {
+            return new Asn1UtcTime(time, zone, usePrecise).RawData;
         }
         /// <summary>
         /// Encodes a .NET DateTime object to a AN1.1-encoded byte array.
