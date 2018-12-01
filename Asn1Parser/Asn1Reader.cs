@@ -24,17 +24,16 @@ namespace SysadminsLV.Asn1Parser {
         static readonly List<Byte> _excludedTags = new List<Byte>(
             new Byte[] { 0, 1, 2, 5, 6, 9, 10, 13 }
         );
-        readonly Dictionary<Int64, AsnInternalMap> _offsetMap = new Dictionary<Int64, AsnInternalMap>();
-        readonly List<Byte> _multiNestedTypes = new List<Byte>(
+        readonly IDictionary<Int64, Int64> _indefiniteMap = new Dictionary<Int64, Int64>();
+        readonly IDictionary<Int64, Asn1TLV> _offsetMap = new Dictionary<Int64, Asn1TLV>();
+        readonly List<Byte> _primitiveNestableTypes = new List<Byte>(
             new[] {
                 (Byte)Asn1Type.SEQUENCE,
-                (Byte)((Byte)Asn1Type.SEQUENCE | (Byte)Asn1Class.CONSTRUCTED),
                 (Byte)Asn1Type.SET,
-                (Byte)((Byte)Asn1Type.SET | (Byte)Asn1Class.CONSTRUCTED)
             }
         );
-        AsnInternalMap currentPosition;
-        Int32 childCount;
+        Asn1TLV currentPosition;
+        Int32 childrenCount;
 
         /// <summary>
         /// Initializes a new instance of the <strong>ASN1</strong> class from an existing
@@ -64,7 +63,7 @@ namespace SysadminsLV.Asn1Parser {
         Asn1Reader(Byte[] rawData, Int32 offset) {
             if (rawData == null) { throw new ArgumentNullException(nameof(rawData)); }
             if (rawData.Length < 2) { throw new Win32Exception(Strings.InvalidDataException); }
-            currentPosition = new AsnInternalMap();
+            currentPosition = new Asn1TLV();
             _offsetMap.Add(0, currentPosition);
             decode(rawData, offset);
         }
@@ -85,6 +84,10 @@ namespace SysadminsLV.Asn1Parser {
         /// Gets current structure full length. Full length contains tag, tag length byte (or bytes) and tag payload.
         /// </summary>
         public Int32 TagLength { get; private set; }
+        /// <summary>
+        /// Gets the value that indicates whether the current type uses indefinite length identifier.
+        /// </summary>
+        public Boolean IsIndefiniteLength { get; private set; }
         /// <summary>
         /// Gets a position at which current structure's payload starts (excluding tag and tag length byte (or bytes)).
         /// </summary>
@@ -111,26 +114,19 @@ namespace SysadminsLV.Asn1Parser {
         public Byte[] RawData { get; private set; }
 
         void decode(Byte[] raw, Int32 pOffset) {
-            IsConstructed = false;
             if (raw != null) { RawData = raw; }
             Offset = pOffset;
-            Tag = RawData[Offset];
+            getTag(Offset);
             calculateLength();
             // strip possible unnecessary bytes
             if (raw != null && TagLength != RawData.Length) {
                 RawData = raw.Take(TagLength).ToArray();
             }
-            TagName = GetTagName(Tag);
             // 0 Tag is reserved for BER and is not available in DER
             if (Tag == 0) {
                 throw new Asn1InvalidTagException(Offset);
             }
-            // the idea is that SET/SEQUENCE and any explicitly constructed types are constructed by default.
-            // Though, we need to limit them for Application and higher classes which are not guaranteed to be
-            // constructed.
-            if (_multiNestedTypes.Contains(Tag) || (Tag & (Byte)Asn1Class.CONSTRUCTED) > 0 && Tag < (Byte)Asn1Class.APPLICATION) {
-                IsConstructed = true;
-            }
+            IsConstructed = testConstructed();
             if (PayloadLength == 0) {
                 // if current node is the last node in binary data, set NextOffset to 0, this means EOF.
                 NextOffset = Offset + TagLength == RawData.Length
@@ -154,12 +150,24 @@ namespace SysadminsLV.Asn1Parser {
                     ? Offset + TagLength
                     : 0;
         }
+        Boolean testConstructed() {
+            // SEQUENCE, SEQUENCE OF, SET, SET OF and any type that belongs to CONSTRUCTED class
+            // are nestable by definition.
+            return _primitiveNestableTypes.Contains(Tag) || (Tag & (Byte)Asn1Class.CONSTRUCTED) > 0;
+        }
+        void getTag(Int32 offset) {
+            Tag = RawData[offset];
+            TagName = GetTagName(Tag);
+        }
         void parseNestedType() {
             // processing rules (assuming zero-based bits):
-            // if bit 5 is set to "1", or the type is SEQUENCE/SET -- the type is constructed. Unroll nested types.
-            // if bit 5 is set to "0", attempt to resolve nested types only for UNIVERSAL tags.
+            // -- if bit 5 is set to "1", or the type is SEQUENCE/SET -- the type is constructed. Unroll nested types.
+            // -- if bit 5 is set to "0", attempt to resolve nested types only for UNIVERSAL tags.
             // some universal types cannot include nested types: skip them in advance.
-            if (_excludedTags.Contains(Tag) || PayloadLength < 2) { return; }
+            // -- if the value is implicitly tagged, it cannot contain nested types. 
+            if (_excludedTags.Contains(Tag) || PayloadLength < 2 || Tag > 127 & Tag < 160) {
+                return;
+            }
             Int64 start = PayloadStartOffset;
             Int32 length = PayloadLength;
             // BIT_STRING includes "unused bits" octet, do not count it in calculations
@@ -173,7 +181,7 @@ namespace SysadminsLV.Asn1Parser {
                 if (!_offsetMap.ContainsKey(start)) {
                     // if current map doesn't contain nested types boundaries, add them to the map.
                     // this condition occurs when we face current type for the first time.
-                    predict(start, length, true, out childCount);
+                    predict(start, length, true, out childrenCount);
                 }
                 return;
             }
@@ -182,10 +190,10 @@ namespace SysadminsLV.Asn1Parser {
                 return;
             }
             // attempt to unroll nested type
-            IsConstructed = predict(start, length, false, out childCount);
+            IsConstructed = predict(start, length, false, out childrenCount);
             // reiterate again and build map for children
             if (IsConstructed && !_offsetMap.ContainsKey(start)) {
-                predict(start, length, true, out childCount);
+                predict(start, length, true, out childrenCount);
             }
         }
         Boolean validateArrayBoundaries(Int64 start) {
@@ -214,7 +222,11 @@ namespace SysadminsLV.Asn1Parser {
                 return false;
             }
             // calculate length for nested type
-            Int64 pl = calculatePredictLength(start);
+            Asn1TLV tlv = getPredictTlv(start);
+            if (!tlv.IsValid) {
+                return false;
+            }
+            Int64 pl = tlv.TlvLength;
             // and it must match the estimated length
             return pl == estimatedLength;
         }
@@ -226,65 +238,90 @@ namespace SysadminsLV.Asn1Parser {
                 if (!validateArrayBoundaries(start)) {
                     return false;
                 }
-                Int64 pl = calculatePredictLength(start);
+                Asn1TLV tlv = getPredictTlv(start);
+                if (!tlv.IsValid) {
+                    return false;
+                }
+                Int64 pl = tlv.TlvLength;
                 sum += pl;
                 if (assignMap && sum <= projectedLength) {
-                    _offsetMap.Add(start, new AsnInternalMap { LevelStart = levelStart, LevelEnd = projectedLength });
+                    estimatedChildCount++;
+                    if (sum <= projectedLength) {
+                        tlv.LevelStart = levelStart;
+                        tlv.LevelEnd = projectedLength;
+                        _offsetMap.Add(start, tlv);
+                    }
                 }
                 start += pl;
-                //estimatedChildCount++;
             } while (sum < projectedLength);
             if (sum != projectedLength) { estimatedChildCount = 0; }
             return sum == projectedLength;
         }
         void calculateLength() {
-            if (RawData[Offset + 1] < 128) {
-                PayloadStartOffset = Offset + 2;
-                PayloadLength = RawData[Offset + 1];
-                TagLength = PayloadLength + 2;
-            } else {
-                Int32 lengthBytes = RawData[Offset + 1] - 128;
-                // max length can be encoded by using 4 bytes.
-                if (lengthBytes > 4) {
-                    throw new OverflowException("Data length is too large.");
-                }
-                PayloadStartOffset = Offset + 2 + lengthBytes;
-                PayloadLength = RawData[Offset + 2];
-                for (Int32 i = Offset + 3; i < PayloadStartOffset; i++) {
-                    PayloadLength = (PayloadLength << 8) | RawData[i];
-                }
-                TagLength = PayloadLength + lengthBytes + 2;
+            Asn1TLV tlv = getTlv(Offset);
+            if (!tlv.IsValid) {
+                throw new OverflowException("Data length is too large.");
             }
+            PayloadStartOffset = (Int32)tlv.PayloadStartOffset;
+            PayloadLength = (Int32)tlv.PayloadLength;
+            TagLength = (Int32)tlv.TlvLength;
         }
-        /// <summary>
-        /// Calculates the length for suggested nested type.
-        /// </summary>
-        /// <param name="offset">Start offset for suggested nested type.</param>
-        /// <returns>Estimated full tag length for nested type.</returns>
-        Int64 calculatePredictLength(Int64 offset) {
-            if (offset + 1 >= RawData.Length || offset < 0) { return Int32.MaxValue; }
-            if (RawData[offset + 1] < 128) {
-                return RawData[offset + 1] + 2;
+        Asn1TLV getTlv(Int64 offset) {
+            Byte lengthIdentifierValue = RawData[offset + 1];
+            return lengthIdentifierValue < 128
+                ? calculateShortLength(offset)
+                : lengthIdentifierValue == 128
+                    ? calculateIndefiniteLength(offset)
+                    : calculateLongLength(offset);
+        }
+        Asn1TLV getPredictTlv(Int64 offset) {
+            if (offset + 1 >= RawData.Length || offset < 0) {
+                return new Asn1TLV();
             }
+            return getTlv(offset);
+        }
+        Asn1TLV calculateShortLength(Int64 offset) {
+            return new Asn1TLV {
+                PayloadStartOffset = offset + 2,
+                PayloadLength = RawData[offset + 1],
+                TlvLength = RawData[offset + 1] + 2,
+                IsValid = true
+            };
+        }
+        Asn1TLV calculateIndefiniteLength(Int64 offset) {
+            var tlv = new Asn1TLV {
+                PayloadStartOffset = offset + 2,
+                IsIndefinite = true
+            };
+            throw new NotImplementedException();
+        }
+        Asn1TLV calculateLongLength(Int64 offset) {
+            var tlv = new Asn1TLV();
             Int32 lengthBytes = RawData[offset + 1] - 128;
             // max length can be encoded by using 4 bytes.
             if (lengthBytes > 4) {
-                return Int32.MaxValue;
+                return tlv;
             }
-            Int32 ppayloadLength = RawData[offset + 2];
-            for (Int64 i = offset + 3; i < offset + 2 + lengthBytes; i++) {
-                ppayloadLength = (ppayloadLength << 8) | RawData[i];
+            tlv.IsValid = true;
+            tlv.PayloadStartOffset = offset + 2 + lengthBytes;
+            tlv.PayloadLength = RawData[offset + 2];
+            for (Int64 i = offset + 3; i < tlv.PayloadStartOffset; i++) {
+                tlv.PayloadLength = (tlv.PayloadLength << 8) | RawData[i];
             }
-            // 2 -- transitional + tag
-            return ppayloadLength + lengthBytes + 2;
+            tlv.TlvLength = tlv.PayloadLength + lengthBytes + 2;
+            return tlv;
         }
         void moveAndExpectTypes(Func<Boolean> action, params Byte[] expectedTypes) {
-            if (expectedTypes == null) { throw new ArgumentNullException(nameof(expectedTypes)); }
+            if (expectedTypes == null) {
+                throw new ArgumentNullException(nameof(expectedTypes));
+            }
             var htable = new HashSet<Byte>();
             foreach (Byte tag in expectedTypes) {
                 htable.Add(tag);
             }
-            if (!action.Invoke()) { throw new InvalidDataException("The data is invalid."); }
+            if (!action.Invoke()) {
+                throw new InvalidDataException("The data is invalid.");
+            }
 
             if (!htable.Contains(Tag)) {
                 throw new Asn1InvalidTagException();
@@ -318,7 +355,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <returns>Count of nested nodes.</returns>
         /// <remarks>For primitive types and empty containers this method returns 0.</remarks>
         public Int32 GetNestedNodeCount() {
-            return IsConstructed ? childCount : 0;
+            return IsConstructed ? childrenCount : 0;
         }
         /// <summary>
         ///     Moves from the current type to the next type. If current type is container or constructed
@@ -335,7 +372,9 @@ namespace SysadminsLV.Asn1Parser {
         ///     <strong>False</strong>
         /// </returns>
         public Boolean MoveNext() {
-            if (NextOffset == 0) { return false; }
+            if (NextOffset == 0) {
+                return false;
+            }
             currentPosition = _offsetMap[NextOffset];
             decode(null, NextOffset);
             return true;
@@ -369,7 +408,9 @@ namespace SysadminsLV.Asn1Parser {
         /// level), otherwise <strong>False</strong>.
         /// </returns>
         public Boolean MoveNextCurrentLevel() {
-            if (NextCurrentLevelOffset == 0) { return false; }
+            if (NextCurrentLevelOffset == 0) {
+                return false;
+            }
             currentPosition = _offsetMap[NextCurrentLevelOffset];
             decode(null, NextCurrentLevelOffset);
             return true;
@@ -465,7 +506,8 @@ namespace SysadminsLV.Asn1Parser {
         /// </remarks>
         public Int32 BuildOffsetMap() {
             Reset();
-            do { } while (MoveNext());
+            while (MoveNext())
+                ;
             Reset();
             return _offsetMap.Count;
         }
@@ -498,9 +540,14 @@ namespace SysadminsLV.Asn1Parser {
             return ((Asn1Type)index).ToString();
         }
 
-        class AsnInternalMap {
+        class Asn1TLV {
+            public Int64 PayloadLength { get; set; }
+            public Int64 PayloadStartOffset { get; set; }
+            public Int64 TlvLength { get; set; }
             public Int64 LevelStart { get; set; }
             public Int64 LevelEnd { get; set; }
+            public Boolean IsValid { get; set; }
+            public Boolean IsIndefinite { get; set; }
         }
     }
 }
