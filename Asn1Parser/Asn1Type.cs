@@ -4,9 +4,9 @@
     /// </summary>
     public enum Asn1Type : byte {
         /// <summary>
-        /// Reserved for BER.
+        /// Represents End Of Content for type encoded with indefinite length.
         /// </summary>
-        RESERVED            = 0,
+        EOC                 = 0,
         /// <summary>
         /// The boolean type, declared with the keyword <strong>BOOLEAN</strong>, whose two possible values are
         /// <strong>TRUE</strong> and <strong>FALSE</strong>.
@@ -181,6 +181,6 @@
         /// <summary>
         /// TAG_MASK
         /// </summary>
-        TAG_MASK			= 31,
+        TAG_MASK			= 31
     }
 }
