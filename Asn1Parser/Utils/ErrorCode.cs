@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace SysadminsLV.Asn1Parser.Utils {
-    static class Strings {
+    static class ErrorCode {
         public const Int32 FileNotFoundException = unchecked((Int32)0x80070002);
         public const Int32 AccessDeniedException = unchecked((Int32)0x80070005);
         public const Int32 InvalidHandleException = unchecked((Int32)0x80070006);
