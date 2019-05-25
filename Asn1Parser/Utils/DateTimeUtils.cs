@@ -36,7 +36,7 @@ namespace SysadminsLV.Asn1Parser.Utils {
         public static DateTime Decode(Asn1Reader asn, out TimeZoneInfo zone) {
             StringBuilder SB = new StringBuilder();
             for (Int32 i = asn.PayloadStartOffset; i < asn.PayloadStartOffset + asn.PayloadLength; i++) {
-                SB.Append(Convert.ToChar(asn.RawData[i]));
+                SB.Append(Convert.ToChar(asn.GetRawData()[i]));
             }
             return extractDateTime(SB.ToString(), out zone);
         }

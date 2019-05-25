@@ -20,6 +20,7 @@ namespace SysadminsLV.Asn1Parser {
     /// </para>
     /// </remarks>
     public class Asn1Reader {
+        Byte[] rawData;
         // a list of primitive tags. Source: http://en.wikipedia.org/wiki/Distinguished_Encoding_Rules#DER_encoding
         static readonly List<Byte> _excludedTags = new List<Byte>(
             new Byte[] { 0, 1, 2, 5, 6, 9, 10, 13 }
@@ -29,7 +30,7 @@ namespace SysadminsLV.Asn1Parser {
         readonly List<Byte> _primitiveNestableTypes = new List<Byte>(
             new[] {
                 (Byte)Asn1Type.SEQUENCE,
-                (Byte)Asn1Type.SET,
+                (Byte)Asn1Type.SET
             }
         );
         Asn1TLV currentPosition;
@@ -43,7 +44,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <remarks>
         ///		This constructor creates a copy of a current position of an existing <strong>ASN1</strong> object.
         /// </remarks>
-        public Asn1Reader(Asn1Reader asn) : this(asn.GetTagRawData()) { }
+        public Asn1Reader(Asn1Reader asn) : this(asn.GetTagRawData(), 0) { }
         /// <summary>
         /// Initializes a new instance of the <strong>ASN1</strong> class by using an ASN.1 encoded byte array.
         /// </summary>
@@ -61,11 +62,25 @@ namespace SysadminsLV.Asn1Parser {
         public Asn1Reader(Byte[] rawData) : this(rawData, 0) { }
 
         Asn1Reader(Byte[] rawData, Int32 offset) {
-            if (rawData == null) { throw new ArgumentNullException(nameof(rawData)); }
-            if (rawData.Length < 2) { throw new Win32Exception(Strings.InvalidDataException); }
-            currentPosition = new Asn1TLV();
+            if (rawData == null) {
+                throw new ArgumentNullException(nameof(rawData));
+            }
+            if (rawData.Length < 2) {
+                throw new Win32Exception(ErrorCode.InvalidDataException);
+            }
+            this.rawData = rawData;
+            calculateLength();
+            // strip possible unnecessary bytes
+            if (TagLength != rawData.Length) {
+                this.rawData = rawData.Take(TagLength).ToArray();
+            }
+
+            currentPosition = new Asn1TLV {
+                LevelStart = 0,
+                LevelEnd = this.rawData.Length
+            };
             _offsetMap.Add(0, currentPosition);
-            decode(rawData, offset);
+            decode(offset);
         }
 
         /// <summary>
@@ -111,25 +126,21 @@ namespace SysadminsLV.Asn1Parser {
         /// <summary>
         /// Get's original ASN.1-encoded byte array.
         /// </summary>
-        public Byte[] RawData { get; private set; }
+        [Obsolete("Use GetRawData() method instead.", true)]
+        public Byte[] RawData => rawData.ToArray();
 
-        void decode(Byte[] raw, Int32 pOffset) {
-            if (raw != null) { RawData = raw; }
+        void decode(Int32 pOffset) {
             Offset = pOffset;
             getTag(Offset);
+            IsConstructed = testConstructed();
             calculateLength();
-            // strip possible unnecessary bytes
-            if (raw != null && TagLength != RawData.Length) {
-                RawData = raw.Take(TagLength).ToArray();
-            }
             // 0 Tag is reserved for BER and is not available in DER
             if (Tag == 0) {
                 throw new Asn1InvalidTagException(Offset);
             }
-            IsConstructed = testConstructed();
             if (PayloadLength == 0) {
                 // if current node is the last node in binary data, set NextOffset to 0, this means EOF.
-                NextOffset = Offset + TagLength == RawData.Length
+                NextOffset = Offset + TagLength == rawData.Length
                     ? 0
                     : Offset + TagLength;
                 NextCurrentLevelOffset = currentPosition.LevelEnd == 0 || Offset - currentPosition.LevelStart + TagLength == currentPosition.LevelEnd
@@ -146,17 +157,19 @@ namespace SysadminsLV.Asn1Parser {
                     // skip unused bits byte
                     ? PayloadStartOffset + 1
                     : PayloadStartOffset
-                : Offset + TagLength < RawData.Length
+                : Offset + TagLength < rawData.Length
                     ? Offset + TagLength
                     : 0;
         }
         Boolean testConstructed() {
             // SEQUENCE, SEQUENCE OF, SET, SET OF and any type that belongs to CONSTRUCTED class
-            // are nestable by definition.
+            // are certainly nestable, so there is no harm if we attempt to unroll nested types in unsafe
+            // mode (will throw exception if something goes wrong).
+            // tags encoded with indefinite length are constructed.
             return _primitiveNestableTypes.Contains(Tag) || (Tag & (Byte)Asn1Class.CONSTRUCTED) > 0;
         }
         void getTag(Int32 offset) {
-            Tag = RawData[offset];
+            Tag = rawData[offset];
             TagName = GetTagName(Tag);
         }
         void parseNestedType() {
@@ -197,7 +210,7 @@ namespace SysadminsLV.Asn1Parser {
             }
         }
         Boolean validateArrayBoundaries(Int64 start) {
-            return start >= 0 && start < RawData.Length && RawData[start] != 0;
+            return start >= 0 && start < rawData.Length && rawData[start] != 0;
         }
         /// <summary>
         /// Checks if current primitive type is sub-typed (contains nested types) or not.
@@ -211,7 +224,7 @@ namespace SysadminsLV.Asn1Parser {
         /// </returns>
         Boolean testNestedForUniversal(Int64 start, Int32 estimatedLength) {
             // if current type is primitive, then nested type can be either, primitive or constructed only.
-            if (RawData[start] >= (Byte)Asn1Class.APPLICATION) {
+            if (rawData[start] >= (Byte)Asn1Class.APPLICATION) {
                 return false;
             }
             // otherwise, attempt to resolve nested type. Only single nested type is allowed for primitive types.
@@ -267,7 +280,7 @@ namespace SysadminsLV.Asn1Parser {
             TagLength = (Int32)tlv.TlvLength;
         }
         Asn1TLV getTlv(Int64 offset) {
-            Byte lengthIdentifierValue = RawData[offset + 1];
+            Byte lengthIdentifierValue = rawData[offset + 1];
             return lengthIdentifierValue < 128
                 ? calculateShortLength(offset)
                 : lengthIdentifierValue == 128
@@ -275,7 +288,7 @@ namespace SysadminsLV.Asn1Parser {
                     : calculateLongLength(offset);
         }
         Asn1TLV getPredictTlv(Int64 offset) {
-            if (offset + 1 >= RawData.Length || offset < 0) {
+            if (offset + 1 >= rawData.Length || offset < 0) {
                 return new Asn1TLV();
             }
             return getTlv(offset);
@@ -283,30 +296,41 @@ namespace SysadminsLV.Asn1Parser {
         Asn1TLV calculateShortLength(Int64 offset) {
             return new Asn1TLV {
                 PayloadStartOffset = offset + 2,
-                PayloadLength = RawData[offset + 1],
-                TlvLength = RawData[offset + 1] + 2,
+                PayloadLength = rawData[offset + 1],
+                TlvLength = rawData[offset + 1] + 2,
                 IsValid = true
             };
         }
         Asn1TLV calculateIndefiniteLength(Int64 offset) {
+            // we do not use testConstructed method, because it allows SEQUENCE and SET in primitive form.
+            // when encoded in indefinite length, the bit CONSTRUCTED must be set to 1.
+            if ((Tag & (Byte)Asn1Class.CONSTRUCTED) == 0) {
+                return new Asn1TLV();
+            }
             var tlv = new Asn1TLV {
                 PayloadStartOffset = offset + 2,
-                IsIndefinite = true
+                IsIndefinite = true,
+                IsValid = true
             };
+            Int64 index = currentPosition.LevelEnd;
+
+            while (rawData[index] != 0) {
+                
+            }
             throw new NotImplementedException();
         }
         Asn1TLV calculateLongLength(Int64 offset) {
             var tlv = new Asn1TLV();
-            Int32 lengthBytes = RawData[offset + 1] - 128;
+            Int32 lengthBytes = rawData[offset + 1] - 128;
             // max length can be encoded by using 4 bytes.
             if (lengthBytes > 4) {
                 return tlv;
             }
             tlv.IsValid = true;
             tlv.PayloadStartOffset = offset + 2 + lengthBytes;
-            tlv.PayloadLength = RawData[offset + 2];
+            tlv.PayloadLength = rawData[offset + 2];
             for (Int64 i = offset + 3; i < tlv.PayloadStartOffset; i++) {
-                tlv.PayloadLength = (tlv.PayloadLength << 8) | RawData[i];
+                tlv.PayloadLength = (tlv.PayloadLength << 8) | rawData[i];
             }
             tlv.TlvLength = tlv.PayloadLength + lengthBytes + 2;
             return tlv;
@@ -333,21 +357,28 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         /// <returns>Current structure header. Header contains tag and tag length byte (or bytes).</returns>
         public Byte[] GetHeader() {
-            return RawData.Skip(Offset).Take(PayloadStartOffset - Offset).ToArray();
+            return rawData.Skip(Offset).Take(PayloadStartOffset - Offset).ToArray();
         }
         /// <summary>
         /// Gets the byte array of the current structure's payload.
         /// </summary>
         /// <returns>Byte array of the current structure's payload</returns>
         public Byte[] GetPayload() {
-            return RawData.Skip(PayloadStartOffset).Take(PayloadLength).ToArray();
+            return rawData.Skip(PayloadStartOffset).Take(PayloadLength).ToArray();
         }
         /// <summary>
         /// Gets the raw data of the tag, which includes tag, length bytes and payload.
         /// </summary>
         /// <returns>A full binary copy of the tag.</returns>
         public Byte[] GetTagRawData() {
-            return RawData.Skip(Offset).Take(TagLength).ToArray();
+            return rawData.Skip(Offset).Take(TagLength).ToArray();
+        }
+        /// <summary>
+        /// Gets the raw data of the encoded data associated with the current reader instance.
+        /// </summary>
+        /// <returns>ASN.1-encoded byte array.</returns>
+        public Byte[] GetRawData() {
+            return rawData.ToArray();
         }
         /// <summary>
         /// Gets the count of nested nodes under node in the current position.
@@ -376,7 +407,7 @@ namespace SysadminsLV.Asn1Parser {
                 return false;
             }
             currentPosition = _offsetMap[NextOffset];
-            decode(null, NextOffset);
+            decode(NextOffset);
             return true;
         }
         /// <summary>
@@ -412,7 +443,7 @@ namespace SysadminsLV.Asn1Parser {
                 return false;
             }
             currentPosition = _offsetMap[NextCurrentLevelOffset];
-            decode(null, NextCurrentLevelOffset);
+            decode(NextCurrentLevelOffset);
             return true;
         }
         /// <summary>
@@ -448,17 +479,9 @@ namespace SysadminsLV.Asn1Parser {
         /// method must be called prior to first call of this method. Subsequent <strong>BuildOffsetMap</strong>
         /// method calls are not necessary.
         /// </remarks>
-        [Obsolete("This method contains a typo. Use MoveToPosition instead.")]
+        [Obsolete("This method contains a typo. Use MoveToPosition instead.", true)]
         public Boolean MoveToPoisition(Int32 newPosition) {
-            if (_offsetMap == null) {
-                throw new InvalidOperationException();
-            }
-            if (!_offsetMap.ContainsKey(newPosition)) {
-                return false;
-            }
-            currentPosition = _offsetMap[newPosition];
-            decode(null, newPosition);
-            return true;
+            return MoveToPosition(newPosition);
         }
         /// <summary>
         /// Moves to a specified start offset.
@@ -474,14 +497,22 @@ namespace SysadminsLV.Asn1Parser {
         /// method calls are not necessary.
         /// </remarks>
         public Boolean MoveToPosition(Int32 newPosition) {
-            return MoveToPoisition(newPosition);
+            if (_offsetMap == null) {
+                throw new InvalidOperationException();
+            }
+            if (!_offsetMap.ContainsKey(newPosition)) {
+                return false;
+            }
+            currentPosition = _offsetMap[newPosition];
+            decode(newPosition);
+            return true;
         }
         /// <summary>
         /// Moves to the beginning of the file.
         /// </summary>
         public void Reset() {
             currentPosition = _offsetMap[0];
-            decode(null, 0);
+            decode(0);
         }
         /// <summary>
         /// Gets the appropriate primitive tag object from <strong>Universal</strong> namespace, or <see cref="UniversalTagBase"/> object.

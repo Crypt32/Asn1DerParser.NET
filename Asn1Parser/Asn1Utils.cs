@@ -650,14 +650,14 @@ namespace SysadminsLV.Asn1Parser {
                 throw new InvalidDataException("Invalid Boolean.");
             }
             // non-zero value is True
-            return asn.RawData[asn.PayloadStartOffset] == 0 ? false.ToString() : true.ToString();
+            return asn.GetRawData()[asn.PayloadStartOffset] == 0 ? false.ToString() : true.ToString();
         }
         static String DecodeBitString(Asn1Reader asn) {
             return String.Format(
                 "Unused bits: {0} : {1}",
-                asn.RawData[asn.PayloadStartOffset],
+                asn.GetRawData()[asn.PayloadStartOffset],
                 AsnFormatter.BinaryToString(
-                    asn.RawData,
+                    asn.GetRawData(),
                     EncodingType.HexRaw,
                     EncodingFormat.NOCRLF,
                     asn.PayloadStartOffset + 1,
@@ -666,7 +666,7 @@ namespace SysadminsLV.Asn1Parser {
         }
         static String DecodeOctetString(Asn1Reader asn) {
             return AsnFormatter.BinaryToString(
-                asn.RawData,
+                asn.GetRawData(),
                 EncodingType.HexRaw,
                 EncodingFormat.NOCRLF, asn.PayloadStartOffset, asn.PayloadLength);
         }
@@ -677,10 +677,10 @@ namespace SysadminsLV.Asn1Parser {
                 : $"{oid.Value.FriendlyName} ({oid.Value})";
         }
         static String DecodeUTF8String(Asn1Reader asn) {
-            return Encoding.UTF8.GetString(asn.RawData, asn.PayloadStartOffset, asn.PayloadLength);
+            return Encoding.UTF8.GetString(asn.GetRawData(), asn.PayloadStartOffset, asn.PayloadLength);
         }
         static String DecodeAsciiString(Asn1Reader asn) {
-            return Encoding.ASCII.GetString(asn.RawData, asn.PayloadStartOffset, asn.PayloadLength);
+            return Encoding.ASCII.GetString(asn.GetRawData(), asn.PayloadStartOffset, asn.PayloadLength);
         }
         static String DecodeUtcTime(Asn1Reader asn) {
             var dt = new Asn1UtcTime(asn).Value;
@@ -691,7 +691,7 @@ namespace SysadminsLV.Asn1Parser {
             return dt.ToShortDateString() + " " + dt.ToShortTimeString();
         }
         static String DecodeBMPString(Asn1Reader asn) {
-            return Encoding.BigEndianUnicode.GetString(asn.RawData, asn.PayloadStartOffset, asn.PayloadLength);
+            return Encoding.BigEndianUnicode.GetString(asn.GetRawData(), asn.PayloadStartOffset, asn.PayloadLength);
         }
         #endregion
         #endregion
