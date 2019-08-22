@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Abstract Syntax Notation 1 .NET Library")]
 [assembly: AssemblyDescription("ASN.1 binary parser and utility set for binary data parsing that is encoded with Distinguished Encoding Rules (DER).")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Sysadmins LV")]
+[assembly: AssemblyCompany("PKI Solutions Inc.")]
 [assembly: AssemblyProduct(".NET ASN.1 Binary Parser")]
-[assembly: AssemblyCopyright("Copyright © Vadims Podans 2012 - 2018")]
+[assembly: AssemblyCopyright("(c) 2011 - 2019 PKI Solutions. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

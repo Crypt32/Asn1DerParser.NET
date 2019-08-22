@@ -199,18 +199,18 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         /// <param name="time">An instance of <see cref="DateTime"/> object.</param>
         /// <param name="zone">
-        ///		Specifies the time zone for the value in <strong>time</strong> parameter.
+        /// 	Specifies the time zone for the value in <strong>time</strong> parameter.
+        /// </param>
+        /// <param name="usePrecise">
+        ///     Specifies whether to include milliseconds in encoded value. Default is <strong>False</strong>.
         /// </param>
         /// <returns>ASN.1-encoded byte array.</returns>
         /// <remarks>
-        ///		If <strong>zone</strong> parameter is set to <strong>NULL</strong>, date and time in <strong>time</strong>
-        ///		parameter will be converted to a Zulu time (Universal time). If zone information is not <strong>NULL</strong>,
-        ///		date and time in <strong>time</strong> parameter will be converted to a GMT time and time zone will be added
-        ///		to encoded value.
+        /// 	If <strong>zone</strong> parameter is set to <strong>NULL</strong>, date and time in <strong>time</strong>
+        /// 	parameter will be converted to a Zulu time (Universal time). If zone information is not <strong>NULL</strong>,
+        /// 	date and time in <strong>time</strong> parameter will be converted to a GMT time and time zone will be added
+        /// 	to encoded value.
         /// </remarks>
-        internal static Byte[] EncodeUTCTime(DateTime time, TimeZoneInfo zone) {
-            return EncodeUTCTime(time, zone, false);
-        }
         internal static Byte[] EncodeUTCTime(DateTime time, TimeZoneInfo zone = null, Boolean usePrecise = false) {
             return new Asn1UtcTime(time, zone, usePrecise).RawData;
         }
@@ -527,7 +527,7 @@ namespace SysadminsLV.Asn1Parser {
         ///		to encoded value.
         ///		</para>
         /// </remarks>
-        /// <seealso cref="EncodeUTCTime"/>
+        /// <seealso cref="EncodeUTCTime(DateTime, TimeZoneInfo)"/>
         /// <seealso cref="EncodeGeneralizedTime"/>
         public static Byte[] EncodeDateTime(DateTime time, TimeZoneInfo zone = null) {
             return time.Year < 2050 && time.Year >= 1950

@@ -1,6 +1,9 @@
 ﻿using System;
 
 namespace SysadminsLV.Asn1Parser {
+    /// <summary>
+    /// Contains values that specify how line breaks are handled during byte array formatting.
+    /// </summary>
     [Flags]
     public enum EncodingFormat : uint {
         /// <summary>

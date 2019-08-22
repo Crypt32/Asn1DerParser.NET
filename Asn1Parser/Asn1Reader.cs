@@ -346,7 +346,9 @@ namespace SysadminsLV.Asn1Parser {
         /// in the data, or next type's tag doesn't match a list of accepted types, an exception is thrown. See
         /// exceptions for more details. If the method succeeds, it returns nothing.
         /// </summary>
-        /// <param name="expectedTags"></param>
+        /// <param name="expectedTags">
+        /// One or more ASN.1 types client expects after moving to next type in ASN.1 tree.
+        /// </param>
         /// <exception cref="ArgumentNullException">
         /// <strong>expectedTags</strong> parameter is null;
         /// </exception>
@@ -380,7 +382,9 @@ namespace SysadminsLV.Asn1Parser {
         /// in the current array, or next type's tag doesn't match a list of accepted types, an exception is thrown. See
         /// exceptions for more details. If the method succeeds, it returns nothing.
         /// </summary>
-        /// <param name="expectedTags"></param>
+        /// <param name="expectedTags">
+        /// One or more ASN.1 types client expects after moving to next type in ASN.1 tree.
+        /// </param>
         /// <exception cref="ArgumentNullException">
         /// <strong>expectedTags</strong> parameter is null;
         /// </exception>
