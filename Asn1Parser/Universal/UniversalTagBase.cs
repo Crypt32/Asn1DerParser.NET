@@ -38,8 +38,26 @@ namespace SysadminsLV.Asn1Parser.Universal {
         ///		<item>INTEGER</item>
         ///		<item>NULL</item>
         ///		<item>OBJECT_IDENTIFIER</item>
+        ///		<item>REAL</item>
         ///		<item>ENUMERATED</item>
         ///		<item>RELATIVE-OID</item>
+        ///     <item>UTC_TIME</item>
+        ///     <item>GeneralizedTime</item>
+        /// </list>
+        ///     and any kind of string types:
+        /// <list type="bullet">
+        ///		<item>UTF8String</item>
+        ///		<item>NumericString</item>
+        ///		<item>PrintableString</item>
+        ///		<item>TeletexString</item>
+        ///		<item>VideotexString</item>
+        ///		<item>IA5String-OID</item>
+        ///     <item>GraphicString</item>
+        ///     <item>VisibleString</item>
+        ///     <item>GeneralString</item>
+        ///     <item>UniversalString</item>
+        ///     <item>CHARACTER_STRING</item>
+        ///     <item>BMPString</item>
         /// </list>
         /// </remarks>
         public Boolean IsContainer { get; private set; }
