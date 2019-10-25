@@ -500,6 +500,22 @@ namespace SysadminsLV.Asn1Parser {
             return this;
         }
         /// <summary>
+        /// Adds constructed bit string.
+        /// </summary>
+        /// <param name="selector">Lambda expression to fill nested content.</param>
+        /// <exception cref="ArgumentNullException">
+        ///     <strong>selector</strong> parameter is null.
+        /// </exception>
+        /// <returns>Current instance.</returns>
+        public Asn1Builder AddBitString(Func<Asn1Builder, Asn1Builder> selector) {
+            if (selector == null) {
+                throw new ArgumentNullException(nameof(selector));
+            }
+            Asn1Builder b = selector(new Asn1Builder());
+            _rawData.AddRange(new Asn1BitString(b._rawData.ToArray(), 0).RawData);
+            return this;
+        }
+        /// <summary>
         /// Adds constructed octet string.
         /// </summary>
         /// <param name="selector">Lambda expression to fill nested content.</param>
