@@ -614,5 +614,14 @@ namespace SysadminsLV.Asn1Parser {
         public Byte[] GetEncoded(Byte outerTag = 0x30) {
             return Asn1Utils.Encode(_rawData.ToArray(), outerTag);
         }
+        /// <summary>
+        /// Gets a raw data of the current state of the builder.
+        /// </summary>
+        /// <returns>
+        /// Raw data.
+        /// </returns>
+        public Byte[] GetRawData() {
+            return _rawData.ToArray();
+        }
     }
 }
