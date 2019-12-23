@@ -31,7 +31,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <param name="value">
         ///     Value to encode.
         /// </param>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddBoolean(Boolean value) {
             _rawData.AddRange(new Asn1Boolean(value).RawData);
             return this;
@@ -45,7 +45,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddInteger(BigInteger value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -62,7 +62,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <param name="unusedBits">
         ///     Unused bits in bit string. This value must fall in range between 0 and 7.
         /// </param>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddBitString(Byte[] value, Byte unusedBits) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -79,7 +79,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <param name="calculateUnusedBits">
         ///     Indicates whether unused bits should be calculated. If set to <strong>false</strong>, unused bits value is set to zero.
         /// </param>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddBitString(Byte[] value, Boolean calculateUnusedBits = false) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -96,7 +96,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddOctetString(Byte[] value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -107,7 +107,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <summary>
         ///     Adds ASN.1 NULL value.
         /// </summary>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddNull() {
             _rawData.AddRange(new Asn1Null().RawData);
             return this;
@@ -121,7 +121,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddObjectIdentifier(Oid value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -135,7 +135,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <param name="value">
         ///     Value to encode.
         /// </param>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddEnumerated(UInt64 value) {
             _rawData.AddRange(new Asn1Enumerated(value).RawData);
             return this;
@@ -149,7 +149,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddUTF8String(String value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -166,9 +166,9 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         /// <remarks>
-        ///     In the current implementation, SEQUENCE is encoded using constructed form.
+        ///     In the current implementation, SEQUENCE is encoded using constructed form only.
         /// </remarks>
         public Asn1Builder AddSequence(Byte[] value) {
             if (value == null) {
@@ -190,9 +190,9 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         /// <remarks>
-        ///     In the current implementation, SET is encoded using constructed form.
+        ///     In the current implementation, SET is encoded using constructed form only.
         /// </remarks>
         public Asn1Builder AddSet(Byte[] value) {
             if (value == null) {
@@ -214,7 +214,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddNumericString(String value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -231,7 +231,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddPrintableString(String value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -248,7 +248,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddTeletexString(String value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -265,7 +265,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddVideotexString(String value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -282,7 +282,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddIA5String(String value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -299,7 +299,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddUtcTime(DateTime value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -316,12 +316,37 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddGeneralizedTime(DateTime value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
             _rawData.AddRange(new Asn1GeneralizedTime(value).RawData);
+            return this;
+        }
+        /// <summary>
+        ///     Adds date time value using <see href="https://tools.ietf.org/html/rfc5280#section-4.1.2.5">RFC 5280 §4.1.2.5</see> encoding type.
+        /// </summary>
+        /// <param name="value">
+        ///     Value to encode.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///     <strong>value</strong> parameter is null.
+        /// </exception>
+        /// <returns>Current instance with added value.</returns>
+        /// <remarks>
+        ///     Dates prior to 2050 year are encoded using <strong>UTC Time</strong> and dates beginning with 2050 year are encoded using
+        ///     <strong>Generalized Time</strong>.
+        /// </remarks>
+        public Asn1Builder AddRfcDateTime(DateTime value) {
+            if (value == null) {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            _rawData.AddRange(value.Year < 2050
+                ? new Asn1UtcTime(value).RawData
+                : new Asn1GeneralizedTime(value).RawData);
+
             return this;
         }
         /// <summary>
@@ -333,7 +358,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddVisibleString(String value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -350,7 +375,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddUniversalString(String value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -367,7 +392,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddBMPString(String value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -384,7 +409,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddDerData(Byte[] value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -406,7 +431,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>value</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddDerData(Byte[] value, Byte outerTag) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
@@ -432,7 +457,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="InvalidDataException">
         ///     <strong>value</strong> is not encoded.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         /// <remarks>
         ///     If <strong>mustEncode</strong> parameter is set to <strong>true</strong>, then data in <strong>value</strong> parameter
         ///     is untagged. If <strong>mustEncode</strong> parameter is set to <strong>false</strong>, then data in <strong>value</strong>
@@ -459,7 +484,7 @@ namespace SysadminsLV.Asn1Parser {
             return this;
         }
         /// <summary>
-        /// Adds explicitly tagged type. Implicit (EXPLICIT OPTIONAL) must have at least one primitive or constructed nested type.
+        /// Adds explicitly tagged type. Explicit (EXPLICIT OPTIONAL) must have at least one primitive or constructed nested type.
         /// </summary>
         /// <param name="explicitTag">
         ///     Explicit tag number. This number equals to tag number in square brackets in ASN module definition of EXPLICIT.
@@ -476,7 +501,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="InvalidDataException">
         ///     <strong>value</strong> is not encoded.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         /// <remarks>
         ///     If <strong>mustEncode</strong> parameter is set to <strong>true</strong>, then data in <strong>value</strong> parameter
         ///     is untagged. If <strong>mustEncode</strong> parameter is set to <strong>false</strong>, then data in <strong>value</strong>
@@ -506,7 +531,10 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>selector</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
+        /// <remarks>
+        ///     In the current implementation, constructed BIT_STRING is encoded using primitive form.
+        /// </remarks>
         public Asn1Builder AddBitString(Func<Asn1Builder, Asn1Builder> selector) {
             if (selector == null) {
                 throw new ArgumentNullException(nameof(selector));
@@ -522,7 +550,10 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>selector</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
+        /// <remarks>
+        ///     In the current implementation, constructed OCTET_STRING is encoded using primitive form.
+        /// </remarks>
         public Asn1Builder AddOctetString(Func<Asn1Builder, Asn1Builder> selector) {
             if (selector == null) {
                 throw new ArgumentNullException(nameof(selector));
@@ -538,7 +569,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>selector</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddSequence(Func<Asn1Builder, Asn1Builder> selector) {
             if (selector == null) {
                 throw new ArgumentNullException(nameof(selector));
@@ -554,7 +585,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>selector</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddSet(Func<Asn1Builder, Asn1Builder> selector) {
             if (selector == null) {
                 throw new ArgumentNullException(nameof(selector));
@@ -564,7 +595,7 @@ namespace SysadminsLV.Asn1Parser {
             return this;
         }
         /// <summary>
-        /// Adds constructed octet string.
+        /// Adds explicitly tagged type. Explicit (EXPLICIT OPTIONAL) must have at least one primitive or constructed nested type.
         /// </summary>
         /// <param name="explicitTag">
         ///     Explicit tag number. This number equals to tag number in square brackets in ASN module definition of EXPLICIT.
@@ -573,7 +604,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <exception cref="ArgumentNullException">
         ///     <strong>selector</strong> parameter is null.
         /// </exception>
-        /// <returns>Current instance.</returns>
+        /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddExplicit(Byte explicitTag, Func<Asn1Builder, Asn1Builder> selector) {
             if (selector == null) {
                 throw new ArgumentNullException(nameof(selector));
