@@ -654,5 +654,24 @@ namespace SysadminsLV.Asn1Parser {
         public Byte[] GetRawData() {
             return _rawData.ToArray();
         }
+
+        /// <summary>
+        /// Creates a default instance of <strong>Asn1Builder</strong> class.
+        /// </summary>
+        /// <returns>ASN.1 Builder.</returns>
+        public static Asn1Builder Create() {
+            return new Asn1Builder();
+        }
+        /// <summary>
+        /// Creates a default instance of <strong>Asn1Builder</strong> class from existing ASN.1-encoded data.
+        /// </summary>
+        /// <param name="rawData">ASN.1-encoded data to initialize the builder from.</param>
+        /// <returns>ASN.1 Builder.</returns>
+        public static Asn1Builder Create(Byte[] rawData) {
+            var builder = new Asn1Builder();
+            builder._rawData.AddRange(rawData);
+
+            return builder;
+        }
     }
 }

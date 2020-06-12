@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("PKI Solutions Inc.")]
 [assembly: AssemblyProduct(".NET ASN.1 Binary Parser")]
-[assembly: AssemblyCopyright("(c) 2011 - 2019 PKI Solutions. All rights reserved.")]
+[assembly: AssemblyCopyright("(c) 2011 - 2020 PKI Solutions. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
