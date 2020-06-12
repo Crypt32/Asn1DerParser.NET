@@ -47,10 +47,10 @@ namespace SysadminsLV.Asn1Parser.Universal {
 
         void m_encode(String inputString) {
             Value = inputString;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.UTF32.GetBytes(inputString).Reverse().ToArray(), TAG)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.UTF32.GetBytes(inputString.Reverse().ToArray()).Reverse().ToArray(), TAG)));
         }
         void m_decode(Asn1Reader asn) {
-            Value = Encoding.UTF32.GetString(asn.GetPayload().Reverse().ToArray());
+            Value = new String(Encoding.UTF32.GetString(asn.GetPayload().Reverse().ToArray()).Reverse().ToArray());
         }
 
         /// <inheritdoc/>
