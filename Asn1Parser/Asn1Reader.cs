@@ -411,8 +411,7 @@ namespace SysadminsLV.Asn1Parser {
         /// method must be called prior to first call of this method. Subsequent <strong>BuildOffsetMap</strong>
         /// method calls are not necessary.
         /// </remarks>
-        [Obsolete("This method contains a typo. Use MoveToPosition instead.")]
-        public Boolean MoveToPoisition(Int32 newPosition) {
+        public Boolean MoveToPosition(Int32 newPosition) {
             if (_offsetMap == null) {
                 throw new InvalidOperationException();
             }
@@ -422,22 +421,6 @@ namespace SysadminsLV.Asn1Parser {
             currentPosition = _offsetMap[newPosition];
             decode(null, newPosition);
             return true;
-        }
-        /// <summary>
-        /// Moves to a specified start offset.
-        /// </summary>
-        /// <param name="newPosition">ASN structure start position (offset).</param>
-        /// <returns>
-        /// <strong>True</strong> if specified offset is valid and pointer was successfully set to specified position,
-        /// otherwise <strong>False</strong>.
-        /// </returns>
-        /// <remarks>
-        /// Specified position validity is determined based on internal map and <see cref="BuildOffsetMap"/>
-        /// method must be called prior to first call of this method. Subsequent <strong>BuildOffsetMap</strong>
-        /// method calls are not necessary.
-        /// </remarks>
-        public Boolean MoveToPosition(Int32 newPosition) {
-            return MoveToPoisition(newPosition);
         }
         /// <summary>
         /// Moves to the beginning of the file.
@@ -490,7 +473,7 @@ namespace SysadminsLV.Asn1Parser {
             if ((tag & (Byte)Asn1Class.PRIVATE) != 0) {
                 switch (tag & (Byte)Asn1Class.PRIVATE) {
                     case (Byte)Asn1Class.CONTEXT_SPECIFIC:
-                        return $"CONTEXT_SPECIFIC ({index})";
+                        return $"CONTEXT_SPECIFIC [{index}]";
                     case (Byte)Asn1Class.APPLICATION:
                         return $"APPLICATION ({index})";
                     case (Byte)Asn1Class.PRIVATE:
