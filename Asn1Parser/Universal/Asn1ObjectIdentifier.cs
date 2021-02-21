@@ -75,7 +75,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
             Initialize(new Asn1Reader(Asn1Utils.Encode(encode(tokens), TAG)));
         }
         void m_decode(Asn1Reader asn) {
-            Value = new Oid(decode(asn.RawData, asn.PayloadStartOffset, asn.PayloadLength));
+            Value = new Oid(decode(asn.GetRawData(), asn.PayloadStartOffset, asn.PayloadLength));
         }
 
         static Byte[] encode(IList<UInt64> tokens) {

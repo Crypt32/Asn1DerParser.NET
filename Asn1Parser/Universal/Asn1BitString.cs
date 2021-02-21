@@ -22,7 +22,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
             if (asn.Tag != TAG) {
                 throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
             }
-            UnusedBits = asn.RawData[asn.PayloadStartOffset];
+            UnusedBits = asn[asn.PayloadStartOffset];
             Value = asn.GetPayload().Skip(1).ToArray();
         }
         /// <summary>

@@ -24,6 +24,7 @@ namespace SysadminsLV.Asn1Parser {
         static readonly List<Byte> _excludedTags = new List<Byte>(
             new Byte[] { 0, 1, 2, 5, 6, 9, 10, 13 }
         );
+        readonly List<Byte> _rawData = new List<Byte>();
         readonly Dictionary<Int64, AsnInternalMap> _offsetMap = new Dictionary<Int64, AsnInternalMap>();
         readonly List<Byte> _multiNestedTypes = new List<Byte>(
             new[] {
@@ -94,6 +95,10 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         public Int32 PayloadLength { get; private set; }
         /// <summary>
+        /// Gets the internal ASN.1 stream length in bytes.
+        /// </summary>
+        public Int32 Length => _rawData.Count;
+        /// <summary>
         /// This property is subject to change.
         /// </summary>
         [Obsolete("Use 'NextSiblingOffset' property instead", false)]
@@ -113,17 +118,27 @@ namespace SysadminsLV.Asn1Parser {
         /// <summary>
         /// Get's original ASN.1-encoded byte array.
         /// </summary>
-        public Byte[] RawData { get; private set; }
+        [Obsolete("", true)]
+        public Byte[] RawData => _rawData.ToArray();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        public Byte this[Int32 index] => _rawData[index];
 
         void decode(Byte[] raw, Int32 pOffset) {
             IsConstructed = false;
-            if (raw != null) { RawData = raw; }
+            if (raw != null) {
+                _rawData.Clear();
+                _rawData.AddRange(raw);
+            }
             Offset = pOffset;
-            Tag = RawData[Offset];
+            Tag = _rawData[Offset];
             calculateLength();
             // strip possible unnecessary bytes
-            if (raw != null && TagLength != RawData.Length) {
-                RawData = raw.Take(TagLength).ToArray();
+            if (raw != null && TagLength != _rawData.Count) {
+                _rawData.Clear();
+                _rawData.AddRange(raw.Take(TagLength).ToArray());
             }
             TagName = GetTagName(Tag);
             // 0 Tag is reserved for BER and is not available in DER
@@ -138,7 +153,7 @@ namespace SysadminsLV.Asn1Parser {
             }
             if (PayloadLength == 0) {
                 // if current node is the last node in binary data, set NextOffset to 0, this means EOF.
-                NextOffset = Offset + TagLength == RawData.Length
+                NextOffset = Offset + TagLength == _rawData.Count
                     ? 0
                     : Offset + TagLength;
                 NextSiblingOffset = currentPosition.LevelEnd == 0 || Offset - currentPosition.LevelStart + TagLength == currentPosition.LevelEnd
@@ -155,7 +170,7 @@ namespace SysadminsLV.Asn1Parser {
                     // skip unused bits byte
                     ? PayloadStartOffset + 1
                     : PayloadStartOffset
-                : Offset + TagLength < RawData.Length
+                : Offset + TagLength < _rawData.Count
                     ? Offset + TagLength
                     : 0;
         }
@@ -194,7 +209,10 @@ namespace SysadminsLV.Asn1Parser {
             }
         }
         Boolean validateArrayBoundaries(Int64 start) {
-            return start >= 0 && start < RawData.Length && RawData[start] != 0;
+            if (start > Int32.MaxValue) {
+                return false;
+            }
+            return start >= 0 && start < _rawData.Count && _rawData[(Int32)start] != 0;
         }
         /// <summary>
         /// Checks if current primitive type is sub-typed (contains nested types) or not.
@@ -207,8 +225,11 @@ namespace SysadminsLV.Asn1Parser {
         /// <strong>True</strong> if current type has proper single nested type, otherwise <strong>False</strong>.
         /// </returns>
         Boolean testNestedForUniversal(Int64 start, Int32 estimatedLength) {
+            if (start > Int32.MaxValue) {
+                return false;
+            }
             // if current type is primitive, then nested type can be either, primitive or constructed only.
-            if (RawData[start] >= (Byte)Asn1Class.APPLICATION) {
+            if (_rawData[(Int32)start] >= (Byte)Asn1Class.APPLICATION) {
                 return false;
             }
             // otherwise, attempt to resolve nested type. Only single nested type is allowed for primitive types.
@@ -243,20 +264,20 @@ namespace SysadminsLV.Asn1Parser {
             return sum == projectedLength;
         }
         void calculateLength() {
-            if (RawData[Offset + 1] < 128) {
+            if (_rawData[Offset + 1] < 128) {
                 PayloadStartOffset = Offset + 2;
-                PayloadLength = RawData[Offset + 1];
+                PayloadLength = _rawData[Offset + 1];
                 TagLength = PayloadLength + 2;
             } else {
-                Int32 lengthBytes = RawData[Offset + 1] - 128;
+                Int32 lengthBytes = _rawData[Offset + 1] - 128;
                 // max length can be encoded by using 4 bytes.
                 if (lengthBytes > 4) {
                     throw new OverflowException("Data length is too large.");
                 }
                 PayloadStartOffset = Offset + 2 + lengthBytes;
-                PayloadLength = RawData[Offset + 2];
+                PayloadLength = _rawData[Offset + 2];
                 for (Int32 i = Offset + 3; i < PayloadStartOffset; i++) {
-                    PayloadLength = (PayloadLength << 8) | RawData[i];
+                    PayloadLength = (PayloadLength << 8) | _rawData[i];
                 }
                 TagLength = PayloadLength + lengthBytes + 2;
             }
@@ -267,18 +288,21 @@ namespace SysadminsLV.Asn1Parser {
         /// <param name="offset">Start offset for suggested nested type.</param>
         /// <returns>Estimated full tag length for nested type.</returns>
         Int64 calculatePredictLength(Int64 offset) {
-            if (offset + 1 >= RawData.Length || offset < 0) { return Int32.MaxValue; }
-            if (RawData[offset + 1] < 128) {
-                return RawData[offset + 1] + 2;
-            }
-            Int32 lengthBytes = RawData[offset + 1] - 128;
-            // max length can be encoded by using 4 bytes.
-            if (lengthBytes > 4) {
+            if (offset + 1 >= _rawData.Count || offset < 0) {
                 return Int32.MaxValue;
             }
-            Int32 ppayloadLength = RawData[offset + 2];
-            for (Int64 i = offset + 3; i < offset + 2 + lengthBytes; i++) {
-                ppayloadLength = (ppayloadLength << 8) | RawData[i];
+
+            if (_rawData[(Int32)(offset + 1)] < 128) {
+                return _rawData[(Int32) (offset + 1)] + 2;
+            }
+            Int32 lengthBytes = _rawData[(Int32)(offset + 1)] - 128;
+            // max length can be encoded by using 4 bytes.
+            if (lengthBytes > 4 || offset + 2 >= _rawData.Count) {
+                return Int32.MaxValue;
+            }
+            Int32 ppayloadLength = _rawData[(Int32)(offset + 2)];
+            for (Int32 i = (Int32)(offset + 3); i < offset + 2 + lengthBytes; i++) {
+                ppayloadLength = (ppayloadLength << 8) | _rawData[i];
             }
             // 2 -- transitional + tag
             return ppayloadLength + lengthBytes + 2;
@@ -301,21 +325,28 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         /// <returns>Current structure header. Header contains tag and tag length byte (or bytes).</returns>
         public Byte[] GetHeader() {
-            return RawData.Skip(Offset).Take(PayloadStartOffset - Offset).ToArray();
+            return _rawData.Skip(Offset).Take(PayloadStartOffset - Offset).ToArray();
         }
         /// <summary>
         /// Gets the byte array of the current structure's payload.
         /// </summary>
         /// <returns>Byte array of the current structure's payload</returns>
         public Byte[] GetPayload() {
-            return RawData.Skip(PayloadStartOffset).Take(PayloadLength).ToArray();
+            return _rawData.Skip(PayloadStartOffset).Take(PayloadLength).ToArray();
         }
         /// <summary>
         /// Gets the raw data of the tag, which includes tag, length bytes and payload.
         /// </summary>
         /// <returns>A full binary copy of the tag.</returns>
         public Byte[] GetTagRawData() {
-            return RawData.Skip(Offset).Take(TagLength).ToArray();
+            return _rawData.Skip(Offset).Take(TagLength).ToArray();
+        }
+        /// <summary>
+        /// Gets a copy of internal ASN.1 stream. The size of the stream is equals to <see cref="Length"/> member value.
+        /// </summary>
+        /// <returns>A full binary copy of the internal byte stream.</returns>
+        public Byte[] GetRawData() {
+            return _rawData.ToArray();
         }
         /// <summary>
         /// Gets the count of nested nodes under node in the current position.

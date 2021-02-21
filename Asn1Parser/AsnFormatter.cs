@@ -99,12 +99,12 @@ namespace SysadminsLV.Asn1Parser {
                 case EncodingType.Base64:
                 case EncodingType.Base64Header:
                 case EncodingType.Base64CrlHeader:
-                case EncodingType.Base64RequestHeader: return toBase64(asn.RawData, encoding, format, asn.PayloadStartOffset, asn.PayloadLength);
-                case EncodingType.Hex: return toHex(asn.RawData, format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
-                case EncodingType.HexAddress: return toHexAddr(asn.RawData, format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
-                case EncodingType.HexAscii: return toHexAscii(asn.RawData, format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
-                case EncodingType.HexAsciiAddress: return toHexAddrAscii(asn.RawData, format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
-                case EncodingType.HexRaw: return toHexRaw(asn.RawData, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
+                case EncodingType.Base64RequestHeader: return toBase64(asn.GetRawData(), encoding, format, asn.PayloadStartOffset, asn.PayloadLength);
+                case EncodingType.Hex: return toHex(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
+                case EncodingType.HexAddress: return toHexAddr(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
+                case EncodingType.HexAscii: return toHexAscii(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
+                case EncodingType.HexAsciiAddress: return toHexAddrAscii(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
+                case EncodingType.HexRaw: return toHexRaw(asn.GetRawData(), asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
                 default: throw new ArgumentException("An invalid encoding type is specified");
             }
         }
