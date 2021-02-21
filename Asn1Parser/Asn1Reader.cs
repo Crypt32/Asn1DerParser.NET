@@ -96,7 +96,12 @@ namespace SysadminsLV.Asn1Parser {
         /// <summary>
         /// This property is subject to change.
         /// </summary>
-        public Int32 NextCurrentLevelOffset { get; private set; }
+        [Obsolete("Use 'NextSiblingOffset' property instead", false)]
+        public Int32 NextCurrentLevelOffset => NextSiblingOffset;
+        /// <summary>
+        /// Gets next structure's offset at same level (next sibling).
+        /// </summary>
+        public Int32 NextSiblingOffset { get; private set; }
         /// <summary>
         /// Gets next structure's offset. If current element is the last element in the data, the property returns zero.
         /// </summary>
@@ -136,13 +141,13 @@ namespace SysadminsLV.Asn1Parser {
                 NextOffset = Offset + TagLength == RawData.Length
                     ? 0
                     : Offset + TagLength;
-                NextCurrentLevelOffset = currentPosition.LevelEnd == 0 || Offset - currentPosition.LevelStart + TagLength == currentPosition.LevelEnd
+                NextSiblingOffset = currentPosition.LevelEnd == 0 || Offset - currentPosition.LevelStart + TagLength == currentPosition.LevelEnd
                     ? 0
                     : NextOffset;
                 return;
             }
             parseNestedType();
-            NextCurrentLevelOffset = Offset - currentPosition.LevelStart + TagLength < currentPosition.LevelEnd
+            NextSiblingOffset = Offset - currentPosition.LevelStart + TagLength < currentPosition.LevelEnd
                 ? Offset + TagLength
                 : 0;
             NextOffset = IsConstructed
@@ -371,9 +376,9 @@ namespace SysadminsLV.Asn1Parser {
         /// level), otherwise <strong>False</strong>.
         /// </returns>
         public Boolean MoveNextCurrentLevel() {
-            if (NextCurrentLevelOffset == 0) { return false; }
-            currentPosition = _offsetMap[NextCurrentLevelOffset];
-            decode(null, NextCurrentLevelOffset);
+            if (NextSiblingOffset == 0) { return false; }
+            currentPosition = _offsetMap[NextSiblingOffset];
+            decode(null, NextSiblingOffset);
             return true;
         }
         /// <summary>
