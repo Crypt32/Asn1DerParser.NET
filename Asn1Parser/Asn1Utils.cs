@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using SysadminsLV.Asn1Parser.Universal;
 
@@ -257,7 +256,7 @@ namespace SysadminsLV.Asn1Parser {
         public static Byte[] EncodeObjectIdentifier(Oid oid) {
             if (oid == null) { throw new ArgumentNullException(); }
             if (String.IsNullOrEmpty(oid.Value)) { throw new ArgumentException("oid"); }
-            return CryptoConfig.EncodeOID(oid.Value);
+            return new Asn1ObjectIdentifier(oid).RawData;
         }
         /// <summary>
         /// Decodes ASN.1-encoded object identifier to an instance of generic <see cref="Oid"/> class.
@@ -269,10 +268,7 @@ namespace SysadminsLV.Asn1Parser {
         public static Oid DecodeObjectIdentifier(Byte[] rawData) {
             if (rawData == null) { throw new ArgumentNullException(); }
             try {
-                Byte[] raw = Encode(rawData, 48);
-                AsnEncodedData asnencoded = new AsnEncodedData(raw);
-                X509EnhancedKeyUsageExtension eku = new X509EnhancedKeyUsageExtension(asnencoded, false);
-                return eku.EnhancedKeyUsages[0];
+                return new Asn1ObjectIdentifier(rawData).Value;
             } catch { throw new InvalidDataException("Input data is not valid ASN-encoded Oid."); }
         }
         /// <summary>
