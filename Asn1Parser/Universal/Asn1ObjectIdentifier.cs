@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -68,7 +69,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
                 return;
             }
             if (oid.Value.Length > 8096) { throw new OverflowException("Oid string is longer than 8kb"); }
-            if (!validateOidString(oid.Value, out List<UInt64> tokens)) {
+            if (!validateOidString(oid.Value, out List<BigInteger> tokens)) {
                 throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
             }
             Value = oid;
@@ -78,7 +79,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
             Value = new Oid(decode(asn.GetRawData(), asn.PayloadStartOffset, asn.PayloadLength));
         }
 
-        static Byte[] encode(IList<UInt64> tokens) {
+        static Byte[] encode(IList<BigInteger> tokens) {
             List<Byte> rawOid = new List<Byte>();
             for (Int32 token = 0; token < tokens.Count; token++) {
                 // first two arcs are encoded in a single byte
@@ -90,10 +91,10 @@ namespace SysadminsLV.Asn1Parser.Universal {
                         continue;
                 }
                 Int16 bitLength = 0;
-                UInt64 temp = tokens[token];
+                BigInteger temp = tokens[token];
                 // calculate how many bits are occupied by the current integer value
                 do {
-                    temp = (UInt64)Math.Floor((Double)temp / 2);
+                    temp = (BigInteger)Math.Floor((Double)temp / 2);
                     bitLength++;
                 } while (temp > 0);
                 // calculate how many additional bytes are required and encode each integer in a 7 bit.
@@ -118,11 +119,11 @@ namespace SysadminsLV.Asn1Parser.Universal {
                     token++;
                     continue;
                 }
-                UInt64 value = 0;
+                BigInteger value = 0;
                 Boolean proceed;
                 do {
                     value <<= 7;
-                    value += (UInt64)(rawBytes[i] & 0x7f);
+                    value += rawBytes[i] & 0x7f;
                     proceed = (rawBytes[i] & 0x80) > 0;
                     if (proceed) {
                         token++;
@@ -134,17 +135,19 @@ namespace SysadminsLV.Asn1Parser.Universal {
             }
             return SB.ToString();
         }
-        static Boolean validateOidString(String oid, out List<UInt64> tokens) {
+        static Boolean validateOidString(String oid, out List<BigInteger> tokens) {
             String[] strTokens = oid.Split('.');
             if (strTokens.Length < 3) {
                 tokens = null;
                 return false;
             }
-            tokens = new List<UInt64>();
+            tokens = new List<BigInteger>();
             for (Int32 index = 0; index < strTokens.Length; index++) {
                 try {
-                    UInt64 value = UInt64.Parse(strTokens[index]);
-                    if (index == 0 && value > 2 || index == 1 && value > 39) { return false; }
+                    BigInteger value = BigInteger.Parse(strTokens[index]);
+                    if (index == 0 && value > 2 || index == 1 && value > 39) {
+                        return false;
+                    }
                     tokens.Add(value);
                 } catch {
                     tokens = null;
