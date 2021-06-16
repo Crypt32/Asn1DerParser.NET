@@ -258,7 +258,9 @@ namespace SysadminsLV.Asn1Parser {
                     _offsetMap.Add(start, new AsnInternalMap { LevelStart = levelStart, LevelEnd = projectedLength });
                 }
                 start += pl;
-                //estimatedChildCount++;
+                if (assignMap) {
+                    estimatedChildCount++;
+                }
             } while (sum < projectedLength);
             if (sum != projectedLength) { estimatedChildCount = 0; }
             return sum == projectedLength;
