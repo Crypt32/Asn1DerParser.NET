@@ -159,10 +159,8 @@ namespace SysadminsLV.Asn1Parser {
             if (asn.Tag != (Byte)Asn1Type.INTEGER) {
                 throw new InvalidDataException("Input data is not valid ASN.1-encoded INTEGER.");
             }
-            var SB = new StringBuilder();
-            foreach (Byte item in asn.GetPayload()) { SB.AppendFormat("{0:x2}", item); }
             return allowLarge
-                ? SB.ToString()
+                ? AsnFormatter.BinaryToString(asn.GetPayload())
                 : DecodeInteger(rawData).ToString(CultureInfo.InvariantCulture);
         }
         /// <summary>

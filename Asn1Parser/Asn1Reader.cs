@@ -128,6 +128,7 @@ namespace SysadminsLV.Asn1Parser {
 
         void decode(Byte[] raw, Int32 pOffset) {
             IsConstructed = false;
+            childCount = 0;
             if (raw != null) {
                 _rawData.Clear();
                 _rawData.AddRange(raw);
@@ -194,6 +195,8 @@ namespace SysadminsLV.Asn1Parser {
                     // if current map doesn't contain nested types boundaries, add them to the map.
                     // this condition occurs when we face current type for the first time.
                     predict(start, length, true, out childCount);
+                } else {
+                    predict(start, length, false, out childCount);
                 }
                 return;
             }
@@ -258,9 +261,7 @@ namespace SysadminsLV.Asn1Parser {
                     _offsetMap.Add(start, new AsnInternalMap { LevelStart = levelStart, LevelEnd = projectedLength });
                 }
                 start += pl;
-                if (assignMap) {
-                    estimatedChildCount++;
-                }
+                estimatedChildCount++;
             } while (sum < projectedLength);
             if (sum != projectedLength) { estimatedChildCount = 0; }
             return sum == projectedLength;
@@ -327,28 +328,45 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         /// <returns>Current structure header. Header contains tag and tag length byte (or bytes).</returns>
         public Byte[] GetHeader() {
-            return _rawData.Skip(Offset).Take(PayloadStartOffset - Offset).ToArray();
+            Int32 headerLength = PayloadStartOffset - Offset;
+            Byte[] array = new Byte[headerLength];
+            for (Int32 i = 0; i < headerLength; i++) {
+                array[i] = _rawData[Offset + i];
+            }
+            return array;
         }
         /// <summary>
         /// Gets the byte array of the current structure's payload.
         /// </summary>
         /// <returns>Byte array of the current structure's payload</returns>
         public Byte[] GetPayload() {
-            return _rawData.Skip(PayloadStartOffset).Take(PayloadLength).ToArray();
+            Byte[] array = new Byte[PayloadLength];
+            for (Int32 i = 0; i < PayloadLength; i++) {
+                array[i] = _rawData[PayloadStartOffset + i];
+            }
+            return array;
         }
         /// <summary>
         /// Gets the raw data of the tag, which includes tag, length bytes and payload.
         /// </summary>
         /// <returns>A full binary copy of the tag.</returns>
         public Byte[] GetTagRawData() {
-            return _rawData.Skip(Offset).Take(TagLength).ToArray();
+            Byte[] array = new Byte[TagLength];
+            for (Int32 i = 0; i < TagLength; i++) {
+                array[i] = _rawData[Offset + i];
+            }
+            return array;
         }
         /// <summary>
         /// Gets a copy of internal ASN.1 stream. The size of the stream is equals to <see cref="Length"/> member value.
         /// </summary>
         /// <returns>A full binary copy of the internal byte stream.</returns>
         public Byte[] GetRawData() {
-            return _rawData.ToArray();
+            Byte[] array = new Byte[_rawData.Count];
+            for (Int32 i = 0; i < _rawData.Count; i++) {
+                array[i] = _rawData[i];
+            }
+            return array;
         }
         /// <summary>
         /// Gets the count of nested nodes under node in the current position.
