@@ -6,8 +6,8 @@
     <Company>Sysadmins LV</Company>
     <Description>ASN.1 binary parser and utility set for binary data encoded with Distinguished Encoding Rules (DER).</Description>
     <Copyright>Copyright © Sysadmins LV 2012 - 2018</Copyright>
-    <AssemblyVersion>1.2.7.59</AssemblyVersion>
-    <FileVersion>1.2.7.59</FileVersion>
+    <AssemblyVersion>1.2.7.60</AssemblyVersion>
+    <FileVersion>1.2.7.60</FileVersion>
     <AssemblyName>SysadminsLV.Asn1Parser</AssemblyName>
     <RootNamespace>SysadminsLV.Asn1Parser</RootNamespace>
     <PackageLicenseUrl>https://github.com/Crypt32/Asn1DerParser.NET/blob/master/LICENSE.md</PackageLicenseUrl>

@@ -303,22 +303,22 @@ namespace SysadminsLV.Asn1Parser {
             if (lengthBytes > 4 || offset + 2 >= _rawData.Count) {
                 return Int32.MaxValue;
             }
-            Int32 ppayloadLength = _rawData[(Int32)(offset + 2)];
+            Int32 pPayloadLength = _rawData[(Int32)(offset + 2)];
             for (Int32 i = (Int32)(offset + 3); i < offset + 2 + lengthBytes; i++) {
-                ppayloadLength = (ppayloadLength << 8) | _rawData[i];
+                pPayloadLength = (pPayloadLength << 8) | _rawData[i];
             }
             // 2 -- transitional + tag
-            return ppayloadLength + lengthBytes + 2;
+            return pPayloadLength + lengthBytes + 2;
         }
         void moveAndExpectTypes(Func<Boolean> action, params Byte[] expectedTypes) {
             if (expectedTypes == null) { throw new ArgumentNullException(nameof(expectedTypes)); }
-            var htable = new HashSet<Byte>();
+            var set = new HashSet<Byte>();
             foreach (Byte tag in expectedTypes) {
-                htable.Add(tag);
+                set.Add(tag);
             }
             if (!action.Invoke()) { throw new InvalidDataException("The data is invalid."); }
 
-            if (!htable.Contains(Tag)) {
+            if (!set.Contains(Tag)) {
                 throw new Asn1InvalidTagException();
             }
         }
@@ -584,11 +584,11 @@ namespace SysadminsLV.Asn1Parser {
                     case (Byte)Asn1Class.CONTEXT_SPECIFIC:
                         return $"CONTEXT_SPECIFIC [{index}]";
                     case (Byte)Asn1Class.APPLICATION:
-                        return $"APPLICATION ({index})";
+                        return $"APPLICATION [{index}]";
                     case (Byte)Asn1Class.PRIVATE:
-                        return $"PRIVATE ({index})";
+                        return $"PRIVATE [{index}]";
                     case (Byte)Asn1Class.CONSTRUCTED:
-                        return $"CONSTRUCTED ({index})";
+                        return $"CONSTRUCTED [{index}]";
                 }
             }
             return ((Asn1Type)index).ToString();
