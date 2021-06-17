@@ -467,7 +467,24 @@ namespace SysadminsLV.Asn1Parser {
         /// method must be called prior to first call of this method. Subsequent <strong>BuildOffsetMap</strong>
         /// method calls are not necessary.
         /// </remarks>
+        [Obsolete("Use 'Seek' method instead.", false)]
         public Boolean MoveToPosition(Int32 newPosition) {
+            return Seek(newPosition);
+        }
+        /// <summary>
+        /// Moves to a specified start offset.
+        /// </summary>
+        /// <param name="newPosition">ASN structure start position (offset).</param>
+        /// <returns>
+        /// <strong>True</strong> if specified offset is valid and pointer was successfully set to specified position,
+        /// otherwise <strong>False</strong>.
+        /// </returns>
+        /// <remarks>
+        /// Specified position validity is determined based on internal map and <see cref="BuildOffsetMap"/>
+        /// method must be called prior to first call of this method. Subsequent <strong>BuildOffsetMap</strong>
+        /// method calls are not necessary.
+        /// </remarks>
+        public Boolean Seek(Int32 newPosition) {
             if (_offsetMap == null) {
                 throw new InvalidOperationException();
             }
@@ -478,6 +495,7 @@ namespace SysadminsLV.Asn1Parser {
             decode(null, newPosition);
             return true;
         }
+
         /// <summary>
         /// Moves to the beginning of the file.
         /// </summary>
