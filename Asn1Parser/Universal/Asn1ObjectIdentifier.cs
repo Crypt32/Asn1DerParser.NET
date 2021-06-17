@@ -26,7 +26,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
             if (asn.Tag != TAG) {
                 throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
             }
-            m_decode(asn);
+            Value = new Oid(decode(asn));
         }
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1ObjectIdentifier</strong> class from a byte array
@@ -75,9 +75,6 @@ namespace SysadminsLV.Asn1Parser.Universal {
             Value = oid;
             Initialize(new Asn1Reader(Asn1Utils.Encode(encode(tokens), TAG)));
         }
-        void m_decode(Asn1Reader asn) {
-            Value = new Oid(decode(asn.GetRawData(), asn.PayloadStartOffset, asn.PayloadLength));
-        }
 
         static Byte[] encode(IList<BigInteger> tokens) {
             List<Byte> rawOid = new List<Byte>();
@@ -109,13 +106,13 @@ namespace SysadminsLV.Asn1Parser.Universal {
             }
             return rawOid.ToArray();
         }
-        static String decode(IList<Byte> rawBytes, Int32 start, Int32 count) {
+        static String decode(Asn1Reader asn) {
             StringBuilder SB = new StringBuilder();
             Int32 token = 0;
-            for (Int32 i = start; i < start + count; i++) {
+            for (Int32 i = 0; i < asn.PayloadLength; i++) {
                 if (token == 0) {
-                    SB.Append(rawBytes[i] / 40);
-                    SB.Append("." + rawBytes[i] % 40);
+                    SB.Append(asn[asn.Offset + i] / 40);
+                    SB.Append("." + asn[asn.Offset + i] % 40);
                     token++;
                     continue;
                 }
@@ -123,8 +120,8 @@ namespace SysadminsLV.Asn1Parser.Universal {
                 Boolean proceed;
                 do {
                     value <<= 7;
-                    value += rawBytes[i] & 0x7f;
-                    proceed = (rawBytes[i] & 0x80) > 0;
+                    value += asn[asn.Offset + i] & 0x7f;
+                    proceed = (asn[asn.Offset + i] & 0x80) > 0;
                     if (proceed) {
                         token++;
                         i++;
