@@ -426,7 +426,19 @@ namespace SysadminsLV.Asn1Parser {
         /// <strong>True</strong> if the current type is not the last type at the current deepness level (or upper
         /// level), otherwise <strong>False</strong>.
         /// </returns>
+        [Obsolete("Use 'MoveNextSibling' method instead.", false)]
         public Boolean MoveNextCurrentLevel() {
+            return MoveNextSibling();
+        }
+        /// <summary>
+        /// Moves over current type to the next type at the same level. If the current type is a
+        /// container (or constructed type), the method skips entire container.
+        /// </summary>
+        /// <returns>
+        /// <strong>True</strong> if the current type is not the last type at the current deepness level (or upper
+        /// level), otherwise <strong>False</strong>.
+        /// </returns>
+        public Boolean MoveNextSibling() {
             if (NextSiblingOffset == 0) { return false; }
             currentPosition = _offsetMap[NextSiblingOffset];
             decode(null, NextSiblingOffset);
@@ -451,8 +463,31 @@ namespace SysadminsLV.Asn1Parser {
         /// Reader was able to move to next type at same level, but its identifier doesn't match any accepted type
         /// specified in the <strong>expectedTags</strong> parameter.
         /// </exception>
+        [Obsolete("Use 'MoveNextSiblingAndExpectTags' method instead.", false)]
         public void MoveNextCurrentLevelAndExpectTags(params Byte[] expectedTags) {
-            moveAndExpectTypes(MoveNextCurrentLevel, expectedTags);
+            MoveNextSiblingAndExpectTags(expectedTags);
+        }
+        /// <summary>
+        /// Moves over current type to the next type at the same level and checks whether the tag number of next type
+        /// matches one of specified in the <strong>expectedTags</strong> parameter. If current position is the last type
+        /// in the current array, or next type's tag doesn't match a list of accepted types, an exception is thrown. See
+        /// exceptions for more details. If the method succeeds, it returns nothing.
+        /// </summary>
+        /// <param name="expectedTags">
+        /// One or more ASN.1 types client expects after moving to next type in ASN.1 tree.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// <strong>expectedTags</strong> parameter is null;
+        /// </exception>
+        /// <exception cref="InvalidDataException">
+        /// Current position of the reader is the last type in a file.
+        /// </exception>
+        /// <exception cref="Asn1InvalidTagException">
+        /// Reader was able to move to next type at same level, but its identifier doesn't match any accepted type
+        /// specified in the <strong>expectedTags</strong> parameter.
+        /// </exception>
+        public void MoveNextSiblingAndExpectTags(params Byte[] expectedTags) {
+            moveAndExpectTypes(MoveNextSibling, expectedTags);
         }
         /// <summary>
         /// Moves to a specified start offset.
