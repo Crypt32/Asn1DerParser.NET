@@ -110,9 +110,10 @@ namespace SysadminsLV.Asn1Parser.Universal {
             StringBuilder SB = new StringBuilder();
             Int32 token = 0;
             for (Int32 i = 0; i < asn.PayloadLength; i++) {
+                Int32 pi = asn.PayloadStartOffset + i;
                 if (token == 0) {
-                    SB.Append(asn[asn.Offset + i] / 40);
-                    SB.Append("." + asn[asn.Offset + i] % 40);
+                    SB.Append(asn[pi] / 40);
+                    SB.Append("." + asn[pi] % 40);
                     token++;
                     continue;
                 }
@@ -120,11 +121,12 @@ namespace SysadminsLV.Asn1Parser.Universal {
                 Boolean proceed;
                 do {
                     value <<= 7;
-                    value += asn[asn.Offset + i] & 0x7f;
-                    proceed = (asn[asn.Offset + i] & 0x80) > 0;
+                    value += asn[pi] & 0x7f;
+                    proceed = (asn[pi] & 0x80) > 0;
                     if (proceed) {
                         token++;
                         i++;
+                        pi++;
                     }
                 } while (proceed);
                 SB.Append("." + value);
