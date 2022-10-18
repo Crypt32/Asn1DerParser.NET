@@ -1,30 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net40</TargetFrameworks>
-    <Version>1.0.0</Version>
-    <Authors>Vadims Podans</Authors>
-    <Company>Sysadmins LV</Company>
-    <Description>ASN.1 binary parser and utility set for binary data encoded with Distinguished Encoding Rules (DER).</Description>
-    <Copyright>Copyright © Sysadmins LV 2012 - 2018</Copyright>
-    <AssemblyVersion>1.2.7.62</AssemblyVersion>
-    <FileVersion>1.2.7.62</FileVersion>
-    <AssemblyName>SysadminsLV.Asn1Parser</AssemblyName>
-    <RootNamespace>SysadminsLV.Asn1Parser</RootNamespace>
-    <PackageLicenseUrl>https://github.com/Crypt32/Asn1DerParser.NET/blob/master/LICENSE.md</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/PKISolutions/Asn1DerParser.NET</PackageProjectUrl>
-    <PackageTags>ASN.1</PackageTags>
-    <RepositoryUrl>https://github.com/PKISolutions/Asn1DerParser.NET</RepositoryUrl>
-    <PackageId>PKISolutions.Asn1Parser</PackageId>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+        <Version>1.2.7.62</Version>
+        <Authors>Vadims Podans, PKI Solutions Inc.</Authors>
+        <Company>PKI Solutions Inc.</Company>
+        <Description>ASN.1 binary parser and utility set for binary data encoded with Distinguished Encoding Rules (DER).</Description>
+        <Copyright>Copyright © Sysadmins LV 2012 - 2018</Copyright>
+        <AssemblyVersion></AssemblyVersion>
+        <FileVersion></FileVersion>
+        <AssemblyName>SysadminsLV.Asn1Parser</AssemblyName>
+        <RootNamespace>SysadminsLV.Asn1Parser</RootNamespace>
+        <PackageProjectUrl>https://github.com/PKISolutions/Asn1DerParser.NET</PackageProjectUrl>
+        <PackageTags>ASN.1 ASN ASN1</PackageTags>
+        <RepositoryUrl>https://github.com/PKISolutions/Asn1DerParser.NET</RepositoryUrl>
+        <PackageId>SysadminsLV.Asn1Parser</PackageId>
 
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <RepositoryType>Github</RepositoryType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard2.0\SysadminsLV.Asn1Parser.xml</DocumentationFile>
-  </PropertyGroup>
+        <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+        <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+        <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+        <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+        <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+        <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+        <RepositoryType>Github</RepositoryType>
+        <PackageLicenseExpression>MS-PL</PackageLicenseExpression>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+        <DocumentationFile>bin\Release\netstandard2.0\SysadminsLV.Asn1Parser.xml</DocumentationFile>
+    </PropertyGroup>
 </Project>
