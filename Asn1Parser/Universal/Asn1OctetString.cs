@@ -7,7 +7,6 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// </summary>
     public sealed class Asn1OctetString : UniversalTagBase {
         const Asn1Type TYPE = Asn1Type.OCTET_STRING;
-        const Byte     TAG  = (Byte)TYPE;
 
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1NumericString</strong> class from an <see cref="Asn1Reader"/>
@@ -20,10 +19,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="InvalidDataException">
         /// Input data contains invalid NumericString character.
         /// </exception>
-        public Asn1OctetString(Asn1Reader asn) : base(asn) {
-            if (asn.Tag != TAG) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
+        public Asn1OctetString(Asn1Reader asn) : base(asn, TYPE) {
             Value = asn.GetPayload();
         }
         /// <summary>
@@ -37,17 +33,17 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="InvalidDataException">
         /// Input data contains invalid NumericString character.
         /// </exception>
-        public Asn1OctetString(Byte[] rawData, Boolean tagged) {
+        public Asn1OctetString(Byte[] rawData, Boolean tagged) : base(TYPE) {
             if (tagged) {
                 var asn = new Asn1Reader(rawData);
-                if (asn.Tag != TAG) {
+                if (asn.Tag != Tag) {
                     throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
                 }
                 Value = asn.GetPayload();
                 Initialize(asn);
             } else {
                 Value = rawData;
-                Initialize(new Asn1Reader(Asn1Utils.Encode(rawData, TAG)));
+                Initialize(new Asn1Reader(Asn1Utils.Encode(rawData, Tag)));
             }
         }
 

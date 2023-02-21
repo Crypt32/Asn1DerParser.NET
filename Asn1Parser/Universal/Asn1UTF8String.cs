@@ -9,7 +9,6 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// </summary>
     public sealed class Asn1UTF8String : Asn1String {
         const Asn1Type TYPE = Asn1Type.UTF8String;
-        const Byte     TAG  = (Byte)TYPE;
 
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1UTF8String</strong> class from an <see cref="Asn1Reader"/>
@@ -22,10 +21,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="InvalidDataException">
         /// Input data contains invalid UTF8String character.
         /// </exception>
-        public Asn1UTF8String(Asn1Reader asn) : base(asn) {
-            if (asn.Tag != TAG) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
+        public Asn1UTF8String(Asn1Reader asn) : base(asn, TYPE) {
             m_decode(asn);
         }
         /// <summary>
@@ -46,7 +42,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="InvalidDataException">
         /// <strong>inputString</strong> contains invalid UTF8String characters
         /// </exception>
-        public Asn1UTF8String(String inputString) {
+        public Asn1UTF8String(String inputString) : base(TYPE) {
             m_encode(inputString);
         }
 
@@ -55,7 +51,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
                 throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
             }
             Value = inputString;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TAG)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), Tag)));
         }
         void m_decode(Asn1Reader asn) {
             Value = Encoding.ASCII.GetString(asn.GetPayload());

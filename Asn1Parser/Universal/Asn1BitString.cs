@@ -8,7 +8,6 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// </summary>
     public sealed class Asn1BitString : UniversalTagBase {
         const Asn1Type TYPE = Asn1Type.BIT_STRING;
-        const Byte     TAG  = (Byte)TYPE;
 
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1BitString</strong> class from an <see cref="Asn1Reader"/>
@@ -18,10 +17,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="Asn1InvalidTagException">
         /// Current position in the <strong>ASN.1</strong> object is not <strong>BIT_STRING</strong> data type.
         /// </exception>
-        public Asn1BitString(Asn1Reader asn) : base(asn) {
-            if (asn.Tag != TAG) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
+        public Asn1BitString(Asn1Reader asn) : base(asn, TYPE) {
             UnusedBits = asn[asn.PayloadStartOffset];
             Value = asn.GetPayload().Skip(1).ToArray();
         }
@@ -42,7 +38,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <strong>True</strong> if the bit length is decremented to exclude trailing zero bits. Otherwise <strong>False</strong>.
         /// </param>
         /// <exception cref="ArgumentNullException"><strong>valueToEncode</strong> parameter is null reference.</exception>
-        public Asn1BitString(Byte[] valueToEncode, Boolean calculateUnusedBits) {
+        public Asn1BitString(Byte[] valueToEncode, Boolean calculateUnusedBits) : base(TYPE) {
             if (valueToEncode == null) { throw new ArgumentNullException(nameof(valueToEncode)); }
             m_encode(valueToEncode, calculateUnusedBits, 0);
         }
@@ -53,7 +49,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <param name="valueToEncode">Raw value to encode.</param>
         /// <param name="unusedBits">A number of unused bits in bit string.</param>
         /// <exception cref="ArgumentNullException"><strong>valueToEncode</strong> parameter is null reference.</exception>
-        public Asn1BitString(Byte[] valueToEncode, Byte unusedBits) {
+        public Asn1BitString(Byte[] valueToEncode, Byte unusedBits) : base(TYPE) {
             if (valueToEncode == null) { throw new ArgumentNullException(nameof(valueToEncode)); }
             m_encode(valueToEncode, false, unusedBits);
         }
@@ -75,8 +71,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
             Byte[] v = new Byte[value.Length + 1];
             v[0] = UnusedBits;
             value.CopyTo(v, 1);
-            Initialize(new Asn1Reader(Asn1Utils.Encode(v, TAG)));
-
+            Initialize(new Asn1Reader(Asn1Utils.Encode(v, Tag)));
         }
 
         /// <summary>
@@ -84,10 +79,11 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// </summary>
         /// <returns>Formatted tag value.</returns>
         public override String GetDisplayValue() {
-            StringBuilder SB = new StringBuilder();
+            var SB = new StringBuilder();
             SB.AppendFormat("Unused bits={0}\r\n", UnusedBits);
             String tempString = AsnFormatter.BinaryToString(Value, EncodingType.HexAddress);
             SB.AppendFormat("{0}\r\n", tempString.Replace("\r\n", "\r\n    ").TrimEnd());
+
             return SB.ToString();
         }
 
@@ -98,7 +94,10 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <returns>The number of unused bits.</returns>
         /// <exception cref="ArgumentNullException"><strong>bytes</strong> parameter is null reference.</exception>
         public static Byte CalculateUnusedBits(Byte[] bytes) {
-            if (bytes == null) { throw new ArgumentNullException(nameof(bytes)); }
+            if (bytes == null) {
+                throw new ArgumentNullException(nameof(bytes));
+            }
+
             return CalculateUnusedBits(bytes[bytes.Length - 1]);
         }
         /// <summary>
@@ -113,6 +112,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
                 unused++;
                 mask <<= 1;
             }
+
             return unused;
         }
     }

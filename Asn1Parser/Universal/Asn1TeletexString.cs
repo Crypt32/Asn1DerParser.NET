@@ -10,7 +10,6 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// </summary>
     public sealed class Asn1TeletexString : Asn1String {
         const Asn1Type TYPE = Asn1Type.TeletexString;
-        const Byte     TAG  = (Byte)TYPE;
 
         /// <summary>
         /// Initializes a new instance of <strong>Asn1TeletexString</strong> from an ASN reader object.
@@ -22,10 +21,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="InvalidDataException">
         /// Input data contains invalid TeletexString character.
         /// </exception>
-        public Asn1TeletexString(Asn1Reader asn) : base(asn) {
-            if (asn.Tag != TAG) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
+        public Asn1TeletexString(Asn1Reader asn) : base(asn, TYPE) {
             m_decode(asn);
         }
         /// <summary>
@@ -47,7 +43,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="InvalidDataException">
         /// Input data contains invalid TeletexString character.
         /// </exception>
-        public Asn1TeletexString(String inputString) {
+        public Asn1TeletexString(String inputString) : base(TYPE) {
             m_encode(inputString);
         }
 
@@ -56,7 +52,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
                 throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
             }
             Value = inputString;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TAG)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), Tag)));
         }
         void m_decode(Asn1Reader asn) {
             if (asn.GetPayload().Any(b => b > 127)) {

@@ -11,7 +11,6 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// </summary>
     public sealed class Asn1ObjectIdentifier : UniversalTagBase {
         const Asn1Type TYPE = Asn1Type.OBJECT_IDENTIFIER;
-        const Byte     TAG  = (Byte)TYPE;
 
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1ObjectIdentifier</strong> class from an existing
@@ -22,10 +21,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// The current state of <strong>ASN1</strong> object is not object identifier.
         /// </exception>
         /// 
-        public Asn1ObjectIdentifier(Asn1Reader asn) : base(asn) {
-            if (asn.Tag != TAG) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
+        public Asn1ObjectIdentifier(Asn1Reader asn) : base(asn, TYPE) {
             Value = new Oid(decode(asn));
         }
         /// <summary>
@@ -50,7 +46,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="ArgumentNullException"><strong>oid</strong> parameter is null.</exception>
         /// <exception cref="InvalidDataException">The string is not valid object identifier.</exception>
         /// <exception cref="OverflowException">The string is too large.</exception>
-        public Asn1ObjectIdentifier(Oid oid) {
+        public Asn1ObjectIdentifier(Oid oid) : base(TYPE) {
             if (oid == null) {
                 throw new ArgumentNullException(nameof(oid));
             }
@@ -64,20 +60,22 @@ namespace SysadminsLV.Asn1Parser.Universal {
 
         void m_encode(Oid oid) {
             if (String.IsNullOrWhiteSpace(oid.Value)) {
-                Initialize(new Asn1Reader(new Byte[] { TAG, 0 }));
+                Initialize(new Asn1Reader(new Byte[] { Tag, 0 }));
                 Value = new Oid();
                 return;
             }
-            if (oid.Value.Length > 8096) { throw new OverflowException("Oid string is longer than 8kb"); }
+            if (oid.Value.Length > 8096) {
+                throw new OverflowException("Oid string is longer than 8kb");
+            }
             if (!validateOidString(oid.Value, out List<BigInteger> tokens)) {
                 throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
             }
             Value = oid;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(encode(tokens), TAG)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(encode(tokens), Tag)));
         }
 
         static Byte[] encode(IList<BigInteger> tokens) {
-            List<Byte> rawOid = new List<Byte>();
+            var rawOid = new List<Byte>();
             for (Int32 token = 0; token < tokens.Count; token++) {
                 // first two arcs are encoded in a single byte
                 switch (token) {
@@ -107,7 +105,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
             return rawOid.ToArray();
         }
         static String decode(Asn1Reader asn) {
-            StringBuilder SB = new StringBuilder();
+            var SB = new StringBuilder();
             Int32 token = 0;
             for (Int32 i = 0; i < asn.PayloadLength; i++) {
                 Int32 pi = asn.PayloadStartOffset + i;
@@ -143,7 +141,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
             tokens = new List<BigInteger>();
             for (Int32 index = 0; index < strTokens.Length; index++) {
                 try {
-                    BigInteger value = BigInteger.Parse(strTokens[index]);
+                    var value = BigInteger.Parse(strTokens[index]);
                     if (index == 0 && value > 2 || index == 1 && value > 39) {
                         return false;
                     }

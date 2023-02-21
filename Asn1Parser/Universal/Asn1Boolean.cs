@@ -6,7 +6,6 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// </summary>
     public sealed class Asn1Boolean : UniversalTagBase {
         const Asn1Type TYPE = Asn1Type.BOOLEAN;
-        const Byte     TAG  = (Byte)TYPE;
 
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1Boolean</strong> class from an <see cref="Asn1Reader"/>
@@ -16,10 +15,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="Asn1InvalidTagException">
         /// Current position in the <strong>ASN.1</strong> object is not valid <strong>BOOLEAN</strong> data type.
         /// </exception>
-        public Asn1Boolean(Asn1Reader asn) : base(asn) {
-            if (asn.Tag != TAG) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
+        public Asn1Boolean(Asn1Reader asn) : base(asn, TYPE) {
             m_decode(asn);
         }
         /// <summary>
@@ -34,7 +30,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// Initializes a new instance of the <strong>Asn1Boolean</strong> class from a boolean value.
         /// </summary>
         /// <param name="fValue">Boolean value to encode.</param>
-        public Asn1Boolean(Boolean fValue) {
+        public Asn1Boolean(Boolean fValue) : base(TYPE) {
             m_encode(fValue);
         }
         /// <summary>
@@ -45,7 +41,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         void m_encode(Boolean fValue) {
             Value = fValue;
             Byte value = (Byte)(fValue ? 255 : 0);
-            Initialize(new Asn1Reader(Asn1Utils.Encode(new[] {value}, TAG)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(new[] {value}, Tag)));
         }
         void m_decode(Asn1Reader asn) {
             Value = asn.GetPayload()[0] > 0;

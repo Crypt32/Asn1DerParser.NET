@@ -8,7 +8,6 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// </summary>
     public sealed class Asn1BMPString : Asn1String {
         const Asn1Type TYPE = Asn1Type.BMPString;
-        const Byte     TAG  = (Byte)TYPE;
 
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1BitString</strong> class from an <see cref="Asn1Reader"/>
@@ -18,10 +17,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="Asn1InvalidTagException">
         /// Current position in the <strong>ASN.1</strong> object is not <strong>BMPString</strong>.
         /// </exception>
-        public Asn1BMPString(Asn1Reader asn) : base(asn) {
-            if (asn.Tag != TAG) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
+        public Asn1BMPString(Asn1Reader asn) : base(asn, TYPE) {
             m_decode(asn);
         }
         /// <summary>
@@ -36,13 +32,13 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// Initializes a new instance of the <strong>Asn1BMPString</strong> class from a unicode string.
         /// </summary>
         /// <param name="inputString">A unicode string to encode.</param>
-        public Asn1BMPString(String inputString) {
+        public Asn1BMPString(String inputString) : base(TYPE) {
             m_encode(inputString);
         }
 
         void m_encode(String inputString) {
             Value = inputString;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.BigEndianUnicode.GetBytes(inputString), TAG)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.BigEndianUnicode.GetBytes(inputString), Tag)));
         }
         void m_decode(Asn1Reader asn) {
             Value = Encoding.BigEndianUnicode.GetString(asn.GetPayload());

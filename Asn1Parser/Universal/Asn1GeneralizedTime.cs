@@ -8,7 +8,6 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// </summary>
     public sealed class Asn1GeneralizedTime : Asn1DateTime {
         const Asn1Type TYPE = Asn1Type.GeneralizedTime;
-        const Byte     TAG  = (Byte)TYPE;
 
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1GeneralizedTime</strong> class from a date time object
@@ -28,7 +27,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <param name="preciseTime">
         /// <strong>True</strong> if encoded value should contain millisecond information, otherwise <strong>False</strong>.
         /// </param>
-        public Asn1GeneralizedTime(DateTime time, TimeZoneInfo zone = null, Boolean preciseTime = false) {
+        public Asn1GeneralizedTime(DateTime time, TimeZoneInfo zone = null, Boolean preciseTime = false) : base(TYPE) {
             m_encode(time, zone, preciseTime);
         }
         /// <summary>
@@ -39,10 +38,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="Asn1InvalidTagException">
         /// The current state of <strong>ASN1</strong> object is not Generalized Time.
         /// </exception>
-        public Asn1GeneralizedTime(Asn1Reader asn) : base(asn) {
-            if (asn.Tag != TAG) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
+        public Asn1GeneralizedTime(Asn1Reader asn) : base(asn, TYPE) {
             m_decode(asn.GetTagRawData());
         }
         /// <summary>
@@ -58,10 +54,10 @@ namespace SysadminsLV.Asn1Parser.Universal {
         void m_encode(DateTime time, TimeZoneInfo zone, Boolean preciseTime) {
             Value = time;
             ZoneInfo = zone;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(DateTimeUtils.Encode(time, zone, false, preciseTime), TAG)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(DateTimeUtils.Encode(time, zone, false, preciseTime), Tag)));
         }
         void m_decode(Byte[] rawData) {
-            Asn1Reader asn = new Asn1Reader(rawData);
+            var asn = new Asn1Reader(rawData);
             Initialize(asn);
             Value = DateTimeUtils.Decode(asn, out TimeZoneInfo zoneInfo);
             ZoneInfo = zoneInfo;

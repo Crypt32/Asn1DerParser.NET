@@ -7,12 +7,11 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// </summary>
     public sealed class Asn1Null : UniversalTagBase {
         const Asn1Type TYPE = Asn1Type.NULL;
-        const Byte     TAG  = (Byte)TYPE;
 
         /// <summary>
         /// Initializes a new instance of <strong>Asn1Null</strong> class.
         /// </summary>
-        public Asn1Null() {
+        public Asn1Null() : base(TYPE) {
             Initialize(new Asn1Reader(new Byte[] {5, 0}));
         }
         /// <summary>
@@ -23,10 +22,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="Asn1InvalidTagException">
         /// Current position in the <strong>ASN.1</strong> object is not valid <strong>NULL</strong> data type.
         /// </exception>
-        public Asn1Null(Asn1Reader asn) : base(asn) {
-            if (asn.Tag != TAG) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
+        public Asn1Null(Asn1Reader asn) : base(asn, TYPE) {
             m_decode(asn);
         }
         /// <summary>

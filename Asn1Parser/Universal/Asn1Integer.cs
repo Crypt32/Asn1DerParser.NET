@@ -9,7 +9,6 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// </summary>
     public sealed class Asn1Integer : UniversalTagBase {
         const Asn1Type TYPE = Asn1Type.INTEGER;
-        const Byte     TAG  = (Byte)TYPE;
 
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1Integer</strong> class from an <see cref="Asn1Reader"/>
@@ -19,10 +18,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="Asn1InvalidTagException">
         /// Current position in the <strong>ASN.1</strong> object is not valid <strong>INTEGER</strong> data type.
         /// </exception>
-        public Asn1Integer(Asn1Reader asn) : base(asn) {
-            if (asn.Tag != TAG) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
+        public Asn1Integer(Asn1Reader asn) : base(asn, TYPE) {
             m_decode(asn);
         }
         /// <summary>
@@ -37,7 +33,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// Initializes a new instance of the <strong>Asn1Integer</strong> class from an integer value.
         /// </summary>
         /// <param name="inputInteger">Integer value to encode.</param>
-        public Asn1Integer(BigInteger inputInteger) {
+        public Asn1Integer(BigInteger inputInteger) : base(TYPE) {
             m_encode(inputInteger);
         }
 
@@ -48,7 +44,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
 
         void m_encode(BigInteger inputInteger) {
             Value = inputInteger;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(inputInteger.GetAsnBytes(), TAG)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(inputInteger.GetAsnBytes(), Tag)));
         }
         void m_decode(Asn1Reader asn) {
             Value = new BigInteger(asn.GetPayload().Reverse().ToArray());

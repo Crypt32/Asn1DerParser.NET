@@ -4,19 +4,28 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
     /// Represents a base class for ASN.1 primitive tag classes. This class provides
     /// </summary>
-    public class UniversalTagBase {
+    public abstract class UniversalTagBase {
         /// <summary>
         /// Initializes a new instance of <strong>UniversalTagBase</strong> class.
         /// </summary>
-        protected UniversalTagBase() { }
+        protected UniversalTagBase(Asn1Type type) {
+            Tag = (Byte)type;
+            TagName = Asn1Reader.GetTagName(Tag);
+            IsContainer = (Tag & (Byte)Asn1Class.CONSTRUCTED) > 0;
+        }
         /// <summary>
         /// Initializes a new instance of <strong>UniversalTagBase</strong> from an existing <see cref="Asn1Reader"/>
         /// class instance.
         /// </summary>
         /// <param name="asn">Existing <see cref="ArgumentNullException"/> class instance.</param>
         /// <exception cref="Asn1Reader"><strong>asn</strong> parameter is null reference.</exception>
-        public UniversalTagBase(Asn1Reader asn) {
-            if (asn == null) { throw new ArgumentNullException(nameof(asn)); }
+        protected UniversalTagBase(Asn1Reader asn, Asn1Type? type) {
+            if (asn == null) {
+                throw new ArgumentNullException(nameof(asn));
+            }
+            if (type.HasValue && asn.Tag != (Byte)type.Value) {
+                throw new Asn1InvalidTagException(String.Format(InvalidType, type.ToString()));
+            }
             Initialize(asn);
         }
         
@@ -29,7 +38,9 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// </summary>
         public String TagName { get; private set; }
         /// <summary>
-        /// Indicates whether the current structure is container.
+        /// Indicates whether the current structure is container. This includes all constructed types
+        /// and may include OCTET_STRING and BIT_STRING with encapsulated types. OCTET_STRING and BIT_STRING
+        /// use primitive type form.
         /// </summary>
         /// <remarks>
         ///		The following primitive types cannot have encapsulated types:
@@ -100,5 +111,10 @@ namespace SysadminsLV.Asn1Parser.Universal {
                 ? String.Empty
                 : AsnFormatter.BinaryToString(RawData, encoding);
         }
+        ///// <summary>
+        ///// Gets the full tag raw data, including header and payload information.
+        ///// </summary>
+        ///// <returns>ASN.1-encoded type.</returns>
+        //public virtual Byte[] GetRawData();
     }
 }

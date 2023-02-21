@@ -10,7 +10,6 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// </summary>
     public sealed class Asn1NumericString : Asn1String {
         const Asn1Type TYPE = Asn1Type.NumericString;
-        const Byte     TAG  = (Byte)TYPE;
 
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1NumericString</strong> class from an <see cref="Asn1Reader"/>
@@ -23,10 +22,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="InvalidDataException">
         /// Input data contains invalid NumericString character.
         /// </exception>
-        public Asn1NumericString(Asn1Reader asn) : base(asn) {
-            if (asn.Tag != TAG) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
+        public Asn1NumericString(Asn1Reader asn) : base(asn, TYPE) {
             m_decode(asn);
         }
         /// <summary>
@@ -47,7 +43,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="InvalidDataException">
         /// Input data contains invalid NumericString character.
         /// </exception>
-        public Asn1NumericString(String inputString) {
+        public Asn1NumericString(String inputString) : base(TYPE) {
             m_encode(inputString);
         }
 
@@ -56,7 +52,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
                 throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
             }
             Value = inputString;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TAG)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), Tag)));
         }
         void m_decode(Asn1Reader asn) {
             if (asn.GetPayload().Any(b => (b < 48 || b > 57) && b != 32)) {

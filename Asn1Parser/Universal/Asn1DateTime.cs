@@ -8,13 +8,14 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <summary>
         /// Initializes a new instance of <strong>Asn1DateTime</strong> class.
         /// </summary>
-        protected Asn1DateTime() { }
+        protected Asn1DateTime(Asn1Type type) : base(type) { }
         /// <summary>
         /// Initializes a new instance of <strong>Asn1DateTime</strong> class from an existing
         /// <see cref="Asn1Reader"/> object.
         /// </summary>
         /// <param name="asn"><see cref="Asn1Reader"/> object in the position that represents ASN.1 date/time object.</param>
-        protected Asn1DateTime(Asn1Reader asn) : base(asn) { }
+        /// <param name="type">Optional expected ASN.1 type.</param>
+        protected Asn1DateTime(Asn1Reader asn, Asn1Type? type) : base(asn, type) { }
 
         /// <summary>
         /// Gets the time zone information for the current object.

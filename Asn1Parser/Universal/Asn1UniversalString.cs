@@ -10,7 +10,6 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// </summary>
     public sealed class Asn1UniversalString : Asn1String {
         const Asn1Type TYPE = Asn1Type.UniversalString;
-        const Byte     TAG  = (Byte)TYPE;
 
         /// <summary>
         /// Initializes a new instance of the <strong>Asn1UniversalString</strong> class from an <see cref="Asn1Reader"/>
@@ -20,10 +19,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="Asn1InvalidTagException">
         /// Current position in the <strong>ASN.1</strong> object is not <strong>UniversalString</strong> data type.
         /// </exception>
-        public Asn1UniversalString(Asn1Reader asn) : base(asn) {
-            if (asn.Tag != TAG) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
+        public Asn1UniversalString(Asn1Reader asn) : base(asn, TYPE) {
             m_decode(asn);
         }
         /// <summary>
@@ -41,13 +37,13 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <exception cref="InvalidDataException">
         /// <strong>inputString</strong> contains invalid PrintableString characters
         /// </exception>
-        public Asn1UniversalString(String inputString) {
+        public Asn1UniversalString(String inputString) : base(TYPE) {
             m_encode(inputString);
         }
 
         void m_encode(String inputString) {
             Value = inputString;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.UTF32.GetBytes(inputString.Reverse().ToArray()).Reverse().ToArray(), TAG)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.UTF32.GetBytes(inputString.Reverse().ToArray()).Reverse().ToArray(), Tag)));
         }
         void m_decode(Asn1Reader asn) {
             Value = new String(Encoding.UTF32.GetString(asn.GetPayload().Reverse().ToArray()).Reverse().ToArray());
