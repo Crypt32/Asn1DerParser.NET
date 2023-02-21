@@ -14,10 +14,7 @@ namespace SysadminsLV.Asn1Parser {
     public class Asn1Builder {
         readonly List<Byte> _rawData;
 
-        /// <summary>
-        ///     Initializes a new instance of <strong>Asn1Builder</strong> class.
-        /// </summary>
-        public Asn1Builder() {
+        Asn1Builder() {
             _rawData = new List<Byte>();
         }
 
@@ -264,7 +261,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(Asn1Utils.Encode(Encoding.ASCII.GetBytes(value), (Byte)Asn1Type.VideotexString));
+            _rawData.AddRange(Asn1Utils.Encode(Encoding.ASCII.GetBytes(value), Asn1Type.VideotexString));
             return this;
         }
         /// <summary>
@@ -434,11 +431,12 @@ namespace SysadminsLV.Asn1Parser {
         /// </exception>
         /// <returns>Current instance with added value.</returns>
         /// <remarks>
-        ///     If <strong>mustEncode</strong> parameter is set to <strong>true</strong>, then data in <strong>value</strong> parameter
-        ///     is untagged. If <strong>mustEncode</strong> parameter is set to <strong>false</strong>, then data in <strong>value</strong>
-        ///     parameter is explicitly tagged and only tag name change is necessary. Caller must have knowledge in advance if value is tagged or not.
-        ///     If <strong>mustEncode</strong> parameter is set to <strong>false</strong> and value passed in <strong>value</strong> parameter
-        ///     is untagged, an exception will be thrown.
+        ///     If <strong>mustEncode</strong> parameter is set to <strong>true</strong>, then data in <strong>value</strong>
+        ///     parameter is untagged and this method will encode value with specified tag. If <strong>mustEncode</strong>
+        ///     parameter is set to <strong>false</strong>, then data in <strong>value</strong> parameter is considered
+        ///     encoded method will perform tag replacement. Caller must have knowledge in advance if value is tagged or
+        ///     not. If <strong>mustEncode</strong> parameter is set to <strong>false</strong> and value passed in
+        ///     <strong>value</strong> parameter is untagged, an exception will be thrown.
         /// </remarks>
         public Asn1Builder AddImplicit(Byte implicitTag, Byte[] value, Boolean mustEncode) {
             if (value == null) {
@@ -534,7 +532,7 @@ namespace SysadminsLV.Asn1Parser {
                 throw new ArgumentNullException(nameof(selector));
             }
             Asn1Builder b = selector(new Asn1Builder());
-            _rawData.AddRange(Asn1Utils.Encode(b._rawData.ToArray(), (Byte)Asn1Type.OCTET_STRING));
+            _rawData.AddRange(Asn1Utils.Encode(b._rawData.ToArray(), Asn1Type.OCTET_STRING));
             return this;
         }
         /// <summary>
@@ -601,7 +599,7 @@ namespace SysadminsLV.Asn1Parser {
         ///     A new instance of ASN.1 DER builder that contains the state of the current instance.
         /// </returns>
         public Asn1Builder Encode(Byte outerType = 0x30) {
-            IEnumerable<Byte> encoded = GetEncoded(outerType);
+            IEnumerable<Byte> encoded = Asn1Utils.Encode(_rawData.ToArray(), outerType);
             _rawData.Clear();
             _rawData.AddRange(encoded);
             return new Asn1Builder(this);

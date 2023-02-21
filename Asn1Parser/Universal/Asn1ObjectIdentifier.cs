@@ -71,7 +71,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
                 throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
             }
             Value = oid;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(encode(tokens), Tag)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(encode(tokens), TYPE)));
         }
 
         static Byte[] encode(IList<BigInteger> tokens) {

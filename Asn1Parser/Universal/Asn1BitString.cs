@@ -71,7 +71,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
             Byte[] v = new Byte[value.Length + 1];
             v[0] = UnusedBits;
             value.CopyTo(v, 1);
-            Initialize(new Asn1Reader(Asn1Utils.Encode(v, Tag)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(v, TYPE)));
         }
 
         /// <summary>

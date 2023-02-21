@@ -41,7 +41,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         void m_encode(Boolean fValue) {
             Value = fValue;
             Byte value = (Byte)(fValue ? 255 : 0);
-            Initialize(new Asn1Reader(Asn1Utils.Encode(new[] {value}, Tag)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(new[] {value}, TYPE)));
         }
         void m_decode(Asn1Reader asn) {
             Value = asn.GetPayload()[0] > 0;

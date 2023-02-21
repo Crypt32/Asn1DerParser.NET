@@ -38,7 +38,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
 
         void m_encode(String inputString) {
             Value = inputString;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.BigEndianUnicode.GetBytes(inputString), Tag)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.BigEndianUnicode.GetBytes(inputString), TYPE)));
         }
         void m_decode(Asn1Reader asn) {
             Value = Encoding.BigEndianUnicode.GetString(asn.GetPayload());

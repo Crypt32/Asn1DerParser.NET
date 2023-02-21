@@ -44,7 +44,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
 
         void m_encode(BigInteger inputInteger) {
             Value = inputInteger;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(inputInteger.GetAsnBytes(), Tag)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(inputInteger.GetAsnBytes(), TYPE)));
         }
         void m_decode(Asn1Reader asn) {
             Value = new BigInteger(asn.GetPayload().Reverse().ToArray());

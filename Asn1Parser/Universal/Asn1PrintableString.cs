@@ -54,7 +54,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
                 throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
             }
             Value = inputString;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), Tag)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TYPE)));
         }
         void m_decode(Asn1Reader asn) {
             if (!testValue(asn.GetPayload())) {

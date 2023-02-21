@@ -67,7 +67,7 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         /// <remarks>This method do not check whether the data in <strong>rawData</strong> is valid data for specified enclosing type.</remarks>
         /// <param name="rawData">A byte array to wrap.</param>
-        /// <param name="enclosingTag">An enumeration of <see cref="Asn1Type"/>.</param>
+        /// <param name="enclosingTag">An enumeration of <see cref="Asn1Type"/> type represented as byte.</param>
         /// <returns>Wrapped encoded byte array.</returns>
         /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
         public static Byte[] Encode(Byte[] rawData, Byte enclosingTag) {
@@ -102,6 +102,17 @@ namespace SysadminsLV.Asn1Parser {
                 }
             }
             return retValue;
+        }
+        /// <summary>
+        /// Wraps encoded data to an ASN.1 type/structure.
+        /// </summary>
+        /// <remarks>This method do not check whether the data in <strong>rawData</strong> is valid data for specified enclosing type.</remarks>
+        /// <param name="rawData">A byte array to wrap.</param>
+        /// <param name="type">An enumeration of <see cref="Asn1Type"/>.</param>
+        /// <returns>Wrapped encoded byte array.</returns>
+        /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
+        public static Byte[] Encode(Byte[] rawData, Asn1Type type) {
+            return Encode(rawData, (Byte)type);
         }
         #endregion
         

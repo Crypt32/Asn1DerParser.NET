@@ -43,7 +43,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
                 Initialize(asn);
             } else {
                 Value = rawData;
-                Initialize(new Asn1Reader(Asn1Utils.Encode(rawData, Tag)));
+                Initialize(new Asn1Reader(Asn1Utils.Encode(rawData, TYPE)));
             }
         }
 

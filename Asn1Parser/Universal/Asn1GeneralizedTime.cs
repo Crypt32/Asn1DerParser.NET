@@ -54,7 +54,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         void m_encode(DateTime time, TimeZoneInfo zone, Boolean preciseTime) {
             Value = time;
             ZoneInfo = zone;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(DateTimeUtils.Encode(time, zone, false, preciseTime), Tag)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(DateTimeUtils.Encode(time, zone, false, preciseTime), TYPE)));
         }
         void m_decode(Byte[] rawData) {
             var asn = new Asn1Reader(rawData);
