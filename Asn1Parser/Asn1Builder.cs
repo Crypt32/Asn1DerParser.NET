@@ -30,7 +30,7 @@ namespace SysadminsLV.Asn1Parser {
         /// </param>
         /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddBoolean(Boolean value) {
-            _rawData.AddRange(new Asn1Boolean(value).RawData);
+            _rawData.AddRange(new Asn1Boolean(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -41,7 +41,7 @@ namespace SysadminsLV.Asn1Parser {
         /// </param>
         /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddInteger(BigInteger value) {
-            _rawData.AddRange(new Asn1Integer(value).RawData);
+            _rawData.AddRange(new Asn1Integer(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -58,7 +58,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(new Asn1BitString(value, unusedBits).RawData);
+            _rawData.AddRange(new Asn1BitString(value, unusedBits).GetRawData());
             return this;
         }
         /// <summary>
@@ -75,7 +75,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(new Asn1BitString(value, calculateUnusedBits).RawData);
+            _rawData.AddRange(new Asn1BitString(value, calculateUnusedBits).GetRawData());
             return this;
         }
         /// <summary>
@@ -92,7 +92,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(new Asn1OctetString(value, false).RawData);
+            _rawData.AddRange(new Asn1OctetString(value, false).GetRawData());
             return this;
         }
         /// <summary>
@@ -100,7 +100,7 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddNull() {
-            _rawData.AddRange(new Asn1Null().RawData);
+            _rawData.AddRange(new Asn1Null().GetRawData());
             return this;
         }
         /// <summary>
@@ -117,7 +117,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(new Asn1ObjectIdentifier(value).RawData);
+            _rawData.AddRange(new Asn1ObjectIdentifier(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -128,7 +128,7 @@ namespace SysadminsLV.Asn1Parser {
         /// </param>
         /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddEnumerated(UInt64 value) {
-            _rawData.AddRange(new Asn1Enumerated(value).RawData);
+            _rawData.AddRange(new Asn1Enumerated(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -145,7 +145,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(new Asn1UTF8String(value).RawData);
+            _rawData.AddRange(new Asn1UTF8String(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -210,7 +210,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(new Asn1NumericString(value).RawData);
+            _rawData.AddRange(new Asn1NumericString(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -227,7 +227,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(new Asn1PrintableString(value).RawData);
+            _rawData.AddRange(new Asn1PrintableString(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -244,7 +244,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(new Asn1TeletexString(value).RawData);
+            _rawData.AddRange(new Asn1TeletexString(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -278,7 +278,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(new Asn1IA5String(value).RawData);
+            _rawData.AddRange(new Asn1IA5String(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -289,7 +289,7 @@ namespace SysadminsLV.Asn1Parser {
         /// </param>
         /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddUtcTime(DateTime value) {
-            _rawData.AddRange(new Asn1UtcTime(value).RawData);
+            _rawData.AddRange(new Asn1UtcTime(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -300,7 +300,7 @@ namespace SysadminsLV.Asn1Parser {
         /// </param>
         /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddGeneralizedTime(DateTime value) {
-            _rawData.AddRange(new Asn1GeneralizedTime(value).RawData);
+            _rawData.AddRange(new Asn1GeneralizedTime(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -316,8 +316,8 @@ namespace SysadminsLV.Asn1Parser {
         /// </remarks>
         public Asn1Builder AddRfcDateTime(DateTime value) {
             _rawData.AddRange(value.Year < 2050
-                ? new Asn1UtcTime(value).RawData
-                : new Asn1GeneralizedTime(value).RawData);
+                ? new Asn1UtcTime(value).GetRawData()
+                : new Asn1GeneralizedTime(value).GetRawData());
 
             return this;
         }
@@ -335,7 +335,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(new Asn1VisibleString(value).RawData);
+            _rawData.AddRange(new Asn1VisibleString(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -352,7 +352,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(new Asn1UniversalString(value).RawData);
+            _rawData.AddRange(new Asn1UniversalString(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -369,7 +369,7 @@ namespace SysadminsLV.Asn1Parser {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
-            _rawData.AddRange(new Asn1BMPString(value).RawData);
+            _rawData.AddRange(new Asn1BMPString(value).GetRawData());
             return this;
         }
         /// <summary>
@@ -513,7 +513,7 @@ namespace SysadminsLV.Asn1Parser {
                 throw new ArgumentNullException(nameof(selector));
             }
             Asn1Builder b = selector(new Asn1Builder());
-            _rawData.AddRange(new Asn1BitString(b._rawData.ToArray(), 0).RawData);
+            _rawData.AddRange(new Asn1BitString(b._rawData.ToArray(), 0).GetRawData());
             return this;
         }
         /// <summary>

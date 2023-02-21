@@ -5,6 +5,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// Represents a base class for ASN.1 primitive tag classes. This class provides
     /// </summary>
     public abstract class UniversalTagBase {
+        Asn1Reader asnReader;
         /// <summary>
         /// Initializes a new instance of <strong>UniversalTagBase</strong> class.
         /// </summary>
@@ -28,7 +29,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
             }
             Initialize(asn);
         }
-        
+
         /// <summary>
         /// Gets the numeric tag value of the current ASN type.
         /// </summary>
@@ -75,17 +76,18 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <summary>
         /// Gets the full tag raw data, including header and payload information.
         /// </summary>
-        public Byte[] RawData { get; private set; }
+        [Obsolete("Use 'GetRawData()' method instead.", true)]
+        public Byte[] RawData => GetRawData();
 
         /// <summary>
         /// Initializes <strong>UniversalTagBase</strong> object from an existing <see cref="Asn1Reader"/> object.
         /// </summary>
         /// <param name="asn">Existing <see cref="Asn1Reader"/> object.</param>
         protected void Initialize(Asn1Reader asn) {
+            asnReader = asn;
             Tag = asn.Tag;
             TagName = asn.TagName;
             IsContainer = asn.IsConstructed;
-            RawData = asn.GetTagRawData();
         }
         /// <summary>
         /// Constant string to display error message for tag mismatch exceptions.
@@ -97,9 +99,9 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// </summary>
         /// <returns>Decoded type value.</returns>
         public virtual String GetDisplayValue() {
-            return RawData == null
+            return asnReader == null
                 ? String.Empty
-                : AsnFormatter.BinaryToString(RawData, EncodingType.HexRaw, EncodingFormat.NOCRLF);
+                : AsnFormatter.BinaryToString(asnReader, EncodingType.HexRaw, EncodingFormat.NOCRLF);
         }
         /// <summary>
         /// Encodes current tag to either, Base64 or hex string.
@@ -107,14 +109,16 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// <param name="encoding">Specifies the output encoding.</param>
         /// <returns>Encoded text value.</returns>
         public virtual String Format(EncodingType encoding = EncodingType.Base64) {
-            return RawData == null
+            return asnReader == null
                 ? String.Empty
-                : AsnFormatter.BinaryToString(RawData, encoding);
+                : AsnFormatter.BinaryToString(asnReader, encoding);
         }
-        ///// <summary>
-        ///// Gets the full tag raw data, including header and payload information.
-        ///// </summary>
-        ///// <returns>ASN.1-encoded type.</returns>
-        //public virtual Byte[] GetRawData();
+        /// <summary>
+        /// Gets the full tag raw data, including header and payload information.
+        /// </summary>
+        /// <returns>ASN.1-encoded type.</returns>
+        public Byte[] GetRawData() {
+            return asnReader.GetTagRawData();
+        }
     }
 }
