@@ -84,7 +84,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// </summary>
         /// <param name="asn">Existing <see cref="Asn1Reader"/> object.</param>
         protected void Initialize(Asn1Reader asn) {
-            asnReader = asn;
+            asnReader = new Asn1Reader(asn); // do not store external ASN reader reference.
             Tag = asn.Tag;
             TagName = asn.TagName;
             IsContainer = asn.IsConstructed;
