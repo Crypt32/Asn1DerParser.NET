@@ -20,7 +20,7 @@ namespace SysadminsLV.Asn1Parser {
         }
         /// <inheritdoc />
         public Asn1InvalidTagException(Int32 offset)
-            : base(String.Format("ASN1 bad tag value met at offset:{0}.", offset)) {
+            : base($"ASN1 bad tag value met at offset:{offset}.") {
             HResult = unchecked((Int32)0x8009310b);
             Offset = offset;
         }

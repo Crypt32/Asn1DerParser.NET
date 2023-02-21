@@ -42,14 +42,8 @@ namespace SysadminsLV.Asn1Parser {
         /// <param name="value">
         ///     Value to encode.
         /// </param>
-        /// <exception cref="ArgumentNullException">
-        ///     <strong>value</strong> parameter is null.
-        /// </exception>
         /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddInteger(BigInteger value) {
-            if (value == null) {
-                throw new ArgumentNullException(nameof(value));
-            }
             _rawData.AddRange(new Asn1Integer(value).RawData);
             return this;
         }
@@ -296,14 +290,8 @@ namespace SysadminsLV.Asn1Parser {
         /// <param name="value">
         ///     Value to encode.
         /// </param>
-        /// <exception cref="ArgumentNullException">
-        ///     <strong>value</strong> parameter is null.
-        /// </exception>
         /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddUtcTime(DateTime value) {
-            if (value == null) {
-                throw new ArgumentNullException(nameof(value));
-            }
             _rawData.AddRange(new Asn1UtcTime(value).RawData);
             return this;
         }
@@ -313,14 +301,8 @@ namespace SysadminsLV.Asn1Parser {
         /// <param name="value">
         ///     Value to encode.
         /// </param>
-        /// <exception cref="ArgumentNullException">
-        ///     <strong>value</strong> parameter is null.
-        /// </exception>
         /// <returns>Current instance with added value.</returns>
         public Asn1Builder AddGeneralizedTime(DateTime value) {
-            if (value == null) {
-                throw new ArgumentNullException(nameof(value));
-            }
             _rawData.AddRange(new Asn1GeneralizedTime(value).RawData);
             return this;
         }
@@ -330,19 +312,12 @@ namespace SysadminsLV.Asn1Parser {
         /// <param name="value">
         ///     Value to encode.
         /// </param>
-        /// <exception cref="ArgumentNullException">
-        ///     <strong>value</strong> parameter is null.
-        /// </exception>
         /// <returns>Current instance with added value.</returns>
         /// <remarks>
         ///     Dates prior to 2050 year are encoded using <strong>UTC Time</strong> and dates beginning with 2050 year are encoded using
         ///     <strong>Generalized Time</strong>.
         /// </remarks>
         public Asn1Builder AddRfcDateTime(DateTime value) {
-            if (value == null) {
-                throw new ArgumentNullException(nameof(value));
-            }
-
             _rawData.AddRange(value.Year < 2050
                 ? new Asn1UtcTime(value).RawData
                 : new Asn1GeneralizedTime(value).RawData);
@@ -477,7 +452,7 @@ namespace SysadminsLV.Asn1Parser {
                 }
                 var asn = new Asn1Reader(value);
                 asn.BuildOffsetMap();
-                var valueCopy = value.ToArray();
+                Byte[] valueCopy = value.ToArray();
                 valueCopy[0] = (Byte)(0x80 + implicitTag);
                 _rawData.AddRange(valueCopy);
             }
@@ -518,7 +493,7 @@ namespace SysadminsLV.Asn1Parser {
             } else {
                 var asn = new Asn1Reader(value);
                 asn.BuildOffsetMap();
-                var valueCopy = value.ToArray();
+                Byte[] valueCopy = value.ToArray();
                 valueCopy[0] = (Byte)(0xa0 + explicitTag);
                 _rawData.AddRange(valueCopy);
             }

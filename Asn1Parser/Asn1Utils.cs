@@ -145,10 +145,10 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         /// <param name="rawData">ASN.1-encoded byte array.</param>
         /// <param name="allowLarge">
-        ///		Specifies whether to allow large integers. If this parameter is set to <strong>True</strong>, method
-        ///		returns integer in a hexadecimal form. If this parameter is set to <strong>False</strong>, method
-        ///		attempts to convert encoded integer to an <see cref="UInt32"/> numerical value. Numerical value is
-        ///		returned as a string.
+        ///        Specifies whether to allow large integers. If this parameter is set to <strong>True</strong>, method
+        ///        returns integer in a hexadecimal form. If this parameter is set to <strong>False</strong>, method
+        ///        attempts to convert encoded integer to an <see cref="UInt32"/> numerical value. Numerical value is
+        ///        returned as a string.
         /// </param>
         /// <exception cref="InvalidDataException">The data is not valid ASN.1-encoded integer.</exception>
         /// <exception cref="ArgumentNullException"><strong>rawData</strong> parameter is null reference.</exception>
@@ -196,17 +196,17 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         /// <param name="time">An instance of <see cref="DateTime"/> object.</param>
         /// <param name="zone">
-        /// 	Specifies the time zone for the value in <strong>time</strong> parameter.
+        ///     Specifies the time zone for the value in <strong>time</strong> parameter.
         /// </param>
         /// <param name="usePrecise">
         ///     Specifies whether to include milliseconds in encoded value. Default is <strong>False</strong>.
         /// </param>
         /// <returns>ASN.1-encoded byte array.</returns>
         /// <remarks>
-        /// 	If <strong>zone</strong> parameter is set to <strong>NULL</strong>, date and time in <strong>time</strong>
-        /// 	parameter will be converted to a Zulu time (Universal time). If zone information is not <strong>NULL</strong>,
-        /// 	date and time in <strong>time</strong> parameter will be converted to a GMT time and time zone will be added
-        /// 	to encoded value.
+        ///     If <strong>zone</strong> parameter is set to <strong>NULL</strong>, date and time in <strong>time</strong>
+        ///     parameter will be converted to a Zulu time (Universal time). If zone information is not <strong>NULL</strong>,
+        ///     date and time in <strong>time</strong> parameter will be converted to a GMT time and time zone will be added
+        ///     to encoded value.
         /// </remarks>
         internal static Byte[] EncodeUTCTime(DateTime time, TimeZoneInfo zone = null, Boolean usePrecise = false) {
             return new Asn1UtcTime(time, zone, usePrecise).RawData;
@@ -216,14 +216,14 @@ namespace SysadminsLV.Asn1Parser {
         /// </summary>
         /// <param name="time">An instance of <see cref="DateTime"/> object.</param>
         /// <param name="zone">
-        ///		Specifies the time zone for the value in <strong>time</strong> parameter.
+        ///     Specifies the time zone for the value in <strong>time</strong> parameter.
         /// </param>
         /// <returns>ASN.1-encoded byte array.</returns>
         /// <remarks>
-        ///		If <strong>zone</strong> parameter is set to <strong>NULL</strong>, date and time in <strong>time</strong>
-        ///		parameter will be converted to a Zulu time (Universal time). If zone information is not <strong>NULL</strong>,
-        ///		date and time in <strong>time</strong> parameter will be converted to a GMT time and time zone will be added
-        ///		to encoded value.
+        ///     If <strong>zone</strong> parameter is set to <strong>NULL</strong>, date and time in <strong>time</strong>
+        ///     parameter will be converted to a Zulu time (Universal time). If zone information is not <strong>NULL</strong>,
+        ///     date and time in <strong>time</strong> parameter will be converted to a GMT time and time zone will be added
+        ///     to encoded value.
         /// </remarks>
         public static Byte[] EncodeGeneralizedTime(DateTime time, TimeZoneInfo zone = null) {
             return (new Asn1GeneralizedTime(time, zone)).RawData;
@@ -238,7 +238,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <returns>Decoded DateTime object.</returns>
         public static DateTime DecodeGeneralizedTime(Byte[] rawData) {
             if (rawData == null) { throw new ArgumentNullException(); }
-            Asn1Reader asn = new Asn1Reader(rawData);
+            var asn = new Asn1Reader(rawData);
             if (asn.Tag != (Byte)Asn1Type.GeneralizedTime) {
                 throw new InvalidDataException("Input data is not valid ASN-encoded GENERALIZED TIME.");
             }
@@ -384,7 +384,7 @@ namespace SysadminsLV.Asn1Parser {
         public static String DecodeTeletexString(Byte[] rawData) {
             if (rawData == null) { throw new ArgumentNullException(); }
             var asn = new Asn1Reader(rawData);
-            if (asn.GetPayload().Any(@by => @by > 127)) {
+            if (asn.GetPayload().Any(x => x > 127)) {
                 throw new ArgumentException("The data is invalid.");
             }
             if (asn.Tag == (Byte)Asn1Type.TeletexString) {
@@ -460,7 +460,7 @@ namespace SysadminsLV.Asn1Parser {
             return Encode(Encoding.BigEndianUnicode.GetBytes(inputString), (Byte)Asn1Type.BMPString);
         }
         /// <summary>
-        /// Decodes <strong>UniversalString</strong> (UTF-16) to it's textual representation.
+        /// Decodes <strong>UniversalString</strong> (UTF-32) to it's textual representation.
         /// </summary>
         /// <param name="rawData">ASN.1-encoded UniversalString.</param>
         /// <exception cref="InvalidDataException">The input data is not properly encoded UniversalString.</exception>
@@ -468,8 +468,8 @@ namespace SysadminsLV.Asn1Parser {
         /// <returns>Decoded string.</returns>
         public static String DecodeUniversalString(Byte[] rawData) {
             if (rawData == null) { throw new ArgumentNullException(); }
-            Asn1Reader asn = new Asn1Reader(rawData);
-            List<Byte> orderedBytes = new List<Byte>();
+            var asn = new Asn1Reader(rawData);
+            var orderedBytes = new List<Byte>();
             if (asn.Tag == (Byte)Asn1Type.UniversalString) {
                 for (Int32 index = 0; index < rawData.Length; index += 4) {
                     orderedBytes.AddRange(new[] { rawData[index + 3], rawData[index + 2], rawData[index + 1], rawData[index] });
@@ -484,7 +484,7 @@ namespace SysadminsLV.Asn1Parser {
         /// <param name="inputString">UTF-32 string to encode.</param>
         /// <returns>ASN.1-encoded byte array.</returns>
         public static Byte[] EncodeUniversalString(String inputString) {
-            List<Byte> orderedBytes = new List<Byte>();
+            var orderedBytes = new List<Byte>();
             Byte[] unordered = Encoding.UTF32.GetBytes(inputString);
             for (Int32 index = 0; index < unordered.Length; index += 4) {
                 orderedBytes.AddRange(new[] { unordered[index + 3], unordered[index + 2], unordered[index + 1], unordered[index] });
@@ -507,63 +507,94 @@ namespace SysadminsLV.Asn1Parser {
         /// <param name="time">
         /// An instance of <see cref="DateTime"/> object.</param> Value in this parameter is treated as local time. 
         /// <param name="zone">
-        ///		Specifies the time zone for the value in <strong>time</strong> parameter.
+        ///        Specifies the time zone for the value in <strong>time</strong> parameter.
         /// </param>
         /// <returns>ASN.1-encoded byte array.</returns>
         /// <remarks>
-        ///		If the <strong>Year</strong> value of the <strong>time</strong> object is less or equals to 2049
+        ///     If the <strong>Year</strong> value of the <strong>time</strong> object is less or equals to 2049
         ///     and greater or equals to 1950, the DateTime object is encoded as a UTC time.
         ///     if year value is outside of 1950-2049 range, it is encoded as a generalized time.
-        ///		<para>
-        ///		If <strong>zone</strong> parameter is set to <strong>NULL</strong>, date and time in <strong>time</strong>
-        ///		parameter will be converted to a Zulu time (Universal time). If zone information is not <strong>NULL</strong>,
-        ///		date and time in <strong>time</strong> parameter will be converted to a GMT time and time zone will be added
-        ///		to encoded value.
-        ///		</para>
+        ///     <para>
+        ///     If <strong>zone</strong> parameter is set to <strong>NULL</strong>, date and time in <strong>time</strong>
+        ///     parameter will be converted to a Zulu time (Universal time). If zone information is not <strong>NULL</strong>,
+        ///     date and time in <strong>time</strong> parameter will be converted to a GMT time and time zone will be added
+        ///     to encoded value.
+        ///     </para>
         /// </remarks>
-        /// <seealso cref="EncodeUTCTime(DateTime, TimeZoneInfo)"/>
+        /// <seealso cref="EncodeUTCTime(DateTime, TimeZoneInfo, Boolean)"/>
         /// <seealso cref="EncodeGeneralizedTime"/>
         public static Byte[] EncodeDateTime(DateTime time, TimeZoneInfo zone = null) {
             return time.Year < 2050 && time.Year >= 1950
                 ? EncodeUTCTime(time, zone)
                 : EncodeGeneralizedTime(time, zone);
         }
+        /// <summary>
+        /// Decodes either, ASN.1-encoded UTCTime or GeneralizedTime object.
+        /// </summary>
+        /// <param name="rawData">ASN.1-encoded date and time.</param>
+        /// <returns>Date/time object.</returns>
+        /// <exception cref="Asn1InvalidTagException">
+        ///     Input data is not UTCTime or GeneralizedTime.
+        /// </exception>
         public static DateTime DecodeDateTime(Byte[] rawData) {
-            Asn1Reader asn = new Asn1Reader(rawData);
+            var asn = new Asn1Reader(rawData);
             switch (asn.Tag) {
-                case (Byte)Asn1Type.UTCTime: return new Asn1UtcTime(rawData).Value;
-                case (Byte)Asn1Type.GeneralizedTime: return new Asn1GeneralizedTime(rawData).Value;
-                default: throw new Asn1InvalidTagException();
+                case (Byte)Asn1Type.UTCTime:
+                    return new Asn1UtcTime(rawData).Value;
+                case (Byte)Asn1Type.GeneralizedTime:
+                    return new Asn1GeneralizedTime(rawData).Value;
+                default:
+                    throw new Asn1InvalidTagException("Input data is not valid date time object.");
             }
         }
-        public static String DecodeAnyString(Byte[] rawData, IEnumerable<Asn1Type> types) {
-            foreach (Asn1Type type in types) {
-                switch (type) {
-                    case Asn1Type.IA5String:
-                        try { return new Asn1IA5String(rawData).Value; } catch { }
-                        break;
-                    case Asn1Type.PrintableString:
-                        try { return new Asn1PrintableString(rawData).Value; } catch { }
-                        break;
-                    case Asn1Type.VisibleString:
-                        try { return new Asn1VisibleString(rawData).Value; } catch { }
-                        break;
-                    case Asn1Type.UTF8String:
-                        try { return new Asn1UTF8String(rawData).Value; } catch { }
-                        break;
-                    case Asn1Type.UniversalString:
-                        try { return new Asn1UniversalString(rawData).Value; } catch { }
-                        break;
-                    case Asn1Type.BMPString:
-                        try { return new Asn1BMPString(rawData).Value; } catch { }
-                        break;
-                    case Asn1Type.TeletexString:
-                        try { return new Asn1TeletexString(rawData).Value; } catch { }
-                        break;
-                }
+        /// <summary>
+        /// Decodes any ASN.1-encoded binary string into string instance.
+        /// </summary>
+        /// <param name="rawData">Encoded ASN.1 string.</param>
+        /// <param name="allowedStringTypes">An optional collection of allowed string allowedStringTypes.</param>
+        /// <exception cref="ArgumentNullException">
+        ///     <strong>rawData</strong> parameter is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        ///     <strong>rawData</strong> parameter is either too small or is not allowed by restriction.
+        /// </exception>
+        /// <returns>Decoded string.</returns>
+        /// <exception cref="Asn1InvalidTagException">
+        ///     Input data is not valid string type.
+        /// </exception>
+        public static String DecodeAnyString(Byte[] rawData, IEnumerable<Asn1Type> allowedStringTypes = null) {
+            if (rawData == null) {
+                throw new ArgumentNullException(nameof(rawData));
             }
-            throw new InvalidDataException("The data is not valid string.");
+            if (rawData.Length < 2) {
+                throw new ArgumentException("Raw data must have at least tag (1 byte) and length components (1 byte) in TLV structure.");
+            }
+
+            IEnumerable<Asn1Type> asn1Types = allowedStringTypes?.ToList();
+            if (asn1Types != null && !asn1Types.Contains((Asn1Type)rawData[0])) {
+                throw new ArgumentException("Input string is not permitted by restriction.");
+            }
+            var tag = (Asn1Type)(rawData[0] & (Int32)Asn1Class.UNIVERSAL_MASK);
+            switch (tag) {
+                case Asn1Type.IA5String:
+                    return new Asn1IA5String(rawData).Value;
+                case Asn1Type.PrintableString:
+                    return new Asn1PrintableString(rawData).Value;
+                case Asn1Type.VisibleString:
+                    return new Asn1VisibleString(rawData).Value;
+                case Asn1Type.UTF8String:
+                    return new Asn1UTF8String(rawData).Value;
+                case Asn1Type.UniversalString:
+                    return new Asn1UniversalString(rawData).Value;
+                case Asn1Type.BMPString:
+                    return new Asn1BMPString(rawData).Value;
+                case Asn1Type.TeletexString:
+                    return new Asn1TeletexString(rawData).Value;
+                default:
+                    throw new Asn1InvalidTagException("Input data is not valid string.");
+            }
         }
+        [Obsolete("Do not use.", true)]
         public static Byte[] EncodeAnyString(String str, IEnumerable<Asn1Type> types) {
             foreach (Asn1Type type in types) {
                 switch (type) {
@@ -590,7 +621,7 @@ namespace SysadminsLV.Asn1Parser {
             throw new InvalidDataException("The data is not valid string.");
         }
         #endregion
-        #region String types:
+        #region String allowedStringTypes:
         internal const Int32 CERT_RDN_ANY_TYPE         = 0;
         internal const Int32 CERT_RDN_ENCODED_BLOB     = 1;
         internal const Int32 CERT_RDN_OCTET_STRING     = 2;

@@ -31,4 +31,7 @@
      <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net472'">
         <DocumentationFile>bin\Release\net472\SysadminsLV.Asn1Parser.xml</DocumentationFile>
     </PropertyGroup>
+     <ItemGroup>
+       <None Include="..\.editorconfig" Link=".editorconfig" />
+     </ItemGroup>
 </Project>
