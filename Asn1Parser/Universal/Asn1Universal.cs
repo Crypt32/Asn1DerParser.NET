@@ -4,23 +4,23 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
     /// Represents a base class for ASN.1 primitive tag classes. This class provides
     /// </summary>
-    public abstract class UniversalTagBase {
+    public abstract class Asn1Universal {
         Asn1Reader asnReader;
         /// <summary>
-        /// Initializes a new instance of <strong>UniversalTagBase</strong> class.
+        /// Initializes a new instance of <strong>Asn1Universal</strong> class.
         /// </summary>
-        protected UniversalTagBase(Asn1Type type) {
+        protected Asn1Universal(Asn1Type type) {
             Tag = (Byte)type;
             TagName = Asn1Reader.GetTagName(Tag);
             IsContainer = (Tag & (Byte)Asn1Class.CONSTRUCTED) > 0;
         }
         /// <summary>
-        /// Initializes a new instance of <strong>UniversalTagBase</strong> from an existing <see cref="Asn1Reader"/>
+        /// Initializes a new instance of <strong>Asn1Universal</strong> from an existing <see cref="Asn1Reader"/>
         /// class instance.
         /// </summary>
         /// <param name="asn">Existing <see cref="ArgumentNullException"/> class instance.</param>
         /// <exception cref="Asn1Reader"><strong>asn</strong> parameter is null reference.</exception>
-        protected UniversalTagBase(Asn1Reader asn, Asn1Type? type) {
+        protected Asn1Universal(Asn1Reader asn, Asn1Type? type) {
             if (asn == null) {
                 throw new ArgumentNullException(nameof(asn));
             }
@@ -80,7 +80,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         public Byte[] RawData => GetRawData();
 
         /// <summary>
-        /// Initializes <strong>UniversalTagBase</strong> object from an existing <see cref="Asn1Reader"/> object.
+        /// Initializes <strong>Asn1Universal</strong> object from an existing <see cref="Asn1Reader"/> object.
         /// </summary>
         /// <param name="asn">Existing <see cref="Asn1Reader"/> object.</param>
         protected void Initialize(Asn1Reader asn) {

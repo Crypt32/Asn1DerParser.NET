@@ -6,7 +6,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
     /// Represents a <strong>BIT_STRING</strong> ASN.1 tag object.
     /// </summary>
-    public sealed class Asn1BitString : UniversalTagBase {
+    public sealed class Asn1BitString : Asn1Universal {
         const Asn1Type TYPE = Asn1Type.BIT_STRING;
 
         /// <summary>

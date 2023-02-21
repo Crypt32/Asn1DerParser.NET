@@ -5,7 +5,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
     /// Represents an ASN.1 <strong>NULL</strong> data type.
     /// </summary>
-    public sealed class Asn1Null : UniversalTagBase {
+    public sealed class Asn1Null : Asn1Universal {
         const Asn1Type TYPE = Asn1Type.NULL;
 
         /// <summary>

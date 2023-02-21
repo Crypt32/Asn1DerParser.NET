@@ -5,7 +5,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
     /// Represents an ASN.1 <strong>OCTET_STRING</strong> data type.
     /// </summary>
-    public sealed class Asn1OctetString : UniversalTagBase {
+    public sealed class Asn1OctetString : Asn1Universal {
         const Asn1Type TYPE = Asn1Type.OCTET_STRING;
 
         /// <summary>

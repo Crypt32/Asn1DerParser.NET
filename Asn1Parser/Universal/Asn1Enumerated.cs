@@ -8,7 +8,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
     /// Represents an ASN.1 <strong>ENUMERATED</strong> data type.
     /// </summary>
-    public sealed class Asn1Enumerated : UniversalTagBase {
+    public sealed class Asn1Enumerated : Asn1Universal {
         const Asn1Type TYPE = Asn1Type.ENUMERATED;
 
         /// <summary>

@@ -7,7 +7,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
     /// Represents an ASN.1 <strong>INTEGER</strong> data type.
     /// </summary>
-    public sealed class Asn1Integer : UniversalTagBase {
+    public sealed class Asn1Integer : Asn1Universal {
         const Asn1Type TYPE = Asn1Type.INTEGER;
 
         /// <summary>

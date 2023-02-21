@@ -9,7 +9,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
     /// Represents ASN.1 Object Identifier type.
     /// </summary>
-    public sealed class Asn1ObjectIdentifier : UniversalTagBase {
+    public sealed class Asn1ObjectIdentifier : Asn1Universal {
         const Asn1Type TYPE = Asn1Type.OBJECT_IDENTIFIER;
 
         /// <summary>

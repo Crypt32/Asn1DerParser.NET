@@ -522,10 +522,10 @@ namespace SysadminsLV.Asn1Parser {
             decode(null, 0);
         }
         /// <summary>
-        /// Gets the appropriate primitive tag object from <strong>Universal</strong> namespace, or <see cref="UniversalTagBase"/> object.
+        /// Gets the appropriate primitive tag object from <strong>Universal</strong> namespace, or <see cref="Asn1Universal"/> object.
         /// </summary>
         /// <returns>ASN.1 object that represents current tag.</returns>
-        public UniversalTagBase GetTagObject() {
+        public Asn1Universal GetTagObject() {
             switch (Tag) {
                 case (Byte)Asn1Type.BOOLEAN:
                     return new Asn1Boolean(this);

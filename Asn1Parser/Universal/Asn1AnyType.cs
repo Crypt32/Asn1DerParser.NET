@@ -2,7 +2,7 @@
     /// <summary>
     /// Represents arbitrary ASN.1 type.
     /// </summary>
-    public class Asn1AnyType : UniversalTagBase {
+    public class Asn1AnyType : Asn1Universal {
         /// <summary>
         /// Initializes a new instance of <strong>Asn1AnyType</strong> class.
         /// </summary>

@@ -6,7 +6,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
     /// Represents base class for ASN.1 string types.
     /// </summary>
-    public abstract class Asn1String : UniversalTagBase {
+    public abstract class Asn1String : Asn1Universal {
         #region allowedStringTypes:
         const Int32 CERT_RDN_ANY_TYPE         = 0;
         const Int32 CERT_RDN_ENCODED_BLOB     = 1;

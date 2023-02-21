@@ -4,7 +4,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
     /// <summary>
     /// Represents base class for UTCTime and GeneralizedTime ASN.1 types
     /// </summary>
-    public abstract class Asn1DateTime : UniversalTagBase {
+    public abstract class Asn1DateTime : Asn1Universal {
         /// <summary>
         /// Initializes a new instance of <strong>Asn1DateTime</strong> class.
         /// </summary>
