@@ -591,15 +591,15 @@ namespace SysadminsLV.Asn1Parser {
         ///     Gets ASN.1-encoded byte array that represents current state of builder wrapped using outer ASN.1 type and returns new
         ///     builder instance that contains current builder state.
         /// </summary>
-        /// <param name="outerType">
+        /// <param name="outerTag">
         ///     Outer type to wrap current state of builder. Outer type must not by the type that is used in primitive form only.
         ///     Default outer type is constructed SEQUENCE (0x30 or decimal 48).
         /// </param>
         /// <returns>
         ///     A new instance of ASN.1 DER builder that contains the state of the current instance.
         /// </returns>
-        public Asn1Builder Encode(Byte outerType = 0x30) {
-            IEnumerable<Byte> encoded = Asn1Utils.Encode(_rawData.ToArray(), outerType);
+        public Asn1Builder Encode(Byte outerTag = 0x30) {
+            IEnumerable<Byte> encoded = GetEncoded(outerTag);
             _rawData.Clear();
             _rawData.AddRange(encoded);
             return new Asn1Builder(this);
