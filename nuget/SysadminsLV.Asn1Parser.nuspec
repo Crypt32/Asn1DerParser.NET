@@ -6,6 +6,7 @@
         <authors>Vadims Podans, PKI Solutions Inc.</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <license type="expression">MS-PL</license>
+        <repository type="git" url="https://github.com/PKISolutions/Asn1DerParser.NET" />
         <projectUrl>https://github.com/PKISolutions/Asn1DerParser.NET</projectUrl>
         <description>ASN.1 binary parser and utility set for binary data encoded with Distinguished Encoding Rules (DER).</description>
         <releaseNotes>None.</releaseNotes>
