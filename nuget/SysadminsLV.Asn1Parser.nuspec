@@ -2,14 +2,14 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>SysadminsLV.Asn1Parser</id>
-        <version>1.2.7.62</version>
+        <version>$version$</version>
         <authors>Vadims Podans, PKI Solutions Inc.</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <license type="expression">MS-PL</license>
         <projectUrl>https://github.com/PKISolutions/Asn1DerParser.NET</projectUrl>
         <description>ASN.1 binary parser and utility set for binary data encoded with Distinguished Encoding Rules (DER).</description>
         <releaseNotes>None.</releaseNotes>
-        <copyright>Copyright © Sysadmins LV 2012 - 2018</copyright>
+        <copyright>Copyright © Sysadmins LV 2012-$year$</copyright>
         <tags>ASN.1 ASN ASN1</tags>
         <dependencies>
             <group targetFramework=".NETFramework4.7.2"/>
