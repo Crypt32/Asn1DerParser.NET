@@ -1,13 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+        <Title>High-performance and robust .NET ASN.1 DER parser</Title>
         <Version>1.2.7.62</Version>
         <Authors>Vadims Podans, PKI Solutions Inc.</Authors>
-        <Company>PKI Solutions Inc.</Company>
+        <Company>PKI Solutions LLC</Company>
         <Description>ASN.1 binary parser and utility set for binary data encoded with Distinguished Encoding Rules (DER).</Description>
-        <Copyright>Copyright © Sysadmins LV 2012 - 2018</Copyright>
-        <AssemblyVersion></AssemblyVersion>
-        <FileVersion></FileVersion>
+        <Copyright>Copyright © PKI Solutions 2012-2023</Copyright>
         <AssemblyName>SysadminsLV.Asn1Parser</AssemblyName>
         <RootNamespace>SysadminsLV.Asn1Parser</RootNamespace>
         <PackageProjectUrl>https://github.com/PKISolutions/Asn1DerParser.NET</PackageProjectUrl>
@@ -26,7 +25,10 @@
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|netstandard2.0'">
         <DocumentationFile>bin\Release\netstandard2.0\SysadminsLV.Asn1Parser.xml</DocumentationFile>
+    </PropertyGroup>
+     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net472'">
+        <DocumentationFile>bin\Release\net472\SysadminsLV.Asn1Parser.xml</DocumentationFile>
     </PropertyGroup>
 </Project>
