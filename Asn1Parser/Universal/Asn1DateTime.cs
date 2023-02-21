@@ -26,5 +26,37 @@ namespace SysadminsLV.Asn1Parser.Universal {
         /// </summary>
         public DateTime Value { get; protected set; }
 
+        /// <summary>
+        /// Encodes a .NET DateTime object to a ASN.1-encoded byte array. This method is designed to conform
+        /// <see href="http://tools.ietf.org/html/rfc5280">RFC 5280</see> requirement, so dates before 1950 and
+        /// after 2050 year are required to be encoded by using Generalized Time encoding. UTC Time encoding is not allowed
+        /// for periods beyond 1950 - 2049 years.
+        /// </summary>
+        /// <param name="time">
+        /// An instance of <see cref="DateTime"/> object.</param> Value in this parameter is treated as local time. 
+        /// <param name="zone">
+        ///     Specifies the time zone for the value in <strong>time</strong> parameter.
+        /// </param>
+        /// <returns>ASN.1 type object.</returns>
+        /// <remarks>
+        ///     If the <strong>Year</strong> value of the <strong>time</strong> object is less or equals to 2049
+        ///     and greater or equals to 1950, an <see cref="Asn1UtcTime"/> object is returned.
+        ///     If year value is outside of 1950-2049 range, an <see cref="Asn1GeneralizedTime"/> object is returned.
+        ///     <para>
+        ///     If <strong>zone</strong> parameter is set to <strong>NULL</strong>, date and time in <strong>time</strong>
+        ///     parameter will be converted to a Zulu time (Universal time). If zone information is not <strong>NULL</strong>,
+        ///     date and time in <strong>time</strong> parameter will be converted to a GMT time and time zone will be added
+        ///     to encoded value.
+        ///     </para>
+        /// </remarks>
+        /// <seealso cref="Asn1UtcTime"/>
+        /// <seealso cref="Asn1GeneralizedTime"/>
+        public static Asn1DateTime CreateRfcDateTime(DateTime time, TimeZoneInfo zone = null) {
+            if (time.Year < 2050 && time.Year >= 1950) {
+                return new Asn1UtcTime(time, zone);
+            }
+
+            return new Asn1GeneralizedTime(time, zone);
+        }
     }
 }

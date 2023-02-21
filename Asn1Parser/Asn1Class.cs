@@ -23,10 +23,6 @@
         /// <summary>
         /// Represents Private tag class.
         /// </summary>
-        PRIVATE          = 192,    // 0xc0
-        /// <summary>
-        /// Represents universal tag mask that allows to extract universal type from non-universal class.
-        /// </summary>
-        UNIVERSAL_MASK   = 31
+        PRIVATE          = 192    // 0xc0
     }        
 }

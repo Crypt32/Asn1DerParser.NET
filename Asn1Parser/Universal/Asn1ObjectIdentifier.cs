@@ -158,7 +158,7 @@ namespace SysadminsLV.Asn1Parser.Universal {
         public override String GetDisplayValue() {
             return String.IsNullOrEmpty(Value.FriendlyName)
                 ? Value.Value
-                : Value.FriendlyName + " (" + Value.Value + ")";
+                : $"{Value.FriendlyName} ({Value.Value})";
         }
     }
 }

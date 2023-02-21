@@ -527,12 +527,42 @@ namespace SysadminsLV.Asn1Parser {
         /// <returns>ASN.1 object that represents current tag.</returns>
         public UniversalTagBase GetTagObject() {
             switch (Tag) {
-                case (Byte)Asn1Type.OBJECT_IDENTIFIER:
-                    return new Asn1ObjectIdentifier(this);
+                case (Byte)Asn1Type.BOOLEAN:
+                    return new Asn1Boolean(this);
+                case (Byte)Asn1Type.INTEGER:
+                    return new Asn1Integer(this);
                 case (Byte)Asn1Type.BIT_STRING:
                     return new Asn1BitString(this);
+                case (Byte)Asn1Type.OCTET_STRING:
+                    return new Asn1OctetString(this);
+                case (Byte)Asn1Type.NULL:
+                    return new Asn1Null(this);
+                case (Byte)Asn1Type.OBJECT_IDENTIFIER:
+                    return new Asn1ObjectIdentifier(this);
+                case (Byte)Asn1Type.ENUMERATED:
+                    return new Asn1Enumerated(this);
+                case (Byte)Asn1Type.UTF8String:
+                    return new Asn1UTF8String(this);
+                case (Byte)Asn1Type.NumericString:
+                    return new Asn1NumericString(this);
+                case (Byte)Asn1Type.PrintableString:
+                    return new Asn1PrintableString(this);
+                case (Byte)Asn1Type.TeletexString:
+                    return new Asn1TeletexString(this);
+                case (Byte)Asn1Type.IA5String:
+                    return new Asn1IA5String(this);
+                case (Byte)Asn1Type.UTCTime:
+                    return new Asn1UtcTime(this);
+                case (Byte)Asn1Type.GeneralizedTime:
+                    return new Asn1GeneralizedTime(this);
+                case (Byte)Asn1Type.VisibleString:
+                    return new Asn1VisibleString(this);
+                case (Byte)Asn1Type.UniversalString:
+                    return new Asn1UniversalString(this);
+                case (Byte)Asn1Type.BMPString:
+                    return new Asn1BMPString(this);
                 default:
-                    return new UniversalTagBase(this);
+                    return new Asn1AnyType(this);
             }
         }
         /// <summary>
