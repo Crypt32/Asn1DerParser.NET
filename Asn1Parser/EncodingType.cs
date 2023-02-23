@@ -1,4 +1,6 @@
-﻿namespace SysadminsLV.Asn1Parser {
+﻿using System;
+
+namespace SysadminsLV.Asn1Parser {
     /// <summary>
     /// This enumeration contains string formats used in CryptoAPI. See remarks for string formats examples.
     /// </summary>
@@ -77,31 +79,31 @@
     /// </code>
     /// </example>
     /// </remarks>
-    public enum EncodingType : uint {
+    public enum EncodingType : UInt32 {
         /// <summary>
         /// Base64, with certificate beginning and ending headers.
         /// </summary>
-        Base64Header = 0x00000000,
+        Base64Header        = 0x0,
         /// <summary>
         /// Base64, without headers.
         /// </summary>
-        Base64 = 0x00000001,
+        Base64              = 0x1,
         /// <summary>
         /// Pure binary copy.
         /// </summary>
-        Binary = 0x00000002, //
+        Binary              = 0x2,
         /// <summary>
         /// The string is base64 encoded with beginning and ending certificate request headers.
         /// </summary>
-        Base64RequestHeader = 0x00000003,
+        Base64RequestHeader = 0x3,
         /// <summary>
         /// Hexadecimal only format.
         /// </summary>
-        Hex = 0x00000004,
+        Hex                 = 0x4,
         /// <summary>
         /// Hexadecimal format with ASCII character display.
         /// </summary>
-        HexAscii = 0x00000005,
+        HexAscii            = 0x5,
         /// <summary>
         /// Tries the following, in order:
         /// <list type="bullet">
@@ -110,7 +112,7 @@
         /// </list>
         /// <strong><see cref="AsnFormatter.BinaryToString">BinaryToString</see></strong> method do not support this flag.
         /// </summary>
-        Base64Any = 0x00000006,
+        Base64Any           = 0x6,
         /// <summary>
         /// Tries the following, in order:
         /// <list type="bullet">
@@ -120,7 +122,7 @@
         /// </list>
         /// <strong><see cref="AsnFormatter.BinaryToString">BinaryToString</see></strong> method do not support this flag.
         /// </summary>
-        StringAny = 0x00000007,
+        StringAny           = 0x7,
         /// <summary>
         /// <list type="bullet">
         /// Tries the following, in order:
@@ -132,23 +134,24 @@
         /// </list>
         /// <strong><see cref="AsnFormatter.BinaryToString">BinaryToString</see></strong> method do not support this flag.
         /// </summary>
-        HexAny = 0x00000008,
+        HexAny              = 0x8,
         /// <summary>
         /// Base64, with X.509 certificate revocation list (CRL) beginning and ending headers.
         /// </summary>
-        Base64CrlHeader = 0x00000009,
+        Base64CrlHeader     = 0x9,
         /// <summary>
         /// Hex, with address display.
         /// </summary>
-        HexAddress = 0x0000000a,
+        HexAddress          = 0xa,
         /// <summary>
         /// Hex, with ASCII character and address display.
         /// </summary>
-        HexAsciiAddress = 0x0000000b,
+        HexAsciiAddress     = 0xb,
         /// <summary>
         /// A raw hexadecimal string.
         /// </summary>
-        HexRaw = 0x0000000c,
+        HexRaw              = 0xc,
+
         ///// <summary>
         ///// Set this flag for Base64 data to specify that the end of the binary data contain only white space and at most
         ///// three equals "=" signs.
