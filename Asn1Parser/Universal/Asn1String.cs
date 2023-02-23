@@ -88,6 +88,9 @@ namespace SysadminsLV.Asn1Parser.Universal {
                     return new Asn1BMPString(rawData);
                 case Asn1Type.TeletexString:
                     return new Asn1TeletexString(rawData);
+                case Asn1Type.NumericString:
+                    return new Asn1NumericString(rawData);
+
                 default:
                     throw new Asn1InvalidTagException("Input data is not valid string.");
             }
