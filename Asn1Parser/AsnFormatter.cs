@@ -2,19 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace SysadminsLV.Asn1Parser {
     /// <summary>
     /// This class contains methods to convert Base64, Hex and Binary strings to byte array and vice versa.
     /// </summary>
     public static class AsnFormatter {
-        const String certHeader = "-----BEGIN CERTIFICATE-----";
-        const String certFooter = "-----END CERTIFICATE-----";
-        const String crlHeader = "-----BEGIN X509 CRL-----";
-        const String crlFooter = "-----END X509 CRL-----";
-        const String reqHeader = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-        const String reqFooter = "-----END NEW CERTIFICATE REQUEST-----";
         static readonly Char[] _delimiters = { ' ', '-', ':', '\t', '\n', '\r' };
 
         /// <summary>
@@ -55,13 +48,20 @@ namespace SysadminsLV.Asn1Parser {
                 case EncodingType.Base64:
                 case EncodingType.Base64Header:
                 case EncodingType.Base64CrlHeader:
-                case EncodingType.Base64RequestHeader: return toBase64(rawData, encoding, format, start, count);
-                case EncodingType.Hex: return toHex(rawData, format, start, count, forceUpperCase);
-                case EncodingType.HexAddress: return toHexAddr(rawData, format, start, count, forceUpperCase);
-                case EncodingType.HexAscii: return toHexAscii(rawData, format, start, count, forceUpperCase);
-                case EncodingType.HexAsciiAddress: return toHexAddrAscii(rawData, format, start, count, forceUpperCase);
-                case EncodingType.HexRaw: return toHexRaw(rawData, start, count, forceUpperCase);
-                default: throw new ArgumentException("An invalid encoding type is specified");
+                case EncodingType.Base64RequestHeader:
+                    return BinaryToStringFormatter.ToBase64(rawData, encoding, format, start, count);
+                case EncodingType.Hex:
+                    return BinaryToStringFormatter.ToHex(rawData, format, start, count, forceUpperCase);
+                case EncodingType.HexAddress:
+                    return BinaryToStringFormatter.ToHexAddress(rawData, format, start, count, forceUpperCase);
+                case EncodingType.HexAscii:
+                    return BinaryToStringFormatter.ToHexAscii(rawData, format, start, count, forceUpperCase);
+                case EncodingType.HexAsciiAddress:
+                    return BinaryToStringFormatter.ToHexAddressAndAscii(rawData, format, start, count, forceUpperCase);
+                case EncodingType.HexRaw:
+                    return BinaryToStringFormatter.ToHexRaw(rawData, start, count, forceUpperCase);
+                default:
+                    throw new ArgumentException("Specified encoding is invalid.");
             }
         }
         /// <summary>
@@ -99,13 +99,20 @@ namespace SysadminsLV.Asn1Parser {
                 case EncodingType.Base64:
                 case EncodingType.Base64Header:
                 case EncodingType.Base64CrlHeader:
-                case EncodingType.Base64RequestHeader: return toBase64(asn.GetRawData(), encoding, format, asn.PayloadStartOffset, asn.PayloadLength);
-                case EncodingType.Hex: return toHex(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
-                case EncodingType.HexAddress: return toHexAddr(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
-                case EncodingType.HexAscii: return toHexAscii(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
-                case EncodingType.HexAsciiAddress: return toHexAddrAscii(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
-                case EncodingType.HexRaw: return toHexRaw(asn.GetRawData(), asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
-                default: throw new ArgumentException("An invalid encoding type is specified");
+                case EncodingType.Base64RequestHeader:
+                    return BinaryToStringFormatter.ToBase64(asn.GetRawData(), encoding, format, asn.PayloadStartOffset, asn.PayloadLength);
+                case EncodingType.Hex:
+                    return BinaryToStringFormatter.ToHex(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
+                case EncodingType.HexAddress:
+                    return BinaryToStringFormatter.ToHexAddress(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
+                case EncodingType.HexAscii:
+                    return BinaryToStringFormatter.ToHexAscii(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
+                case EncodingType.HexAsciiAddress:
+                    return BinaryToStringFormatter.ToHexAddressAndAscii(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
+                case EncodingType.HexRaw:
+                    return BinaryToStringFormatter.ToHexRaw(asn.GetRawData(), asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
+                default:
+                    throw new ArgumentException("Specified encoding is invalid.");
             }
         }
         /// <summary>
@@ -184,249 +191,7 @@ namespace SysadminsLV.Asn1Parser {
             return rawBytes != null ? EncodingType.HexAscii : EncodingType.Binary;
         }
 
-        static String toHexRaw(Byte[] rawData, Int32 start, Int32 count, Boolean forceUpperCase) {
-            count = getCount(rawData.Length, start, count);
-            StringBuilder SB = new StringBuilder();
-            for (Int32 i = start; i < start + count; i++) {
-                byteToHexOctet(SB, rawData[i], forceUpperCase);
-            }
-            return SB.ToString();
-        }
-        static String toHex(Byte[] rawData, EncodingFormat format, Int32 start, Int32 count, Boolean forceUpperCase) {
-            count = getCount(rawData.Length, start, count);
-            StringBuilder SB = new StringBuilder();
-            //if (format == EncodingFormat.NOCRLF) {
-            //	for (Int32 i = start; i < start + count; i++) {
-                    //byteToHexOctet(SB, rawData[i], forceUpperCase);
-                //}
-            //	return SB.Remove(SB.Length - 1, 1).ToString();
-            //}
-            Int32 n = 0;
-            for (Int32 index = start; index < start + count; index++) {
-                n++;
-                byteToHexOctet(SB, rawData[index], forceUpperCase);
-                if (index == start) {
-                    SB.Append(" ");
-                    continue;
-                }
-                if (n % 16 == 0) {
-                    switch (format) {
-                        case EncodingFormat.NOCRLF: SB.Append(" "); break;
-                        case EncodingFormat.CRLF: SB.Append("\r\n"); break;
-                        case EncodingFormat.NOCR: SB.Append("\n"); break;
-                    }
-                } else if (n % 8 == 0 && format != EncodingFormat.NOCRLF) {
-                    SB.Append("  ");
-                } else {
-                    SB.Append(" ");
-                }
-            }
-            switch (format) {
-                case EncodingFormat.NOCR:
-                    SB.Append('\n'); break;
-                case EncodingFormat.NOCRLF:
-                    break;
-                default:
-                    SB.Append("\r\n"); break;
-            }
-            return SB.ToString();
-        }
-        static String toHexAddr(Byte[] rawData, EncodingFormat format, Int32 start, Int32 count, Boolean forceUpperCase) {
-            count = getCount(rawData.Length, start, count);
-            StringBuilder SB = new StringBuilder();
-            Int32 rowCount = 0, n = 0;
-            Int32 addrLength = getAddrLength(rawData.Length);
-            for (Int32 index = start; index < start + count; index++) {
-                if (n % 16 == 0) {
-                    String addr = Convert.ToString(rowCount, 16).PadLeft(addrLength, '0');
-                    if (forceUpperCase) {
-                        addr = addr.ToUpper();
-                    }
-                    SB.Append(addr);
-                    SB.Append("    ");
-                    rowCount += 16;
-                }
-                byteToHexOctet(SB, rawData[index], forceUpperCase);
-                if (index == start) {
-                    SB.Append(" ");
-                    n++;
-                    continue;
-                }
-                if ((n + 1) % 16 == 0) {
-                    SB.Append(format == EncodingFormat.NOCR ? "\n" : "\r\n");
-                } else if ((n + 1) % 8 == 0) {
-                    SB.Append("  ");
-                } else {
-                    SB.Append(" ");
-                }
-                n++;
-            }
-            switch (format) {
-                case EncodingFormat.NOCR:
-                    SB.Append('\n'); break;
-                case EncodingFormat.NOCRLF:
-                    break;
-                default:
-                    SB.Append("\r\n"); break;
-            }
-            return SB.ToString();
-        }
-        static String toHexAscii(Byte[] rawData, EncodingFormat format, Int32 start, Int32 count, Boolean forceUpperCase) {
-            count = getCount(rawData.Length, start, count);
-            StringBuilder SB = new StringBuilder();
-            StringBuilder ascii = new StringBuilder(8);
-            Int32 n = 0;
-            for (Int32 index = 0; index < start + count; index++) {
-                n++;
-                byteToHexOctet(SB, rawData[index], forceUpperCase);
-                Char c = rawData[index] < 32 || rawData[index] > 126
-                        ? '.'
-                        : (Char)rawData[index];
-                ascii.Append(c);
-                if (index == start) {
-                    SB.Append(" ");
-                    continue;
-                }
-                if (n % 16 == 0) {
-                    SB.Append("   ");
-                    SB.Append(ascii);
-                    ascii.Clear();
-                    SB.Append(format == EncodingFormat.NOCR ? "\n" : "\r\n");
-                } else if (n % 8 == 0) {
-                    SB.Append("  ");
-                } else {
-                    SB.Append(" ");
-                }
-                // handle last byte to complete partial ASCII panel.
-                if (n == count) {
-                    Int32 remainder = n % 16;
-                    if (remainder > 7) {
-                        SB.Append(new String(' ', (17 - remainder) * 3 - 1));
-                        SB.Append(ascii);
-                    } else {
-                        SB.Append(new String(' ', (17 - remainder) * 3));
-                        SB.Append(ascii);
-                    }
-                }
-            }
-            switch (format) {
-                case EncodingFormat.NOCR:
-                    SB.Append('\n'); break;
-                case EncodingFormat.NOCRLF:
-                    break;
-                default:
-                    SB.Append("\r\n"); break;
-            }
-            return SB.ToString();
-        }
-        static String toHexAddrAscii(Byte[] rawData, EncodingFormat format, Int32 start, Int32 count, Boolean forceUpperCase) {
-            count = getCount(rawData.Length, start, count);
-            StringBuilder SB = new StringBuilder();
-            StringBuilder ascii = new StringBuilder(8);
-            Int32 addrLength = getAddrLength(rawData.Length);
-            Int32 rowCount = 0, n = 0;
-            for (Int32 index = 0; index < start + count; index++) {
-                if (n % 16 == 0) {
-                    String addr = Convert.ToString(rowCount, 16).PadLeft(addrLength, '0');
-                    if (forceUpperCase) {
-                        addr = addr.ToUpper();
-                    }
-                    SB.Append(addr);
-                    SB.Append("    ");
-                    rowCount += 16;
-                }
-                byteToHexOctet(SB, rawData[index], forceUpperCase);
-                Char c = rawData[index] < 32 || rawData[index] > 126
-                        ? '.'
-                        : (Char)rawData[index];
-                ascii.Append(c);
-                if (index == 0) {
-                    SB.Append(" ");
-                    n++;
-                    continue;
-                }
-                if ((n + 1) % 16 == 0) {
-                    SB.Append("   ");
-                    SB.Append(ascii);
-                    ascii.Clear();
-                    SB.Append(format == EncodingFormat.NOCR ? "\n" : "\r\n");
-                } else if ((n + 1) % 8 == 0) {
-                    SB.Append("  ");
-                } else {
-                    SB.Append(" ");
-                }
-                // handle last byte to complete partial ASCII panel.
-                if (n + 1 == count) {
-                    Int32 remainder = (index + 1) % 16;
-                    if (remainder > 7) {
-                        SB.Append(new String(' ', (17 - remainder) * 3 - 1));
-                        SB.Append(ascii);
-                    } else {
-                        SB.Append(new String(' ', (17 - remainder) * 3));
-                        SB.Append(ascii);
-                    }
-                }
-                n++;
-            }
-            switch (format) {
-                case EncodingFormat.NOCR:
-                    SB.Append('\n'); break;
-                case EncodingFormat.NOCRLF:
-                    break;
-                default:
-                    SB.Append("\r\n"); break;
-            }
-            return SB.ToString();
-        }
-        static String toBase64(Byte[] rawData, EncodingType encoding, EncodingFormat format, Int32 start, Int32 count) {
-            count = getCount(rawData.Length, start, count);
-            StringBuilder SB = new StringBuilder(Convert.ToBase64String(rawData.Skip(start).Take(count).ToArray()));
-            String splitter;
-            switch (format) {
-                case EncodingFormat.NOCR:
-                    splitter = "\n";
-                    // Base64FormattingOptions inserts new lines at 76 position, while we need 64.
-                    for (Int32 i = 64; i < SB.Length; i += 65) { // 64 + "\r\n"
-                        SB.Insert(i, splitter);
-                    }
-                    break;
-                case EncodingFormat.NOCRLF:
-                    splitter = String.Empty;
-                    break;
-                default:
-                    splitter = "\r\n";
-                    // Base64FormattingOptions inserts new lines at 76 position, while we need 64.
-                    for (Int32 i = 64; i < SB.Length; i += 66) { // 64 + "\r\n"
-                        SB.Insert(i, splitter);
-                    }
-                    break;
-            }
-            switch (encoding) {
-                case EncodingType.Base64: break;
-                case EncodingType.Base64Header:
-                    SB.Insert(0, certHeader + splitter);
-                    SB.Append(splitter + certFooter);
-                    break;
-                case EncodingType.Base64CrlHeader:
-                    SB.Insert(0, crlHeader + splitter);
-                    SB.Append(splitter + crlFooter);
-                    break;
-                case EncodingType.Base64RequestHeader:
-                    SB.Insert(0, reqHeader + splitter);
-                    SB.Append(splitter + reqFooter);
-                    break;
-                default: throw new ArgumentException("The parameter is incorrect.");
-            }
-            switch (format) {
-                case EncodingFormat.NOCR:
-                    SB.Append('\n'); break;
-                case EncodingFormat.NOCRLF:
-                    break;
-                default:
-                    SB.Append("\r\n"); break;
-            }
-            return SB.ToString();
-        }
+        
 
         static Byte[] fromBase64(String input) {
             try {
@@ -435,7 +200,7 @@ namespace SysadminsLV.Asn1Parser {
                 return null;
             }
         }
-        // accept any header, no only certificate
+        // accept any header, not only certificate
         static Byte[] fromBase64Header(String input) {
             const String header = "-----BEGIN ";
             const String footer = "-----END ";
@@ -452,12 +217,14 @@ namespace SysadminsLV.Asn1Parser {
             }
         }
         static Byte[] fromBase64Crl(String input) {
-            if (!input.ToUpper().Contains(crlHeader) || !input.Contains(crlFooter)) {
+            String header = PemHeaders.GetCrlHeader();
+            String footer = PemHeaders.GetCrlFooter();
+            if (!input.ToUpper().Contains(header) || !input.Contains(footer)) {
                 return null;
             }
-            Int32 start = input.IndexOf(crlHeader, StringComparison.Ordinal) + 10;
+            Int32 start = input.IndexOf(header, StringComparison.Ordinal) + 10;
             Int32 headerEndPos = input.IndexOf("-----", start, StringComparison.Ordinal) + 5;
-            Int32 footerStartPos = input.IndexOf(crlFooter, StringComparison.Ordinal);
+            Int32 footerStartPos = input.IndexOf(footer, StringComparison.Ordinal);
             try {
                 return Convert.FromBase64String(input.Substring(headerEndPos, footerStartPos - headerEndPos));
             } catch {
@@ -465,12 +232,20 @@ namespace SysadminsLV.Asn1Parser {
             }
         }
         static Byte[] fromBase64Request(String input) {
-            if (!input.ToUpper().Contains(reqHeader) || !input.Contains(reqFooter)) {
+            String header;
+            String footer;
+            if (input.ToUpper().Contains(PemHeaders.GetCertReqNewHeader())) {
+                header = PemHeaders.GetCertReqNewHeader();
+                footer = PemHeaders.GetCertReqNewFooter();
+            } else if (input.ToUpper().Contains(PemHeaders.GetCertReqHeader())) {
+                header = PemHeaders.GetCertReqHeader();
+                footer = PemHeaders.GetCertReqFooter();
+            } else {
                 return null;
             }
-            Int32 start = input.IndexOf(reqHeader, StringComparison.Ordinal) + 10;
+            Int32 start = input.IndexOf(header, StringComparison.Ordinal) + 10;
             Int32 headerEndPos = input.IndexOf("-----", start, StringComparison.Ordinal) + 5;
-            Int32 footerStartPos = input.IndexOf(reqFooter, StringComparison.Ordinal);
+            Int32 footerStartPos = input.IndexOf(footer, StringComparison.Ordinal);
             try {
                 return Convert.FromBase64String(input.Substring(headerEndPos, footerStartPos - headerEndPos));
             } catch {
@@ -492,7 +267,7 @@ namespace SysadminsLV.Asn1Parser {
          * 2) each octet is separated by one or more delimiter chars
          */
         static Byte[] fromHex(String input) {
-            List<Byte> bytes = new List<Byte>(input.Length / 2);
+            var bytes = new List<Byte>(input.Length / 2);
             for (Int32 i = 0; i < input.Length; i++) {
                 if (testHexChar(input[i])) {
                     if (i + 1 == input.Length || !testHexChar(input[i + 1])) {
@@ -516,7 +291,7 @@ namespace SysadminsLV.Asn1Parser {
         static Byte[] fromHexAddr(String input) {
             Byte octetCount = 0;
             Boolean addressReached = false;
-            List<Byte> bytes = new List<Byte>(input.Length / 3);
+            var bytes = new List<Byte>(input.Length / 3);
             for (Int32 i = 0; i < input.Length; i++) {
                 if (octetCount == 0 && !addressReached) {
                     // attempt to resolve if address octet is reached
@@ -594,7 +369,7 @@ namespace SysadminsLV.Asn1Parser {
             Byte octetCount = 0;
             Boolean asciiReached = false;
             String ascii = String.Empty;
-            List<Byte> bytes = new List<Byte>(input.Length / 3);
+            var bytes = new List<Byte>(input.Length / 3);
             for (Int32 i = 0; i < input.Length; i++) {
                 // do not allow more hex octets after full line. Treat them as ascii characters.
                 if (octetCount == 16) {
@@ -659,7 +434,7 @@ namespace SysadminsLV.Asn1Parser {
             Byte octetCount = 0;
             Boolean addressReached = false, asciiReached = false;
             String ascii = String.Empty;
-            List<Byte> bytes = new List<Byte>(input.Length / 3);
+            var bytes = new List<Byte>(input.Length / 3);
             for (Int32 i = 0; i < input.Length; i++) {
                 if (octetCount == 0 && !addressReached) {
                     // attempt to resolve if address octet is reached
@@ -762,19 +537,6 @@ namespace SysadminsLV.Asn1Parser {
                 fromHexAscii(input);
         }
 
-        // helper methods
-        static Int32 getAddrLength(Int32 size) {
-            Int32 div = size / 16;
-            if (size % 16 > 0) { div++; }
-            String h = $"{div:x}";
-            return h.Length < 4
-                ? 4
-                : (h.Length % 2 == 0 ? h.Length : h.Length + 1);
-        }
-        static void byteToHexOctet(StringBuilder sb, Byte b, Boolean forceUpperCase) {
-            sb.Append(byteToHexChar((b >> 4) & 15, forceUpperCase));
-            sb.Append(byteToHexChar(b & 15, forceUpperCase));
-        }
         // unchecked.
         static Byte hexCharToByte(Char c) {
             return c >= '0' && c <= '9'
@@ -784,11 +546,7 @@ namespace SysadminsLV.Asn1Parser {
                     : (Byte) (c - 'A' + 10));
         }
 
-        static Char byteToHexChar(Int32 b, Boolean forceUpperCase) {
-            return b < 10
-                ? (Char)(b + 48)
-                : (forceUpperCase ? (Char)(b + 55) : (Char)(b + 87));
-        }
+        
         static Boolean testWhitespace(Char c) {
             return c == ' '  ||
                    c == '\t' ||
@@ -813,12 +571,6 @@ namespace SysadminsLV.Asn1Parser {
             return (c >= '0' && c <= '9') ||
                    (c >= 'a' && c <= 'f') ||
                    (c >= 'A' && c <= 'F');
-        }
-        static Int32 getCount(Int32 size, Int32 start, Int32 count) {
-            if (start < 0 || start >= size) {
-                throw new OverflowException();
-            }
-            return count == 0 || start + count > size ? size - start : count;
         }
     }
 }
