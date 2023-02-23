@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
         <Title>High-performance and robust .NET ASN.1 DER parser</Title>
         <Version>1.2.9</Version>
         <Authors>Vadims Podans, PKI Solutions Inc.</Authors>
