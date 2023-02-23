@@ -58,5 +58,23 @@ namespace SysadminsLV.Asn1Parser.Universal {
 
             return new Asn1GeneralizedTime(time, zone);
         }
+        /// <summary>
+        /// Gets an ASN.1 date/time instance from current position in ASN.1 reader.
+        /// </summary>
+        /// <param name="reader">ASN.1 reader that points to either, UTC time or generalized time.</param>
+        /// <returns>An instance of <see cref="Asn1UtcTime"/> or <see cref="Asn1GeneralizedTime"/>.</returns>
+        /// <exception cref="Asn1InvalidTagException">
+        ///     ASN.1 reader points to non-date/time field.
+        /// </exception>
+        public static Asn1DateTime DecodeAnyDateTime(Asn1Reader reader) {
+            switch (reader.Tag) {
+                case (Byte)Asn1Type.UTCTime:
+                    return new Asn1UtcTime(reader);
+                case (Byte)Asn1Type.GeneralizedTime:
+                    return new Asn1GeneralizedTime(reader);
+                default:
+                    throw new Asn1InvalidTagException("Specified data is not valid ASN.1 date/time type.");
+            }
+        }
     }
 }
