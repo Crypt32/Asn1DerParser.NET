@@ -72,7 +72,7 @@ public class Asn1Reader {
     }
 
     /// <summary>
-    /// Gets current position in the byte array stored in <see cref="RawData"/> property.
+    /// Gets current position in the byte array stored in current data source.
     /// </summary>
     public Int32 Offset { get; private set; }
     /// <summary>
