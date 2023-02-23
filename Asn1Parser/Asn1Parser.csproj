@@ -3,7 +3,7 @@
         <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <Title>High-performance and robust .NET ASN.1 DER parser</Title>
-        <Version>1.2.9</Version>
+        <Version>1.2.10</Version>
         <Authors>Vadims Podans, PKI Solutions Inc.</Authors>
         <Company>PKI Solutions LLC</Company>
         <Description>ASN.1 binary parser and utility set for binary data encoded with Distinguished Encoding Rules (DER).</Description>
