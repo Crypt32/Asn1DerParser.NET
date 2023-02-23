@@ -2,18 +2,18 @@
 using System.Linq;
 using System.Numerics;
 
-namespace SysadminsLV.Asn1Parser.Utils.CLRExtensions {
+namespace SysadminsLV.Asn1Parser.Utils.CLRExtensions;
+
+/// <summary>
+/// Extension class for <see cref="BigInteger"/> class.
+/// </summary>
+static class BigIntegerExtensions {
     /// <summary>
-    /// Extension class for <see cref="BigInteger"/> class.
+    /// Gets a byte array in the big-endian order.
     /// </summary>
-    static class BigIntegerExtensions {
-        /// <summary>
-        /// Gets a byte array in the big-endian order.
-        /// </summary>
-        /// <param name="bigInteger">An <see cref="BigInteger"/> class instance.</param>
-        /// <returns>Byte array in a big-endian order.</returns>
-        public static Byte[] GetAsnBytes(this BigInteger bigInteger) {
-            return bigInteger.ToByteArray().Reverse().ToArray();
-        }
+    /// <param name="bigInteger">An <see cref="BigInteger"/> class instance.</param>
+    /// <returns>Byte array in a big-endian order.</returns>
+    public static Byte[] GetAsnBytes(this BigInteger bigInteger) {
+        return bigInteger.ToByteArray().Reverse().ToArray();
     }
 }
