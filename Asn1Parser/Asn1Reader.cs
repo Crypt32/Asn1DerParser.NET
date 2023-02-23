@@ -550,6 +550,8 @@ public class Asn1Reader {
                 return new Asn1PrintableString(this);
             case (Byte)Asn1Type.TeletexString:
                 return new Asn1TeletexString(this);
+            case (Byte)Asn1Type.VideotexString:
+                return new Asn1VideotexString(this);
             case (Byte)Asn1Type.IA5String:
                 return new Asn1IA5String(this);
             case (Byte)Asn1Type.UTCTime:
