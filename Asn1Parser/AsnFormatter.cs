@@ -41,11 +41,11 @@ public static class AsnFormatter {
         if (rawData == null || rawData.Length == 0) {
             return String.Empty;
         }
+        if (PemHeader.ContainsEncoding(encoding)) {
+            return BinaryToStringFormatter.ToBase64(rawData, encoding, format, start, count);
+        }
         switch (encoding) {
             case EncodingType.Base64:
-            case EncodingType.Base64Header:
-            case EncodingType.Base64CrlHeader:
-            case EncodingType.Base64RequestHeader:
                 return BinaryToStringFormatter.ToBase64(rawData, encoding, format, start, count);
             case EncodingType.Hex:
                 return BinaryToStringFormatter.ToHex(rawData, format, start, count, forceUpperCase);
@@ -90,13 +90,20 @@ public static class AsnFormatter {
     /// </list>
     /// </remarks>
     public static String BinaryToString(Asn1Reader asn, EncodingType encoding = EncodingType.HexRaw, EncodingFormat format = EncodingFormat.CRLF, Boolean forceUpperCase = false) {
-        if (asn == null) { throw new ArgumentNullException(nameof(asn)); }
-        if (asn.PayloadLength == 0) { return String.Empty; }
+        if (asn == null) {
+            throw new ArgumentNullException(nameof(asn));
+        }
+        if (asn.PayloadLength == 0) {
+            return String.Empty;
+        }
+        if ((Int32)encoding > 20 && (Int32)encoding < 45) {
+            return BinaryToStringFormatter.ToBase64(asn.GetRawData(), encoding, format, asn.PayloadStartOffset, asn.PayloadLength);
+        }
+        if (PemHeader.ContainsEncoding(encoding)) {
+            return BinaryToStringFormatter.ToBase64(asn.GetRawData(), encoding, format, asn.PayloadStartOffset, asn.PayloadLength);
+        }
         switch (encoding) {
             case EncodingType.Base64:
-            case EncodingType.Base64Header:
-            case EncodingType.Base64CrlHeader:
-            case EncodingType.Base64RequestHeader:
                 return BinaryToStringFormatter.ToBase64(asn.GetRawData(), encoding, format, asn.PayloadStartOffset, asn.PayloadLength);
             case EncodingType.Hex:
                 return BinaryToStringFormatter.ToHex(asn.GetRawData(), format, asn.PayloadStartOffset, asn.PayloadLength, forceUpperCase);
@@ -120,53 +127,56 @@ public static class AsnFormatter {
     /// <exception cref="ArgumentException">And invalid encoding is specified.</exception>
     /// <exception cref="InvalidDataException">The string cannot be decoded.</exception>
     /// <returns>Original byte array.</returns>
-    /// <remarks>This method may not be fully compatible with
-    /// <see cref="BinaryToString(Byte[],EncodingType,EncodingFormat,Int32,Int32,Boolean)">BinaryToString</see>
-    /// method.
+    /// <remarks>
+    ///     This method may not be fully compatible with
+    ///     <see cref="BinaryToString(Byte[],EncodingType,EncodingFormat,Int32,Int32,Boolean)">BinaryToString</see>
+    ///     method.
+    /// <para>
+    ///     If encoding parameter is set to <strong>Base64Header</strong>, the method will accept any properly formatted PEM header
+    ///     and footer.
+    /// </para>
     /// </remarks>
     public static Byte[] StringToBinary(String input, EncodingType encoding = EncodingType.Base64) {
         Byte[] rawData;
-        switch (encoding) {
-            case EncodingType.Binary:
-                rawData = StringToBinaryFormatter.FromBinary(input);
-                break;
-            case EncodingType.Base64:
-                rawData = StringToBinaryFormatter.FromBase64(input);
-                break;
-            case EncodingType.Base64Header:
-                rawData = StringToBinaryFormatter.FromBase64Header(input);
-                break;
-            case EncodingType.Base64CrlHeader:
-                rawData = StringToBinaryFormatter.FromBase64Crl(input);
-                break;
-            case EncodingType.Base64RequestHeader:
-                rawData = StringToBinaryFormatter.FromBase64Request(input);
-                break;
-            case EncodingType.Base64Any:
-                rawData = StringToBinaryFormatter.FromBase64Any(input);
-                break;
-            case EncodingType.StringAny:
-                rawData = StringToBinaryFormatter.FromStringAny(input);
-                break;
-            case EncodingType.Hex:
-            case EncodingType.HexRaw:
-                rawData = StringToBinaryFormatter.FromHex(input);
-                break;
-            case EncodingType.HexAddress:
-                rawData = StringToBinaryFormatter.FromHexAddr(input);
-                break;
-            case EncodingType.HexAscii:
-                rawData = StringToBinaryFormatter.FromHexAscii(input);
-                break;
-            case EncodingType.HexAsciiAddress:
-                rawData = StringToBinaryFormatter.FromHexAddrAscii(input);
-                break;
-            case EncodingType.HexAny:
-                rawData = StringToBinaryFormatter.FromHexAny(input);
-                break;
-            default:
-                throw new ArgumentException("Invalid encoding type is specified.");
+        if (PemHeader.ContainsEncoding(encoding)) {
+            var pemHeader = PemHeader.GetHeader(encoding);
+            rawData = StringToBinaryFormatter.FromBase64Header(input, pemHeader.GetHeader(), pemHeader.GetFooter());
+        } else {
+            switch (encoding) {
+                case EncodingType.Binary:
+                    rawData = StringToBinaryFormatter.FromBinary(input);
+                    break;
+                case EncodingType.Base64:
+                    rawData = StringToBinaryFormatter.FromBase64(input);
+                    break;
+                case EncodingType.Base64Any:
+                    rawData = StringToBinaryFormatter.FromBase64Any(input);
+                    break;
+                case EncodingType.StringAny:
+                    rawData = StringToBinaryFormatter.FromStringAny(input);
+                    break;
+                case EncodingType.Hex:
+                case EncodingType.HexRaw:
+                    rawData = StringToBinaryFormatter.FromHex(input);
+                    break;
+                case EncodingType.HexAddress:
+                    rawData = StringToBinaryFormatter.FromHexAddr(input);
+                    break;
+                case EncodingType.HexAscii:
+                    rawData = StringToBinaryFormatter.FromHexAscii(input);
+                    break;
+                case EncodingType.HexAsciiAddress:
+                    rawData = StringToBinaryFormatter.FromHexAddrAscii(input);
+                    break;
+                case EncodingType.HexAny:
+                    rawData = StringToBinaryFormatter.FromHexAny(input);
+                    break;
+                default:
+                    throw new ArgumentException("Invalid encoding type is specified.");
+            }
         }
+
+        
         if (rawData == null) {
             throw new InvalidDataException("The data is invalid.");
         }
@@ -180,13 +190,12 @@ public static class AsnFormatter {
     /// Resolved input string format. If format cannot be determined, <string>Binary</string> type is returned.
     /// </returns>
     public static EncodingType TestInputString(String input) {
-        Byte[] rawBytes = StringToBinaryFormatter.FromBase64Crl(input);
-        if (rawBytes != null) {
-            return EncodingType.Base64CrlHeader;
-        }
-        rawBytes = StringToBinaryFormatter.FromBase64Request(input);
-        if (rawBytes != null) {
-            return EncodingType.Base64RequestHeader;
+        Byte[] rawBytes;
+        foreach (PemHeader pemHeader in PemHeader.GetPemHeaders()) {
+            rawBytes = StringToBinaryFormatter.FromBase64Header(input, pemHeader.GetHeader(), pemHeader.GetFooter());
+            if (rawBytes != null) {
+                return pemHeader.Encoding;
+            }
         }
         rawBytes = StringToBinaryFormatter.FromBase64Header(input);
         if (rawBytes != null) {

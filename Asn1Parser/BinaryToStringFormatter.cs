@@ -105,14 +105,8 @@ static class BinaryToStringFormatter {
             }
             // handle last byte to complete partial ASCII panel.
             if (n == count) {
-                Int32 remainder = n % 16;
-                if (remainder > 7) {
-                    sb.Append(new String(' ', (17 - remainder) * 3 - 1));
-                    sb.Append(ascii);
-                } else {
-                    sb.Append(new String(' ', (17 - remainder) * 3));
-                    sb.Append(ascii);
-                }
+                sb.Append(getAsciiPadding(n));
+                sb.Append(ascii);
             }
         }
 
@@ -156,14 +150,8 @@ static class BinaryToStringFormatter {
             }
             // handle last byte to complete partial ASCII panel.
             if (n + 1 == count) {
-                Int32 remainder = (index + 1) % 16;
-                if (remainder > 7) {
-                    sb.Append(new String(' ', (17 - remainder) * 3 - 1));
-                    sb.Append(ascii);
-                } else {
-                    sb.Append(new String(' ', (17 - remainder) * 3));
-                    sb.Append(ascii);
-                }
+                sb.Append(getAsciiPadding(index + 1));
+                sb.Append(ascii);
             }
             n++;
         }
@@ -208,21 +196,12 @@ static class BinaryToStringFormatter {
 
     static void finalizeBase64WithHeader(StringBuilder sb, EncodingType encoding, String splitter) {
         Func<String> header, footer;
-        switch (encoding) {
-            case EncodingType.Base64Header:
-                header = PemHeaders.GetCertHeader;
-                footer = PemHeaders.GetCertFooter;
-                break;
-            case EncodingType.Base64RequestHeader:
-                header = PemHeaders.GetCertReqNewHeader;
-                footer = PemHeaders.GetCertReqNewFooter;
-                break;
-            case EncodingType.Base64CrlHeader:
-                header = PemHeaders.GetCrlHeader;
-                footer = PemHeaders.GetCrlFooter;
-                break;
-            default:
-                throw new ArgumentException("Specified encoding is not valid Base64 encoding.");
+        if (PemHeader.ContainsEncoding(encoding)) {
+            PemHeader pemHeader = PemHeader.GetHeader(encoding);
+            header = pemHeader.GetHeader;
+            footer = pemHeader.GetFooter;
+        } else {
+            throw new ArgumentException("Specified encoding is not valid Base64 encoding.");
         }
         sb.Insert(0, header.Invoke() + splitter);
         sb.Append(splitter + footer.Invoke());
@@ -242,6 +221,14 @@ static class BinaryToStringFormatter {
 
     #region helper methods
 
+    static String getAsciiPadding(Int32 index) {
+        Int32 remainder = index % 16;
+        if (remainder > 7) {
+            return new String(' ', (17 - remainder) * 3 - 1);
+        }
+
+        return new String(' ', (17 - remainder) * 3);
+    }
     static Int32 getCount(Int32 size, Int32 start, Int32 count) {
         if (start < 0 || start >= size) {
             throw new OverflowException();

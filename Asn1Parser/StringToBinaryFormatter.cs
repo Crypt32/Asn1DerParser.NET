@@ -17,22 +17,11 @@ static class StringToBinaryFormatter {
     public static Byte[] FromBase64Header(String input) {
         const String header = "-----BEGIN ";
         const String footer = "-----END ";
-        if (!input.ToUpper().Contains(header) || !input.Contains(footer)) {
-            return null;
-        }
-        Int32 start = input.IndexOf(header, StringComparison.Ordinal) + 10;
-        Int32 headerEndPos = input.IndexOf("-----", start, StringComparison.Ordinal) + 5;
-        Int32 footerStartPos = input.IndexOf(footer, StringComparison.Ordinal);
-        try {
-            return Convert.FromBase64String(input.Substring(headerEndPos, footerStartPos - headerEndPos));
-        } catch {
-            return null;
-        }
+
+        return FromBase64Header(input, header, footer, true);
     }
-    public static Byte[] FromBase64Crl(String input) {
-        String header = PemHeaders.GetCrlHeader();
-        String footer = PemHeaders.GetCrlFooter();
-        if (!input.ToUpper().Contains(header) || !input.Contains(footer)) {
+    public static Byte[] FromBase64Header(String input, String header, String footer, Boolean skipHeaderValidation = false) {
+        if (skipHeaderValidation && (!input.ToUpper().Contains(header) || !input.Contains(footer))) {
             return null;
         }
         Int32 start = input.IndexOf(header, StringComparison.Ordinal) + 10;
@@ -47,23 +36,17 @@ static class StringToBinaryFormatter {
     public static Byte[] FromBase64Request(String input) {
         String header;
         String footer;
-        if (input.ToUpper().Contains(PemHeaders.GetCertReqNewHeader())) {
-            header = PemHeaders.GetCertReqNewHeader();
-            footer = PemHeaders.GetCertReqNewFooter();
-        } else if (input.ToUpper().Contains(PemHeaders.GetCertReqHeader())) {
-            header = PemHeaders.GetCertReqHeader();
-            footer = PemHeaders.GetCertReqFooter();
+        if (input.ToUpper().Contains(PemHeader.PEM_HEADER_REQ_NEW.GetHeader())) {
+            header = PemHeader.PEM_HEADER_REQ_NEW.GetHeader();
+            footer = PemHeader.PEM_HEADER_REQ_NEW.GetFooter();
+        } else if (input.ToUpper().Contains(PemHeader.PEM_HEADER_REQ.GetHeader())) {
+            header = PemHeader.PEM_HEADER_REQ.GetHeader();
+            footer = PemHeader.PEM_HEADER_REQ.GetFooter();
         } else {
             return null;
         }
-        Int32 start = input.IndexOf(header, StringComparison.Ordinal) + 10;
-        Int32 headerEndPos = input.IndexOf("-----", start, StringComparison.Ordinal) + 5;
-        Int32 footerStartPos = input.IndexOf(footer, StringComparison.Ordinal);
-        try {
-            return Convert.FromBase64String(input.Substring(headerEndPos, footerStartPos - headerEndPos));
-        } catch {
-            return null;
-        }
+
+        return FromBase64Header(input, header, footer, true);
     }
     public static Byte[] FromBinary(String input) {
         Byte[] rawBytes = new Byte[input.Length];
@@ -360,7 +343,7 @@ static class StringToBinaryFormatter {
                 : (Byte)(c - 'A' + 10));
     }
 
-
+    
     static Boolean testWhitespace(Char c) {
         return c == ' ' ||
                c == '\t' ||
