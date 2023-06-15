@@ -13,4 +13,4 @@ NuGet\Install-Package SysadminsLV.Asn1Parser
 
 
 
-Online API documentation: [PKI Solutions Asn1Parser Documented Class Library](https://www.pkisolutions.com/apidocs/asn1parser)
+Online API documentation: [PKI Solutions Asn1Parser Documented Class Library](https://www.pkisolutions.com/apidocs/pki)
