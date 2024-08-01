@@ -527,46 +527,28 @@ public class Asn1Reader {
     /// </summary>
     /// <returns>ASN.1 object that represents current tag.</returns>
     public Asn1Universal GetTagObject() {
-        switch (Tag) {
-            case (Byte)Asn1Type.BOOLEAN:
-                return new Asn1Boolean(this);
-            case (Byte)Asn1Type.INTEGER:
-                return new Asn1Integer(this);
-            case (Byte)Asn1Type.BIT_STRING:
-                return new Asn1BitString(this);
-            case (Byte)Asn1Type.OCTET_STRING:
-                return new Asn1OctetString(this);
-            case (Byte)Asn1Type.NULL:
-                return new Asn1Null(this);
-            case (Byte)Asn1Type.OBJECT_IDENTIFIER:
-                return new Asn1ObjectIdentifier(this);
-            case (Byte)Asn1Type.ENUMERATED:
-                return new Asn1Enumerated(this);
-            case (Byte)Asn1Type.UTF8String:
-                return new Asn1UTF8String(this);
-            case (Byte)Asn1Type.NumericString:
-                return new Asn1NumericString(this);
-            case (Byte)Asn1Type.PrintableString:
-                return new Asn1PrintableString(this);
-            case (Byte)Asn1Type.TeletexString:
-                return new Asn1TeletexString(this);
-            case (Byte)Asn1Type.VideotexString:
-                return new Asn1VideotexString(this);
-            case (Byte)Asn1Type.IA5String:
-                return new Asn1IA5String(this);
-            case (Byte)Asn1Type.UTCTime:
-                return new Asn1UtcTime(this);
-            case (Byte)Asn1Type.GeneralizedTime:
-                return new Asn1GeneralizedTime(this);
-            case (Byte)Asn1Type.VisibleString:
-                return new Asn1VisibleString(this);
-            case (Byte)Asn1Type.UniversalString:
-                return new Asn1UniversalString(this);
-            case (Byte)Asn1Type.BMPString:
-                return new Asn1BMPString(this);
-            default:
-                return new Asn1AnyType(this);
-        }
+        return Tag switch {
+            (Byte)Asn1Type.BOOLEAN           => new Asn1Boolean(this),
+            (Byte)Asn1Type.INTEGER           => new Asn1Integer(this),
+            (Byte)Asn1Type.BIT_STRING        => new Asn1BitString(this),
+            (Byte)Asn1Type.OCTET_STRING      => new Asn1OctetString(this),
+            (Byte)Asn1Type.NULL              => new Asn1Null(this),
+            (Byte)Asn1Type.OBJECT_IDENTIFIER => new Asn1ObjectIdentifier(this),
+            (Byte)Asn1Type.RELATIVE_OID      => new Asn1RelativeOid(this),
+            (Byte)Asn1Type.ENUMERATED        => new Asn1Enumerated(this),
+            (Byte)Asn1Type.UTF8String        => new Asn1UTF8String(this),
+            (Byte)Asn1Type.NumericString     => new Asn1NumericString(this),
+            (Byte)Asn1Type.PrintableString   => new Asn1PrintableString(this),
+            (Byte)Asn1Type.TeletexString     => new Asn1TeletexString(this),
+            (Byte)Asn1Type.VideotexString    => new Asn1VideotexString(this),
+            (Byte)Asn1Type.IA5String         => new Asn1IA5String(this),
+            (Byte)Asn1Type.UTCTime           => new Asn1UtcTime(this),
+            (Byte)Asn1Type.GeneralizedTime   => new Asn1GeneralizedTime(this),
+            (Byte)Asn1Type.VisibleString     => new Asn1VisibleString(this),
+            (Byte)Asn1Type.UniversalString   => new Asn1UniversalString(this),
+            (Byte)Asn1Type.BMPString         => new Asn1BMPString(this),
+            _                                => new Asn1AnyType(this)
+        };
     }
     /// <summary>
     /// Recursively processes ASN tree and builds internal offset map.
