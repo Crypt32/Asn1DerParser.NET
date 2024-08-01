@@ -3,7 +3,7 @@
     <metadata>
         <id>SysadminsLV.Asn1Parser</id>
         <version>$version$</version>
-        <authors>Vadims Podans, PKI Solutions Inc.</authors>
+        <authors>Vadims Podans, PKI Solutions LLC</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <license type="expression">MS-PL</license>
         <repository type="git" url="https://github.com/PKISolutions/Asn1DerParser.NET" />
