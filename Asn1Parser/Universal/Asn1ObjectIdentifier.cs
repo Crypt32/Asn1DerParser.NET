@@ -135,11 +135,11 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
     }
     static Boolean validateOidString(String oid, out List<BigInteger> tokens) {
         String[] strTokens = oid.Split('.');
-        if (strTokens.Length < 3) {
-            tokens = null;
+        if (strTokens.Length < 2) {
+            tokens = [];
             return false;
         }
-        tokens = new List<BigInteger>();
+        tokens = [];
         for (Int32 index = 0; index < strTokens.Length; index++) {
             try {
                 var value = BigInteger.Parse(strTokens[index]);
@@ -148,7 +148,7 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
                 }
                 tokens.Add(value);
             } catch {
-                tokens = null;
+                tokens = [];
                 return false;
             }
         }
