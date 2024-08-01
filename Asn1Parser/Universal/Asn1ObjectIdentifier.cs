@@ -23,7 +23,6 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
     /// <exception cref="Asn1InvalidTagException">
     /// The current state of <strong>ASN1</strong> object is not object identifier.
     /// </exception>
-    /// 
     public Asn1ObjectIdentifier(Asn1Reader asn) : base(asn, TYPE) {
         Value = new Oid(decode(asn));
     }
@@ -63,7 +62,7 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
 
     void m_encode(Oid oid) {
         if (String.IsNullOrWhiteSpace(oid.Value)) {
-            Initialize(new Asn1Reader(new Byte[] { Tag, 0 }));
+            Initialize(new Asn1Reader([Tag, 0]));
             Value = new Oid();
             return;
         }
@@ -121,15 +120,10 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
     }
     static String decode(Asn1Reader asn) {
         var SB = new StringBuilder();
-        Int32 token = 0;
+        Boolean topArcsProcessed = false;
         for (Int32 i = 0; i < asn.PayloadLength; i++) {
             Int32 pi = asn.PayloadStartOffset + i;
-            if (token == 0) {
-                SB.Append(asn[pi] / 40);
-                SB.Append("." + asn[pi] % 40);
-                token++;
-                continue;
-            }
+            
             BigInteger value = 0;
             Boolean proceed;
             do {
@@ -137,13 +131,24 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
                 value += asn[pi] & 0x7f;
                 proceed = (asn[pi] & 0x80) > 0;
                 if (proceed) {
-                    token++;
                     i++;
                     pi++;
                 }
             } while (proceed);
+            if (!topArcsProcessed) {
+                topArcsProcessed = true;
+                // max value for first two arcs in ITU-T and ISO is 79 (OID=1.39). If this value is larger, then
+                // it belongs to 'joint-iso-itu-t' (OID=2.x)
+                if (value >= 80) {
+                    SB.Append("2.").Append(value - 80);
+                } else {
+                    SB.Append(value / 40);
+                    SB.Append("." + value % 40);
+                }
+                continue;
+            }
+
             SB.Append("." + value);
-            token++;
         }
         return SB.ToString();
     }
