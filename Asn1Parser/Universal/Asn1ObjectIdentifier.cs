@@ -12,6 +12,8 @@ namespace SysadminsLV.Asn1Parser.Universal;
 /// </summary>
 public sealed class Asn1ObjectIdentifier : Asn1Universal {
     const Asn1Type TYPE = Asn1Type.OBJECT_IDENTIFIER;
+    const Byte ITU_T_ROOT = 0;
+    const Byte ISO_ROOT   = 1;
 
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1ObjectIdentifier</strong> class from an existing
@@ -77,17 +79,29 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
 
     static Byte[] encode(IList<BigInteger> tokens) {
         var rawOid = new List<Byte>();
-        for (Int32 token = 0; token < tokens.Count; token++) {
-            // first two arcs are encoded in a single byte
-            switch (token) {
+        for (Int32 tokenIndex = 0; tokenIndex < tokens.Count; tokenIndex++) {
+            BigInteger token = tokens[tokenIndex];
+            BigInteger temp = token;
+            // first two arcs are encoded as a single arc
+            switch (tokenIndex) {
                 case 0:
-                    rawOid.Add((Byte)(40 * tokens[token] + tokens[token + 1]));
-                    continue;
+                    // 
+                    token = 40 * token + tokens[tokenIndex + 1];
+                    // if first two arcs can be encoded using 7 bits (single byte where most significant bit is 0),
+                    // then nothing fancy, simply add it as single byte.
+                    if (token < 0x80) {
+                        rawOid.Add((Byte)token);
+                        continue;
+                    }
+                    // otherwise first two arcs are encoded using multiple bytes, and we have to go through
+                    // standard OID arc encoding routine.
+                    temp = token;
+                break;
+                // we already handled 2nd arc, so skip its processing.
                 case 1:
                     continue;
             }
             Int16 bitLength = 0;
-            BigInteger temp = tokens[token];
             // calculate how many bits are occupied by the current integer value
             do {
                 temp = (BigInteger)Math.Floor((Double)temp / 2);
@@ -99,9 +113,9 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
             // http://msdn.microsoft.com/en-us/library/bb540809(v=vs.85).aspx
             // loop may not execute if arc value is less than 128.
             for (Int32 index = (bitLength - 1) / 7; index > 0; index--) {
-                rawOid.Add((Byte)(0x80 | ((tokens[token] >> (index * 7)) & 0x7f)));
+                rawOid.Add((Byte)(0x80 | ((token >> (index * 7)) & 0x7f)));
             }
-            rawOid.Add((Byte)(tokens[token] & 0x7f));
+            rawOid.Add((Byte)(token & 0x7f));
         }
         return rawOid.ToArray();
     }
@@ -143,8 +157,16 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
         for (Int32 index = 0; index < strTokens.Length; index++) {
             try {
                 var value = BigInteger.Parse(strTokens[index]);
-                if (index == 0 && value > 2 || index == 1 && value > 39) {
-                    return false;
+                if (index == 0) {
+                    // check if root arc is 0, 1, or 2
+                    if (value > 2) {
+                        return false;
+                    }
+                    var secondArc = BigInteger.Parse(strTokens[1]);
+                    // check if 2nd arc under ITU-T and ISO is <=39
+                    if ((Byte)value is ITU_T_ROOT or ISO_ROOT && secondArc > 39) {
+                        return false;
+                    }
                 }
                 tokens.Add(value);
             } catch {
