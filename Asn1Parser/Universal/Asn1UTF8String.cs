@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace SysadminsLV.Asn1Parser.Universal;
@@ -58,12 +59,7 @@ public sealed class Asn1UTF8String : Asn1String {
         Value = Encoding.UTF8.GetString(asn.GetPayload());
     }
     static Boolean testValue(String str) {
-        foreach (Char c in str) {
-            if (Convert.ToUInt32(c) > 255) {
-                return false;
-            }
-        }
-        return true;
+        return str.All(x => Convert.ToUInt32(x) <= 255);
     }
 
     /// <inheritdoc/>

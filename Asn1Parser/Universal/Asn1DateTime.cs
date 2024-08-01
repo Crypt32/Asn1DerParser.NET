@@ -53,7 +53,7 @@ public abstract class Asn1DateTime : Asn1Universal {
     /// <seealso cref="Asn1UtcTime"/>
     /// <seealso cref="Asn1GeneralizedTime"/>
     public static Asn1DateTime CreateRfcDateTime(DateTime time, TimeZoneInfo zone = null) {
-        if (time.Year < 2050 && time.Year >= 1950) {
+        if (time.Year is < 2050 and >= 1950) {
             return new Asn1UtcTime(time, zone);
         }
 
@@ -68,13 +68,10 @@ public abstract class Asn1DateTime : Asn1Universal {
     ///     ASN.1 reader points to non-date/time field.
     /// </exception>
     public static Asn1DateTime DecodeAnyDateTime(Asn1Reader reader) {
-        switch (reader.Tag) {
-            case (Byte)Asn1Type.UTCTime:
-                return new Asn1UtcTime(reader);
-            case (Byte)Asn1Type.GeneralizedTime:
-                return new Asn1GeneralizedTime(reader);
-            default:
-                throw new Asn1InvalidTagException("Specified data is not valid ASN.1 date/time type.");
-        }
+        return reader.Tag switch {
+            (Byte)Asn1Type.UTCTime         => new Asn1UtcTime(reader),
+            (Byte)Asn1Type.GeneralizedTime => new Asn1GeneralizedTime(reader),
+            _                              => throw new Asn1InvalidTagException("Specified data is not valid ASN.1 date/time type.")
+        };
     }
 }

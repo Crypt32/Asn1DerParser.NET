@@ -74,27 +74,17 @@ public abstract class Asn1String : Asn1Universal {
             throw new ArgumentException("Input string is not permitted by restriction.");
         }
         var tag = (Asn1Type)(rawData[0] & (Int32)Asn1Type.TAG_MASK);
-        switch (tag) {
-            case Asn1Type.IA5String:
-                return new Asn1IA5String(rawData);
-            case Asn1Type.PrintableString:
-                return new Asn1PrintableString(rawData);
-            case Asn1Type.VisibleString:
-                return new Asn1VisibleString(rawData);
-            case Asn1Type.UTF8String:
-                return new Asn1UTF8String(rawData);
-            case Asn1Type.UniversalString:
-                return new Asn1UniversalString(rawData);
-            case Asn1Type.BMPString:
-                return new Asn1BMPString(rawData);
-            case Asn1Type.TeletexString:
-                return new Asn1TeletexString(rawData);
-            case Asn1Type.NumericString:
-                return new Asn1NumericString(rawData);
-            case Asn1Type.VideotexString:
-                return new Asn1VideotexString(rawData);
-            default:
-                throw new Asn1InvalidTagException("Input data is not valid string.");
-        }
+        return tag switch {
+            Asn1Type.IA5String       => new Asn1IA5String(rawData),
+            Asn1Type.PrintableString => new Asn1PrintableString(rawData),
+            Asn1Type.VisibleString   => new Asn1VisibleString(rawData),
+            Asn1Type.UTF8String      => new Asn1UTF8String(rawData),
+            Asn1Type.UniversalString => new Asn1UniversalString(rawData),
+            Asn1Type.BMPString       => new Asn1BMPString(rawData),
+            Asn1Type.TeletexString   => new Asn1TeletexString(rawData),
+            Asn1Type.NumericString   => new Asn1NumericString(rawData),
+            Asn1Type.VideotexString  => new Asn1VideotexString(rawData),
+            _                        => throw new Asn1InvalidTagException("Input data is not valid string.")
+        };
     }
 }

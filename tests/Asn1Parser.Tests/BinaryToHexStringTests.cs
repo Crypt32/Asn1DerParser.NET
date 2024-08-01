@@ -5,8 +5,8 @@ namespace Asn1Parser.Tests;
 
 [TestClass]
 public class BinaryToHexStringTests {
-    readonly System.Byte[] _rawData          = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
-    readonly System.Byte[] _rawDataTruncated = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    readonly System.Byte[] _rawData          = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    readonly System.Byte[] _rawDataTruncated = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     const System.String HEX                  = "01 02 03 04 05 06 07 08  09 0a 0b 0c 0d 0e 0f 10";
     const System.String TRUNCATED_HEX        = "01 02 03 04 05 06 07 08  09 0a 0b 0c 0d 0e 0f";
     const System.String HEX_RAW              = "0102030405060708090a0b0c0d0e0f10";

@@ -22,19 +22,15 @@ namespace SysadminsLV.Asn1Parser;
 /// </remarks>
 public class Asn1Reader {
     // a list of primitive tags. Source: http://en.wikipedia.org/wiki/Distinguished_Encoding_Rules#DER_encoding
-    static readonly List<Byte> _excludedTags = new List<Byte>(
-        new Byte[] { 0, 1, 2, 5, 6, 9, 10, 13 }
-    );
-    readonly List<Byte> _rawData = new List<Byte>();
-    readonly Dictionary<Int64, AsnInternalMap> _offsetMap = new Dictionary<Int64, AsnInternalMap>();
-    readonly List<Byte> _multiNestedTypes = new List<Byte>(
-        new[] {
+    static readonly List<Byte> _excludedTags = [ 0, 1, 2, 5, 6, 9, 10, 13 ];
+    readonly List<Byte> _rawData = [];
+    readonly Dictionary<Int64, AsnInternalMap> _offsetMap = [];
+    readonly List<Byte> _multiNestedTypes = [
                   (Byte)Asn1Type.SEQUENCE,
-                  (Byte)((Byte)Asn1Type.SEQUENCE | (Byte)Asn1Class.CONSTRUCTED),
+                  (Byte)Asn1Type.SEQUENCE | (Byte)Asn1Class.CONSTRUCTED,
                   (Byte)Asn1Type.SET,
-                  (Byte)((Byte)Asn1Type.SET | (Byte)Asn1Class.CONSTRUCTED)
-              }
-    );
+                  (Byte)Asn1Type.SET | (Byte)Asn1Class.CONSTRUCTED
+              ];
     AsnInternalMap currentPosition;
     Int32 childCount;
 
@@ -64,9 +60,13 @@ public class Asn1Reader {
     public Asn1Reader(Byte[] rawData) : this(rawData, 0) { }
 
     Asn1Reader(Byte[] rawData, Int32 offset) {
-        if (rawData == null) { throw new ArgumentNullException(nameof(rawData)); }
-        if (rawData.Length < 2) { throw new Win32Exception(ErrorCode.InvalidDataException); }
-        currentPosition = new AsnInternalMap();
+        if (rawData == null) {
+            throw new ArgumentNullException(nameof(rawData));
+        }
+        if (rawData.Length < 2) {
+            throw new Win32Exception(ErrorCode.InvalidDataException);
+        }
+        currentPosition = new AsnInternalMap(0, 0);
         _offsetMap.Add(0, currentPosition);
         decode(rawData, offset);
     }
@@ -250,7 +250,7 @@ public class Asn1Reader {
             Int64 pl = calculatePredictLength(start);
             sum += pl;
             if (assignMap && sum <= projectedLength) {
-                _offsetMap.Add(start, new AsnInternalMap { LevelStart = levelStart, LevelEnd = projectedLength });
+                _offsetMap.Add(start, new AsnInternalMap(levelStart, projectedLength));
             }
             start += pl;
             estimatedChildCount++;
@@ -303,12 +303,16 @@ public class Asn1Reader {
         return pPayloadLength + lengthBytes + 2;
     }
     void moveAndExpectTypes(Func<Boolean> action, params Byte[] expectedTypes) {
-        if (expectedTypes == null) { throw new ArgumentNullException(nameof(expectedTypes)); }
+        if (expectedTypes == null) {
+            throw new ArgumentNullException(nameof(expectedTypes));
+        }
         var set = new HashSet<Byte>();
         foreach (Byte tag in expectedTypes) {
             set.Add(tag);
         }
-        if (!action.Invoke()) { throw new InvalidDataException("The data is invalid."); }
+        if (!action.Invoke()) {
+            throw new InvalidDataException("The data is invalid.");
+        }
 
         if (!set.Contains(Tag)) {
             throw new Asn1InvalidTagException();
@@ -383,7 +387,9 @@ public class Asn1Reader {
     ///     <strong>False</strong>
     /// </returns>
     public Boolean MoveNext() {
-        if (NextOffset == 0) { return false; }
+        if (NextOffset == 0) {
+            return false;
+        }
         currentPosition = _offsetMap[NextOffset];
         decode(null, NextOffset);
         return true;
@@ -441,7 +447,9 @@ public class Asn1Reader {
     /// level), otherwise <strong>False</strong>.
     /// </returns>
     public Boolean MoveNextSibling() {
-        if (NextSiblingOffset == 0) { return false; }
+        if (NextSiblingOffset == 0) {
+            return false;
+        }
         currentPosition = _offsetMap[NextSiblingOffset];
         decode(null, NextSiblingOffset);
         return true;
@@ -507,10 +515,10 @@ public class Asn1Reader {
         if (_offsetMap == null) {
             throw new InvalidOperationException();
         }
-        if (!_offsetMap.ContainsKey(newPosition)) {
+        if (!_offsetMap.TryGetValue(newPosition, out AsnInternalMap value)) {
             return false;
         }
-        currentPosition = _offsetMap[newPosition];
+        currentPosition = value;
         decode(null, newPosition);
         return true;
     }
@@ -592,8 +600,8 @@ public class Asn1Reader {
         return ((Asn1Type)index).ToString();
     }
 
-    class AsnInternalMap {
-        public Int64 LevelStart { get; set; }
-        public Int64 LevelEnd { get; set; }
+    record AsnInternalMap(Int64 LevelStart, Int64 LevelEnd) {
+        public Int64 LevelStart { get; } = LevelStart;
+        public Int64 LevelEnd { get; } = LevelEnd;
     }
 }

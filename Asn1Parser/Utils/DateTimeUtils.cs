@@ -62,18 +62,13 @@ static class DateTimeUtils {
         return retValue;
     }
     static DateTime extractZulu(String strValue, Int32 zoneDelimiter) {
-        switch (zoneDelimiter) {
-            case 12:
-                return parseExactUtc(strValue.Replace("Z", null), UTCFormat).ToLocalTime();
-            case 16:
-                return parseExactUtc(strValue.Replace("Z", null), UTCPreciseFormat).ToLocalTime();
-            case 14:
-                return DateTime.ParseExact(strValue.Replace("Z", null), GtFormat, null).ToLocalTime();
-            case 18:
-                return DateTime.ParseExact(strValue.Replace("Z", null), GtPreciseFormat, null).ToLocalTime();
-            default:
-                throw new ArgumentException("Time zone suffix is not valid.");
-        }
+        return zoneDelimiter switch {
+            12 => parseExactUtc(strValue.Replace("Z", null), UTCFormat).ToLocalTime(),
+            16 => parseExactUtc(strValue.Replace("Z", null), UTCPreciseFormat).ToLocalTime(),
+            14 => DateTime.ParseExact(strValue.Replace("Z", null), GtFormat, null).ToLocalTime(),
+            18 => DateTime.ParseExact(strValue.Replace("Z", null), GtPreciseFormat, null).ToLocalTime(),
+            _  => throw new ArgumentException("Time zone suffix is not valid.")
+        };
     }
     static Boolean extractZoneShift(String strValue, out Int32 hours, out Int32 minutes, out Int32 delimiterIndex) {
         if (strValue.Contains('+')) {
@@ -123,14 +118,12 @@ static class DateTimeUtils {
         } else {
             rawString = strValue;
         }
-        switch (rawString.Length) {
-            case 12:
-                return parseExactUtc(rawString, UTCFormat);
-            case 14:
-                return DateTime.ParseExact(rawString, GtFormat, null);
-            default:
-                throw new ArgumentException("Time zone suffix is not valid.");
-        }
+
+        return rawString.Length switch {
+            12 => parseExactUtc(rawString, UTCFormat),
+            14 => DateTime.ParseExact(rawString, GtFormat, null),
+            _  => throw new ArgumentException("Time zone suffix is not valid.")
+        };
     }
     static TimeZoneInfo bindZone(Int32 hours, Int32 minutes) {
         foreach (TimeZoneInfo zone in TimeZoneInfo.GetSystemTimeZones().Where(zone => zone.BaseUtcOffset.Hours == hours && zone.BaseUtcOffset.Minutes == minutes)) {

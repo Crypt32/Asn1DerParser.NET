@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SysadminsLV.Asn1Parser;
 static class StringToBinaryFormatter {
-    static readonly Char[] _delimiters = { ' ', '-', ':', '\t', '\n', '\r' };
+    static readonly Char[] _delimiters = [' ', '-', ':', '\t', '\n', '\r'];
 
     public static Byte[] FromBase64(String input) {
         try {
@@ -106,7 +106,7 @@ static class StringToBinaryFormatter {
                         if (addrEndIndex < 0) {
                             // we reached end of file and there is address field without hex bytes
                             if (eof) {
-                                i = i + remaining;
+                                i += remaining;
                                 continue;
                             }
                             return null;
@@ -336,37 +336,25 @@ static class StringToBinaryFormatter {
 
     // unchecked.
     static Byte hexCharToByte(Char c) {
-        return c >= '0' && c <= '9'
-            ? (Byte)(c - '0')
-            : (c >= 'a' && c <= 'f'
-                ? (Byte)(c - 'a' + 10)
-                : (Byte)(c - 'A' + 10));
+        return c switch {
+            >= '0' and <= '9' => (Byte)(c - '0'),
+            >= 'a' and <= 'f' => (Byte)(c - 'a' + 10),
+            _ => (Byte)(c - 'A' + 10)
+        };
     }
 
     
     static Boolean testWhitespace(Char c) {
-        return c == ' ' ||
-               c == '\t' ||
-               c == '\r' ||
-               c == '\n';
+        return c is ' ' or '\t' or '\r' or '\n';
     }
     static Boolean testWhitespaceLimited(Char c) {
-        return c == ' ' ||
-               c == '\t' ||
-               c == '\r';
+        return c is ' ' or '\t' or '\r';
     }
     static Boolean testDelimiter(Char c) {
-        return c == ' ' ||
-               c == '-' ||
-               c == ':' ||
-               c == '\t' ||
-               c == '\n' ||
-               c == '\r';
+        return c is ' ' or '-' or ':' or '\t' or '\n' or '\r';
     }
     static Boolean testHexChar(Char c) {
         // valid chars: 0-9, A-F, a-f
-        return (c >= '0' && c <= '9') ||
-               (c >= 'a' && c <= 'f') ||
-               (c >= 'A' && c <= 'F');
+        return c is >= '0' and <= '9' or >= 'a' and <= 'f' or >= 'A' and <= 'F';
     }
 }

@@ -6,7 +6,7 @@ namespace Asn1Parser.Tests;
 
 [TestClass]
 public class BinaryToBase64StringTests {
-    readonly Byte[] _rawData = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+    readonly Byte[] _rawData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
     readonly String _base64;
 
     public BinaryToBase64StringTests() {
@@ -110,7 +110,7 @@ public class BinaryToBase64StringTests {
         validateHeader(str.TrimEnd(), "CMS");
     }
 
-    void validateHeader(String pemString, String pemHeaderText) {
+    static void validateHeader(String pemString, String pemHeaderText) {
         String headerString = "-----BEGIN " + pemHeaderText + "-----";
         String footerString = "-----END " + pemHeaderText + "-----";
         Assert.IsTrue(pemString.StartsWith(headerString));

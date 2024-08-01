@@ -13,7 +13,7 @@ public sealed class Asn1Null : Asn1Universal {
     /// Initializes a new instance of <strong>Asn1Null</strong> class.
     /// </summary>
     public Asn1Null() : base(TYPE) {
-        Initialize(new Asn1Reader(new Byte[] {5, 0}));
+        Initialize(new Asn1Reader([5, 0]));
     }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1Null</strong> class from an <see cref="Asn1Reader"/>

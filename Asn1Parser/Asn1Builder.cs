@@ -16,11 +16,11 @@ public class Asn1Builder {
     readonly List<Byte> _rawData;
 
     Asn1Builder() {
-        _rawData = new List<Byte>();
+        _rawData = [];
     }
 
     Asn1Builder(Asn1Builder builder) {
-        _rawData = new List<Byte>(builder._rawData);
+        _rawData = [..builder._rawData];
     }
 
     /// <summary>
