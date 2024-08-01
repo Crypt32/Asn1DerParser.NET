@@ -173,7 +173,7 @@ public class Asn1Reader {
         // -- if bit 5 is set to "0", attempt to resolve nested types only for UNIVERSAL tags.
         // -- if the value is implicitly tagged, it cannot contain nested types.
         // -- some universal types cannot include nested types: skip them in advance.
-        if (_excludedTags.Contains(Tag) || PayloadLength < 2 || Tag > 127 & Tag < 160) {
+        if (_excludedTags.Contains(Tag) || PayloadLength < 2 || (Tag > 127 & Tag < 160)) {
             return;
         }
         Int64 start = PayloadStartOffset;
