@@ -169,10 +169,13 @@ public class Asn1Reader {
     }
     void parseNestedType() {
         // processing rules (assuming zero-based bits):
-        // if bit 5 is set to "1", or the type is SEQUENCE/SET -- the type is constructed. Unroll nested types.
-        // if bit 5 is set to "0", attempt to resolve nested types only for UNIVERSAL tags.
-        // some universal types cannot include nested types: skip them in advance.
-        if (_excludedTags.Contains(Tag) || PayloadLength < 2) { return; }
+        // -- if bit 5 is set to "1", or the type is SEQUENCE/SET -- the type is constructed. Unroll nested types.
+        // -- if bit 5 is set to "0", attempt to resolve nested types only for UNIVERSAL tags.
+        // -- if the value is implicitly tagged, it cannot contain nested types.
+        // -- some universal types cannot include nested types: skip them in advance.
+        if (_excludedTags.Contains(Tag) || PayloadLength < 2 || Tag > 127 & Tag < 160) {
+            return;
+        }
         Int64 start = PayloadStartOffset;
         Int32 length = PayloadLength;
         // BIT_STRING includes "unused bits" octet, do not count it in calculations
