@@ -122,6 +122,24 @@ public class Asn1Builder {
         return this;
     }
     /// <summary>
+    ///     Adds ASN.1 RELATIVE-OID value.
+    /// </summary>
+    /// <param name="value">
+    ///     Relative OID value with or without leading dot. For example, '5', '.5', '5.10', '.5.10' are valid values.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    ///     <strong>value</strong> parameter is null.
+    /// </exception>
+    /// <exception cref="FormatException">Specified value doesn't represent valid decimal-dot format.</exception>
+    /// <returns>Current instance with added value.</returns>
+    public Asn1Builder AddRelativeOid(String value) {
+        if (value == null) {
+            throw new ArgumentNullException(nameof(value));
+        }
+        _rawData.AddRange(new Asn1RelativeOid(value).GetRawData());
+        return this;
+    }
+    /// <summary>
     ///     Adds ASN.1 ENUMERATED value.
     /// </summary>
     /// <param name="value">
