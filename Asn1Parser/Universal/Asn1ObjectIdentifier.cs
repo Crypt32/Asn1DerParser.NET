@@ -4,6 +4,7 @@ using System.IO;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
+using SysadminsLV.Asn1Parser.Utils;
 
 namespace SysadminsLV.Asn1Parser.Universal;
 
@@ -80,7 +81,6 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
         var rawOid = new List<Byte>();
         for (Int32 tokenIndex = 0; tokenIndex < tokens.Count; tokenIndex++) {
             BigInteger token = tokens[tokenIndex];
-            BigInteger temp = token;
             // first two arcs are encoded as a single arc
             switch (tokenIndex) {
                 case 0:
@@ -94,27 +94,12 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
                     }
                     // otherwise first two arcs are encoded using multiple bytes, and we have to go through
                     // standard OID arc encoding routine.
-                    temp = token;
                 break;
                 // we already handled 2nd arc, so skip its processing.
                 case 1:
                     continue;
             }
-            Int16 bitLength = 0;
-            // calculate how many bits are occupied by the current integer value
-            do {
-                temp = (BigInteger)Math.Floor((Double)temp / 2);
-                bitLength++;
-            } while (temp > 0);
-            // calculate how many additional bytes are required and encode each integer in a 7 bit.
-            // 8th bit of the integer is shifted to the left and 8th bit is set to 1 to indicate that
-            // additional bytes are related to the current OID arc. Details:
-            // http://msdn.microsoft.com/en-us/library/bb540809(v=vs.85).aspx
-            // loop may not execute if arc value is less than 128.
-            for (Int32 index = (bitLength - 1) / 7; index > 0; index--) {
-                rawOid.Add((Byte)(0x80 | ((token >> (index * 7)) & 0x7f)));
-            }
-            rawOid.Add((Byte)(token & 0x7f));
+            rawOid.AddRange(OidUtils.EncodeOidArc(token));
         }
         return rawOid.ToArray();
     }
