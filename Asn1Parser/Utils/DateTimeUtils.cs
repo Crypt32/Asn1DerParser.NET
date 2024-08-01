@@ -19,8 +19,8 @@ static class DateTimeUtils {
             preValue = time.ToUniversalTime().ToString(format) + suffix + "Z";
         } else {
             suffix += zone.BaseUtcOffset is { Hours: >= 0, Minutes: >= 0 }
-                ? "-"
-                : "+";
+                ? "+"
+                : "-";
             suffix +=
                 Math.Abs(zone.BaseUtcOffset.Hours).ToString("d2") +
                 Math.Abs(zone.BaseUtcOffset.Minutes).ToString("d2");
