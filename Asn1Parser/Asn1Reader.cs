@@ -22,15 +22,17 @@ namespace SysadminsLV.Asn1Parser;
 /// </remarks>
 public class Asn1Reader {
     // a list of primitive tags. Source: http://en.wikipedia.org/wiki/Distinguished_Encoding_Rules#DER_encoding
-    static readonly List<Byte> _excludedTags = [ 0, 1, 2, 5, 6, 9, 10, 13 ];
+    // although we actively do lookups, it is NOT recommended to use sets (HashSet<T>), because at current collection size
+    // lookups in HashSet are around 3-4x times slower than in plain list.
+    static readonly List<Byte> _excludedTags = [ 0, 1, 2, 5, 6, 9, 10, 12, 13, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30 ];
+    static readonly List<Byte> _multiNestedTypes = [
+        (Byte)Asn1Type.SEQUENCE,
+        (Byte)Asn1Type.SEQUENCE | (Byte)Asn1Class.CONSTRUCTED,
+        (Byte)Asn1Type.SET,
+        (Byte)Asn1Type.SET | (Byte)Asn1Class.CONSTRUCTED
+    ];
     readonly List<Byte> _rawData = [];
     readonly Dictionary<Int64, AsnInternalMap> _offsetMap = [];
-    readonly List<Byte> _multiNestedTypes = [
-                  (Byte)Asn1Type.SEQUENCE,
-                  (Byte)Asn1Type.SEQUENCE | (Byte)Asn1Class.CONSTRUCTED,
-                  (Byte)Asn1Type.SET,
-                  (Byte)Asn1Type.SET | (Byte)Asn1Class.CONSTRUCTED
-              ];
     AsnInternalMap currentPosition;
     Int32 childCount;
 
