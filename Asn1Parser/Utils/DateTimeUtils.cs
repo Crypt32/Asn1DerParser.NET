@@ -111,12 +111,15 @@ static class DateTimeUtils {
     }
     static DateTime extractDateTime(String strValue, Int32 msDelimiter, Int32 zoneDelimiter) {
         String rawString;
-        if (msDelimiter > zoneDelimiter) {
-            rawString = strValue.Substring(0, zoneDelimiter);
-        } else if (msDelimiter < zoneDelimiter) {
-            rawString = strValue.Substring(0, msDelimiter);
-        } else {
+        if (msDelimiter < 0 && zoneDelimiter < 0) {
+            // Zulu time zone, no milliseconds
             rawString = strValue;
+        } else if (msDelimiter < 0) {
+            // Custom time zone, no milliseconds
+            rawString = strValue.Substring(0, zoneDelimiter);
+        } else {
+            // Milliseconds
+            rawString = strValue.Substring(0, msDelimiter);
         }
 
         return rawString.Length switch {
