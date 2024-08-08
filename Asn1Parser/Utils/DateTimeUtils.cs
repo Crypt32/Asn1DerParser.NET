@@ -7,7 +7,7 @@ using System.Text;
 namespace SysadminsLV.Asn1Parser.Utils;
 
 static class DateTimeUtils {
-    public static Byte[] Encode(DateTime time, TimeZoneInfo? zone, Boolean UTC, Boolean usePrecise) {
+    public static Byte[] Encode(DateTime time, ref TimeZoneInfo? zone, Boolean UTC, Boolean usePrecise) {
         String suffix = String.Empty;
         String preValue;
         String format = UTC
@@ -19,7 +19,7 @@ static class DateTimeUtils {
             // it was requested. See ITU-T X.690, section 11.7
             suffix += (time.Millisecond / 1000d).ToString(CultureInfo.InvariantCulture).Substring(1);
         }
-        zone = coerceTimeZone(zone);
+        zone = CoerceTimeZone(zone);
         if (zone == null) {
             preValue = time.ToUniversalTime().ToString(format) + suffix + "Z";
         } else {
@@ -48,7 +48,7 @@ static class DateTimeUtils {
         return extractDateTime(SB.ToString(), out zone);
     }
     
-    static TimeZoneInfo? coerceTimeZone(TimeZoneInfo? zone) {
+    public static TimeZoneInfo? CoerceTimeZone(TimeZoneInfo? zone) {
         // if zone is explicitly specified, but its offset against UTC is zero, we do not encode zone.
         if ((zone?.BaseUtcOffset.TotalMinutes ?? 0) == 0) {
             return null;

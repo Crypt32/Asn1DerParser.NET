@@ -15,6 +15,13 @@ public class Asn1DateTimeTests {
         var gt = new Asn1GeneralizedTime(dt);
         assertDateTimeEncode(Asn1Type.GeneralizedTime, gt, dt, "yyyyMMddHHmmssZ");
     }
+    [TestMethod, Description("Tests explicit zero-shift timezone, must result in Zulu time.")]
+    public void TestUtcTimeZone() {
+        var zone = TimeZoneInfo.FindSystemTimeZoneById("Greenwich Standard Time");
+        var dt = DateTime.ParseExact("2024-08-07 16:12:37", "yyyy-MM-dd HH:mm:ss", null);
+        var gt = new Asn1GeneralizedTime(dt, zone);
+        assertDateTimeEncode(Asn1Type.GeneralizedTime, gt, dt, "yyyyMMddHHmmssZ");
+    }
     [TestMethod, Description("Test date/time with fractions and fraction is zero")]
     public void TestZuluFraction0() {
         var dt = DateTime.ParseExact("2024-08-07 16:12:37.0", "yyyy-MM-dd HH:mm:ss.f", null);
