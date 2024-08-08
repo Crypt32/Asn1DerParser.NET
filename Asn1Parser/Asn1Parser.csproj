@@ -13,6 +13,7 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|netstandard2.0'">
     <DocumentationFile>bin\Release\netstandard2.0\SysadminsLV.Asn1Parser.xml</DocumentationFile>
