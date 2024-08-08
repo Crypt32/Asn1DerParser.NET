@@ -42,13 +42,14 @@ public abstract class Asn1DateTime : Asn1Universal {
     public DateTime Value { get; protected set; }
 
     void m_encode(Asn1Type type, DateTime time, TimeZoneInfo? zone, Boolean preciseTime) {
+        zone = DateTimeUtils.CoerceTimeZone(zone);
         time = zone == null
             ? DateTime.SpecifyKind(time, DateTimeKind.Local)
             : TimeZoneInfo.ConvertTimeToUtc(time, zone).ToLocalTime();
         Value = time;
-        ZoneInfo = zone;
         Boolean utcTime = type == Asn1Type.UTCTime;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(DateTimeUtils.Encode(time, zone, utcTime, preciseTime), type)));
+        Initialize(new Asn1Reader(Asn1Utils.Encode(DateTimeUtils.Encode(time, ref zone, utcTime, preciseTime), type)));
+        ZoneInfo = zone;
     }
     void m_decode(Byte[] rawData) {
         var asn = new Asn1Reader(rawData);
