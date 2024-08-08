@@ -1,19 +1,22 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
 namespace SysadminsLV.Asn1Parser.Utils;
 
 static class DateTimeUtils {
-
-    public static Byte[] Encode(DateTime time, TimeZoneInfo zone, Boolean UTC, Boolean usePrecise) {
+    public static Byte[] Encode(DateTime time, TimeZoneInfo? zone, Boolean UTC, Boolean usePrecise) {
         String suffix = String.Empty;
         String preValue;
         String format = UTC
             ? UTCFormat
             : GtFormat;
         if (usePrecise) {
-            suffix += $".{time.Millisecond:D3}";
+            // encode milliseconds using minimum bytes, i.e. do not encode trailing zeros
+            // in worst case, when milliseconds is zero, then omit entire fraction despite
+            // it was requested. See ITU-T X.690, section 11.7
+            suffix += (time.Millisecond / 1000d).ToString(CultureInfo.InvariantCulture).Substring(1);
         }
         if (zone == null) {
             preValue = time.ToUniversalTime().ToString(format) + suffix + "Z";
@@ -34,7 +37,7 @@ static class DateTimeUtils {
         return rawData;
     }
     // rawData is pure value without header
-    public static DateTime Decode(Asn1Reader asn, out TimeZoneInfo zone) {
+    public static DateTime Decode(Asn1Reader asn, out TimeZoneInfo? zone) {
         var SB = new StringBuilder();
         for (Int32 i = asn.PayloadStartOffset; i < asn.PayloadStartOffset + asn.PayloadLength; i++) {
             SB.Append(Convert.ToChar(asn[i]));
