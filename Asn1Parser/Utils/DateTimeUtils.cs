@@ -63,8 +63,7 @@ static class DateTimeUtils {
         DateTime retValue = extractDateTime(strValue, msDelimiter, zoneDelimiter);
         if (hasZone) {
             zone = bindZone(hours, minutes);
-            //retValue = retValue.AddHours(hours);
-            //retValue = retValue.AddMinutes(minutes);
+            retValue = TimeZoneInfo.ConvertTimeToUtc(retValue, zone).ToLocalTime();
         } else {
             retValue = DateTime.SpecifyKind(retValue, DateTimeKind.Utc).ToLocalTime();
         }
