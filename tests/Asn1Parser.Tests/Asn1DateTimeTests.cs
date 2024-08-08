@@ -13,6 +13,7 @@ public class Asn1DateTimeTests {
     public void TestZuluSimple() {
         var dt = DateTime.ParseExact("2024-08-07 16:12:37", "yyyy-MM-dd HH:mm:ss", null);
         var gt = new Asn1GeneralizedTime(dt);
+        Assert.AreEqual(DateTimeKind.Local, gt.Value.Kind);
         assertDateTimeEncode(Asn1Type.GeneralizedTime, gt, dt, "yyyyMMddHHmmssZ");
     }
     [TestMethod, Description("Test date/time with fractions and fraction is zero")]
