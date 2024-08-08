@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using SysadminsLV.Asn1Parser.Utils;
 
 namespace SysadminsLV.Asn1Parser.Universal;
 
@@ -9,23 +11,59 @@ public abstract class Asn1DateTime : Asn1Universal {
     /// <summary>
     /// Initializes a new instance of <strong>Asn1DateTime</strong> class.
     /// </summary>
-    protected Asn1DateTime(Asn1Type type) : base(type) { }
+    protected Asn1DateTime(Asn1Type type) : base(type) {
+        if (type is not (Asn1Type.UTCTime or Asn1Type.GeneralizedTime)) {
+            throw new ArgumentException("Invalid ASN type. Must be either, UTCTime or GeneralizedTime.");
+        }
+    }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1DateTime</strong> class from an existing
     /// <see cref="Asn1Reader"/> object.
     /// </summary>
     /// <param name="asn"><see cref="Asn1Reader"/> object in the position that represents ASN.1 date/time object.</param>
     /// <param name="type">Optional expected ASN.1 type.</param>
-    protected Asn1DateTime(Asn1Reader asn, Asn1Type? type) : base(asn, type) { }
+    protected Asn1DateTime(Asn1Reader asn, Asn1Type type) : base(asn, type) {
+        if (type is not (Asn1Type.UTCTime or Asn1Type.GeneralizedTime)) {
+            throw new ArgumentException("Invalid ASN type. Must be either, UTCTime or GeneralizedTime.");
+        }
+        m_decode(asn.GetTagRawData());
+    }
+    protected Asn1DateTime(Asn1Type type, DateTime time, TimeZoneInfo? zone = null, Boolean preciseTime = false) : this(type) {
+        m_encode(type, time, zone, preciseTime);
+    }
 
     /// <summary>
-    /// Gets the time zone information for the current object.
+    /// Gets the optional time zone information for the current object. Local time zone is assumed if value is null.
     /// </summary>
-    public TimeZoneInfo ZoneInfo { get; protected set; }
+    public TimeZoneInfo? ZoneInfo { get; protected set; }
     /// <summary>
-    /// Gets date/time value associated with the current date/time object.
+    /// Gets date/time value associated with the current date/time object and adjusted to local time zone.
     /// </summary>
     public DateTime Value { get; protected set; }
+
+    void m_encode(Asn1Type type, DateTime time, TimeZoneInfo? zone, Boolean preciseTime) {
+        time = zone == null
+            ? DateTime.SpecifyKind(time, DateTimeKind.Local)
+            : TimeZoneInfo.ConvertTimeToUtc(time, zone).ToLocalTime();
+        Value = time;
+        ZoneInfo = zone;
+        Boolean utcTime = type == Asn1Type.UTCTime;
+        Initialize(new Asn1Reader(Asn1Utils.Encode(DateTimeUtils.Encode(time, zone, utcTime, preciseTime), type)));
+    }
+    void m_decode(Byte[] rawData) {
+        var asn = new Asn1Reader(rawData);
+        Initialize(asn);
+        Value = DateTimeUtils.Decode(asn, out TimeZoneInfo zoneInfo);
+        ZoneInfo = zoneInfo;
+    }
+
+    /// <summary>
+    /// Gets decoded date/time string value.
+    /// </summary>
+    /// <returns>Decoded date/time string value.</returns>
+    public override String GetDisplayValue() {
+        return Value.ToString(CultureInfo.InvariantCulture);
+    }
 
     /// <summary>
     /// Encodes a .NET DateTime object to a ASN.1-encoded byte array. This method is designed to conform
