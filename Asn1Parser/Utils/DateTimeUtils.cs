@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -46,71 +47,21 @@ static class DateTimeUtils {
         return extractDateTime(SB.ToString(), out zone);
     }
 
-    static DateTime extractDateTime(String strValue, out TimeZoneInfo zone) {
-        Int32 delimiterIndex;
-        zone = TimeZoneInfo.FindSystemTimeZoneById("Greenwich Standard Time");
-        if (strValue.ToUpper().Contains("Z")) {
-            delimiterIndex = strValue.ToUpper().IndexOf('Z');
-            return extractZulu(strValue, delimiterIndex);
-        }
-        Boolean hasZone = extractZoneShift(strValue, out Int32 hours, out Int32 minutes, out delimiterIndex);
-        Int32 milliseconds = extractMilliseconds(strValue, delimiterIndex, out Int32 msDelimiter);
-        DateTime retValue = extractDateTime(strValue, msDelimiter, delimiterIndex);
+    static DateTime extractDateTime(String strValue, out TimeZoneInfo? zone) {
+        zone = null;
+        Boolean hasZone = extractZoneShift(strValue, out Int32 hours, out Int32 minutes, out Int32 zoneDelimiter);
+        Int32 milliseconds = extractMilliseconds(strValue, zoneDelimiter, out Int32 msDelimiter);
+        DateTime retValue = extractDateTime(strValue, msDelimiter, zoneDelimiter);
         if (hasZone) {
             zone = bindZone(hours, minutes);
-            retValue = retValue.AddHours(hours);
-            retValue = retValue.AddMinutes(minutes);
+            //retValue = retValue.AddHours(hours);
+            //retValue = retValue.AddMinutes(minutes);
+        } else {
+            retValue = DateTime.SpecifyKind(retValue, DateTimeKind.Utc).ToLocalTime();
         }
         retValue = retValue.AddMilliseconds(milliseconds);
-        return retValue;
-    }
-    static DateTime extractZulu(String strValue, Int32 zoneDelimiter) {
-        return zoneDelimiter switch {
-            12 => parseExactUtc(strValue.Replace("Z", null), UTCFormat).ToLocalTime(),
-            16 => parseExactUtc(strValue.Replace("Z", null), UTCPreciseFormat).ToLocalTime(),
-            14 => DateTime.ParseExact(strValue.Replace("Z", null), GtFormat, null).ToLocalTime(),
-            18 => DateTime.ParseExact(strValue.Replace("Z", null), GtPreciseFormat, null).ToLocalTime(),
-            _  => throw new ArgumentException("Time zone suffix is not valid.")
-        };
-    }
-    static Boolean extractZoneShift(String strValue, out Int32 hours, out Int32 minutes, out Int32 delimiterIndex) {
-        if (strValue.Contains('+')) {
-            delimiterIndex = strValue.IndexOf('+');
-            hours = Int32.Parse(strValue.Substring(delimiterIndex, 3));
-        } else if (strValue.Contains('-')) {
-            delimiterIndex = strValue.IndexOf('-');
-            hours = -Int32.Parse(strValue.Substring(delimiterIndex, 3));
-        } else {
-            hours = minutes = delimiterIndex = 0;
-            return false;
-        }
-        minutes = strValue.Length > delimiterIndex + 3
-            ? -Int32.Parse(strValue.Substring(delimiterIndex + 3, 2))
-            : 0;
 
-        return true;
-    }
-    static Int32 extractMilliseconds(String strValue, Int32 zoneDelimiter, out Int32 msDelimiter) {
-        msDelimiter = -1;
-        if (!strValue.Contains(".")) { return 0; }
-        msDelimiter = strValue.IndexOf('.');
-        Int32 precisionLength = zoneDelimiter > 0
-            ? zoneDelimiter - msDelimiter - 1
-            : strValue.Length - msDelimiter - 1;
-        return Int32.Parse(strValue.Substring(msDelimiter + 1, precisionLength));
-    }
-    static DateTime parseExactUtc(String strValue, String format) {
-        // fix: .NET 'yy' format works in range between 1930-2030. As per RFC5280,
-        // dates must be between 1950-2049. In .NET, years between 30 and 50 are treated
-        // as 1930-1950, while it should be 2030-2050. So, fix the range between 30 and 50
-        // by adding a century.
-        var dateTime = DateTime.ParseExact(strValue, format, null);
-        // not inclusive. Starting with 2050, GeneralizedTime is used, so 50+ values will go
-        // to 20th century as in .NET
-        if (dateTime.Year < 1950) {
-            dateTime = dateTime.AddYears(100);
-        }
-        return dateTime;
+        return retValue;
     }
     static DateTime extractDateTime(String strValue, Int32 msDelimiter, Int32 zoneDelimiter) {
         String rawString;
@@ -128,8 +79,58 @@ static class DateTimeUtils {
         return rawString.Length switch {
             12 => parseExactUtc(rawString, UTCFormat),
             14 => DateTime.ParseExact(rawString, GtFormat, null),
-            _  => throw new ArgumentException("Time zone suffix is not valid.")
+            _ => throw new ArgumentException("Time zone suffix is not valid.")
         };
+    }
+    static Boolean extractZoneShift(String strValue, out Int32 hours, out Int32 minutes, out Int32 delimiterIndex) {
+        if (strValue.EndsWith("Z")) {
+            delimiterIndex = strValue.IndexOf('Z');
+            hours = minutes = 0;
+            return false;
+        }
+
+        if (strValue.Contains('+')) {
+            delimiterIndex = strValue.IndexOf('+');
+            hours = Int32.Parse(strValue.Substring(delimiterIndex, 3));
+        } else if (strValue.Contains('-')) {
+            delimiterIndex = strValue.IndexOf('-');
+            hours = -Int32.Parse(strValue.Substring(delimiterIndex, 3));
+        } else {
+            throw new InvalidDataException("ASN.1 DateTime has missing time zone identifier.");
+        }
+        minutes = strValue.Length > delimiterIndex + 3
+            ? -Int32.Parse(strValue.Substring(delimiterIndex + 3, 2))
+            : 0;
+
+        return true;
+    }
+    static Int32 extractMilliseconds(String strValue, Int32 zoneDelimiter, out Int32 msDelimiter) {
+        msDelimiter = -1;
+        if (!strValue.Contains(".")) { return 0; }
+        msDelimiter = strValue.IndexOf('.');
+        Int32 precisionLength = zoneDelimiter > 0
+            ? zoneDelimiter - msDelimiter - 1
+            : strValue.Length - msDelimiter - 1;
+        // milliseconds decimal part
+        Int32 msNumber = Int32.Parse(strValue.Substring(msDelimiter + 1, precisionLength));
+        // if precision length is 1, then msNumber represents milliseconds * 100
+        // if precision length is 2, then msNumber represents milliseconds * 10
+        // if precision length is 3, then msNumber represents milliseconds * 1
+        // we can get this by: 100 * msNumber / 10 ^ precisionLength
+        return (Int32)(msNumber / Math.Pow(10, precisionLength) * 1000);
+    }
+    static DateTime parseExactUtc(String strValue, params String[] format) {
+        // fix: .NET 'yy' format works in range between 1930-2030. As per RFC5280,
+        // dates must be between 1950-2049. In .NET, years between 30 and 50 are treated
+        // as 1930-1950, while it should be 2030-2050. So, fix the range between 30 and 50
+        // by adding a century.
+        var dateTime = DateTime.ParseExact(strValue, format, null, DateTimeStyles.None);
+        // not inclusive. Starting with 2050, GeneralizedTime is used, so 50+ values will go
+        // to 21st century as in .NET
+        if (dateTime.Year < 1950) {
+            dateTime = dateTime.AddYears(100);
+        }
+        return dateTime;
     }
     static TimeZoneInfo bindZone(Int32 hours, Int32 minutes) {
         foreach (TimeZoneInfo zone in TimeZoneInfo.GetSystemTimeZones().Where(zone => zone.BaseUtcOffset.Hours == hours && zone.BaseUtcOffset.Minutes == minutes)) {
@@ -140,8 +141,6 @@ static class DateTimeUtils {
 
     #region Constants
     const String UTCFormat        = "yyMMddHHmmss";
-    const String UTCPreciseFormat = "yyMMddHHmmss.FFF";
     const String GtFormat         = "yyyyMMddHHmmss";
-    const String GtPreciseFormat  = "yyyyMMddHHmmss.FFF";
     #endregion
 }
