@@ -59,7 +59,7 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
     /// <summary>
     /// Gets value associated with the current object.
     /// </summary>
-    public Oid Value { get; private set; }
+    public Oid Value { get; private set; } = new();
 
     void m_encode(Oid oid) {
         if (String.IsNullOrWhiteSpace(oid.Value)) {

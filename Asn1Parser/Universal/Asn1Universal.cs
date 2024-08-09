@@ -6,7 +6,7 @@ namespace SysadminsLV.Asn1Parser.Universal;
 /// Represents a base class for ASN.1 primitive tag classes. This class provides
 /// </summary>
 public abstract class Asn1Universal {
-    Asn1Reader asnReader;
+    Asn1Reader? asnReader;
     /// <summary>
     /// Initializes a new instance of <strong>Asn1Universal</strong> class.
     /// </summary>
@@ -20,6 +20,7 @@ public abstract class Asn1Universal {
     /// class instance.
     /// </summary>
     /// <param name="asn">Existing <see cref="ArgumentNullException"/> class instance.</param>
+    /// <param name="type">ASN.1 type.</param>
     /// <exception cref="Asn1Reader"><strong>asn</strong> parameter is null reference.</exception>
     protected Asn1Universal(Asn1Reader asn, Asn1Type? type) {
         if (asn == null) {
@@ -38,7 +39,7 @@ public abstract class Asn1Universal {
     /// <summary>
     /// Gets the textual name of the ASN tag.
     /// </summary>
-    public String TagName { get; private set; }
+    public String TagName { get; private set; } = String.Empty;
     /// <summary>
     /// Indicates whether the current structure is container. This includes all constructed types
     /// and may include OCTET_STRING and BIT_STRING with encapsulated types. OCTET_STRING and BIT_STRING
@@ -119,6 +120,6 @@ public abstract class Asn1Universal {
     /// </summary>
     /// <returns>ASN.1-encoded type.</returns>
     public Byte[] GetRawData() {
-        return asnReader.GetTagRawData();
+        return asnReader!.GetTagRawData();
     }
 }

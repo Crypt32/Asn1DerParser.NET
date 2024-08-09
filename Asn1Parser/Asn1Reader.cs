@@ -84,7 +84,7 @@ public class Asn1Reader {
     /// <summary>
     /// Gets current structure tag name.
     /// </summary>
-    public String TagName { get; private set; }
+    public String TagName { get; private set; } = String.Empty;
     /// <summary>
     /// Gets current structure full length. Full length contains tag, tag length byte (or bytes) and tag payload.
     /// </summary>
@@ -120,7 +120,7 @@ public class Asn1Reader {
     /// <exception cref="IndexOutOfRangeException"><strong>index</strong> parameter is outside of binary array boundaries.</exception>
     public Byte this[Int32 index] => _rawData[index];
 
-    void decode(Byte[] raw, Int32 pOffset) {
+    void decode(Byte[]? raw, Int32 pOffset) {
         IsConstructed = false;
         childCount = 0;
         if (raw != null) {
@@ -441,7 +441,7 @@ public class Asn1Reader {
     /// <strong>expectedTags</strong> parameter.
     /// </exception>
     public void MoveNextAndExpectTags(params Asn1Type[] expectedTags) {
-        moveAndExpectTypes(MoveNext, expectedTags?.Select(x => (Byte)x).ToArray());
+        moveAndExpectTypes(MoveNext, expectedTags.Select(x => (Byte)x).ToArray());
     }
     /// <summary>
     /// Moves over current type to the next type at the same level. If the current type is a
@@ -501,7 +501,7 @@ public class Asn1Reader {
     /// specified in the <strong>expectedTags</strong> parameter.
     /// </exception>
     public void MoveNextSiblingAndExpectTags(params Asn1Type[] expectedTags) {
-        moveAndExpectTypes(MoveNextSibling, expectedTags?.Select(x => (Byte)x).ToArray());
+        moveAndExpectTypes(MoveNextSibling, expectedTags.Select(x => (Byte)x).ToArray());
     }
     /// <summary>
     /// Moves to a specified start offset.

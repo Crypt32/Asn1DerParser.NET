@@ -91,7 +91,7 @@ public abstract class Asn1DateTime : Asn1Universal {
     /// </remarks>
     /// <seealso cref="Asn1UtcTime"/>
     /// <seealso cref="Asn1GeneralizedTime"/>
-    public static Asn1DateTime CreateRfcDateTime(DateTime time, TimeZoneInfo zone = null) {
+    public static Asn1DateTime CreateRfcDateTime(DateTime time, TimeZoneInfo? zone = null) {
         if (time.Year is < 2050 and >= 1950) {
             return new Asn1UtcTime(time, zone);
         }

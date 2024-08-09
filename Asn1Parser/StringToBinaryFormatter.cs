@@ -6,7 +6,7 @@ namespace SysadminsLV.Asn1Parser;
 static class StringToBinaryFormatter {
     static readonly Char[] _delimiters = [' ', '-', ':', '\t', '\n', '\r'];
 
-    public static Byte[] FromBase64(String input) {
+    public static Byte[]? FromBase64(String input) {
         try {
             return Convert.FromBase64String(input.Trim());
         } catch {
@@ -14,13 +14,13 @@ static class StringToBinaryFormatter {
         }
     }
     // accept any header, not only certificate
-    public static Byte[] FromBase64Header(String input) {
+    public static Byte[]? FromBase64Header(String input) {
         const String header = "-----BEGIN ";
         const String footer = "-----END ";
 
         return FromBase64Header(input, header, footer, true);
     }
-    public static Byte[] FromBase64Header(String input, String header, String footer, Boolean skipHeaderValidation = false) {
+    public static Byte[]? FromBase64Header(String input, String header, String footer, Boolean skipHeaderValidation = false) {
         if (skipHeaderValidation && (!input.ToUpper().Contains(header) || !input.Contains(footer))) {
             return null;
         }
@@ -33,7 +33,7 @@ static class StringToBinaryFormatter {
             return null;
         }
     }
-    public static Byte[] FromBase64Request(String input) {
+    public static Byte[]? FromBase64Request(String input) {
         String header;
         String footer;
         if (input.ToUpper().Contains(PemHeader.PEM_HEADER_REQ_NEW.GetHeader())) {
@@ -48,7 +48,7 @@ static class StringToBinaryFormatter {
 
         return FromBase64Header(input, header, footer, true);
     }
-    public static Byte[] FromBinary(String input) {
+    public static Byte[]? FromBinary(String input) {
         Byte[] rawBytes = new Byte[input.Length];
         for (Int32 i = 0; i < input.Length; i++) {
             try {
@@ -62,7 +62,7 @@ static class StringToBinaryFormatter {
      * 1) hex octet must be paired with hex chars, e.g. 0f, 08, not 8, f.
      * 2) each octet is separated by one or more delimiter chars
      */
-    public static Byte[] FromHex(String input) {
+    public static Byte[]? FromHex(String input) {
         var bytes = new List<Byte>(input.Length / 2);
         for (Int32 i = 0; i < input.Length; i++) {
             if (testHexChar(input[i])) {
@@ -84,7 +84,7 @@ static class StringToBinaryFormatter {
      * 4) next address field may appear only when 16 octets are calculated in previous line.
      * 5) address field may be the only field in the line.
      */
-    public static Byte[] FromHexAddr(String input) {
+    public static Byte[]? FromHexAddr(String input) {
         Byte octetCount = 0;
         Boolean addressReached = false;
         var bytes = new List<Byte>(input.Length / 3);
@@ -162,7 +162,7 @@ static class StringToBinaryFormatter {
      * 9) invalidate string if any non-whitespace occured after EOF.
      * 10) ascii char count must be less or equals to octetCount
      */
-    public static Byte[] FromHexAscii(String input) {
+    public static Byte[]? FromHexAscii(String input) {
         Byte octetCount = 0;
         Boolean asciiReached = false;
         String ascii = String.Empty;
@@ -227,7 +227,7 @@ static class StringToBinaryFormatter {
     /* Rules:
      * same for 'fromHexAddr' and 'fromHexAddrAscii'
      */
-    public static Byte[] FromHexAddrAscii(String input) {
+    public static Byte[]? FromHexAddrAscii(String input) {
         Byte octetCount = 0;
         Boolean addressReached = false, asciiReached = false;
         String ascii = String.Empty;
@@ -321,13 +321,13 @@ static class StringToBinaryFormatter {
         return bytes.ToArray();
     }
 
-    public static Byte[] FromBase64Any(String input) {
+    public static Byte[]? FromBase64Any(String input) {
         return FromBase64Header(input) ?? FromBase64(input);
     }
     public static Byte[] FromStringAny(String input) {
         return FromBase64Header(input) ?? FromBase64(input) ?? input.Select(Convert.ToByte).ToArray();
     }
-    public static Byte[] FromHexAny(String input) {
+    public static Byte[]? FromHexAny(String input) {
         return FromHexAddr(input) ??
             FromHexAddrAscii(input) ??
             FromHex(input) ??

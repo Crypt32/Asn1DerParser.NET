@@ -44,7 +44,7 @@ public abstract class Asn1String : Asn1Universal {
     /// <summary>
     /// Gets value associated with the current object.
     /// </summary>
-    public String Value { get; protected set; }
+    public String Value { get; protected set; } = String.Empty;
 
     /// <summary>
     /// Decodes any ASN.1-encoded binary string into ASN.1 string type instance.
@@ -61,7 +61,7 @@ public abstract class Asn1String : Asn1Universal {
     /// <exception cref="Asn1InvalidTagException">
     ///     Input data is not valid string type.
     /// </exception>
-    public static Asn1String DecodeAnyString(Byte[] rawData, IEnumerable<Asn1Type> allowedStringTypes = null) {
+    public static Asn1String DecodeAnyString(Byte[] rawData, IEnumerable<Asn1Type>? allowedStringTypes = null) {
         if (rawData == null) {
             throw new ArgumentNullException(nameof(rawData));
         }

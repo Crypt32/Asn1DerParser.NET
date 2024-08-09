@@ -77,7 +77,7 @@ public static class Asn1Utils {
     /// <param name="enclosingTag">An enumeration of <see cref="Asn1Type"/> type represented as byte.</param>
     /// <returns>Wrapped encoded byte array.</returns>
     /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
-    public static Byte[] Encode(Byte[] rawData, Byte enclosingTag) {
+    public static Byte[] Encode(Byte[]? rawData, Byte enclosingTag) {
         if (rawData == null) {
             return [enclosingTag, 0];
         }

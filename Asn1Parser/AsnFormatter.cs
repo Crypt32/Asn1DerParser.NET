@@ -160,7 +160,7 @@ public static class AsnFormatter {
     /// Resolved input string format. If format cannot be determined, <string>Binary</string> type is returned.
     /// </returns>
     public static EncodingType TestInputString(String input) {
-        Byte[] rawBytes;
+        Byte[]? rawBytes;
         foreach (PemHeader pemHeader in PemHeader.GetPemHeaders()) {
             rawBytes = StringToBinaryFormatter.FromBase64Header(input, pemHeader.GetHeader(), pemHeader.GetFooter());
             if (rawBytes != null) {

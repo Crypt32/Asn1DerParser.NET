@@ -62,7 +62,7 @@ public sealed class Asn1BitString : Asn1Universal {
     /// <summary>
     /// Gets raw value of BIT_STRING without unused bits identifier.
     /// </summary>
-    public Byte[] Value { get; private set; }
+    public Byte[] Value { get; private set; } = [];
 
     void m_encode(Byte[] value, Boolean calc, Byte unusedBits) {
         Value = value;
