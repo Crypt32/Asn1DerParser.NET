@@ -122,4 +122,11 @@ public abstract class Asn1Universal {
     public Byte[] GetRawData() {
         return asnReader!.GetTagRawData();
     }
+    /// <summary>
+    /// Gets the full tag raw data, including header and payload information.
+    /// </summary>
+    /// <returns>ASN.1-encoded type as span.</returns>
+    public Span<Byte> GetRawDataAsSpan() {
+        return asnReader!.GetTagRawDataAsSpan();
+    }
 }
