@@ -31,7 +31,7 @@ public class Asn1Reader {
         (Byte)Asn1Type.SET,
         (Byte)Asn1Type.SET | (Byte)Asn1Class.CONSTRUCTED
     ];
-    readonly List<Byte> _rawData = [];
+    Byte[] _rawData = [];
     readonly Dictionary<Int64, AsnInternalMap> _offsetMap = [];
     AsnInternalMap currentPosition;
     Int32 childCount;
@@ -100,7 +100,7 @@ public class Asn1Reader {
     /// <summary>
     /// Gets the internal ASN.1 stream length in bytes.
     /// </summary>
-    public Int32 Length => _rawData.Count;
+    public Int32 Length => _rawData.Length;
     /// <summary>
     /// Gets next structure's offset at same level (next sibling).
     /// </summary>
@@ -124,16 +124,14 @@ public class Asn1Reader {
         IsConstructed = false;
         childCount = 0;
         if (raw != null) {
-            _rawData.Clear();
-            _rawData.AddRange(raw);
+            _rawData = raw;
         }
         Offset = pOffset;
         Tag = _rawData[Offset];
         calculateLength();
         // strip possible unnecessary bytes
-        if (raw != null && TagLength != _rawData.Count) {
-            _rawData.Clear();
-            _rawData.AddRange(raw.Take(TagLength).ToArray());
+        if (raw != null && TagLength != _rawData.Length) {
+            _rawData = raw.Take(TagLength).ToArray();
         }
         TagName = GetTagName(Tag);
         // 0 Tag is reserved for BER and is not available in DER
@@ -148,7 +146,7 @@ public class Asn1Reader {
         }
         if (PayloadLength == 0) {
             // if current node is the last node in binary data, set NextOffset to 0, this means EOF.
-            NextOffset = Offset + TagLength == _rawData.Count
+            NextOffset = Offset + TagLength == _rawData.Length
                 ? 0
                 : Offset + TagLength;
             NextSiblingOffset = currentPosition.LevelEnd == 0 || Offset - currentPosition.LevelStart + TagLength == currentPosition.LevelEnd
@@ -165,7 +163,7 @@ public class Asn1Reader {
                 // skip unused bits byte
                 ? PayloadStartOffset + 1
                 : PayloadStartOffset
-            : Offset + TagLength < _rawData.Count
+            : Offset + TagLength < _rawData.Length
                 ? Offset + TagLength
                 : 0;
     }
@@ -212,7 +210,7 @@ public class Asn1Reader {
         if (start > Int32.MaxValue) {
             return false;
         }
-        return start >= 0 && start < _rawData.Count && _rawData[(Int32)start] != 0;
+        return start >= 0 && start < _rawData.Length && _rawData[(Int32)start] != 0;
     }
     /// <summary>
     /// Checks if current primitive type is sub-typed (contains nested types) or not.
@@ -288,7 +286,7 @@ public class Asn1Reader {
     /// <param name="offset">Start offset for suggested nested type.</param>
     /// <returns>Estimated full tag length for nested type.</returns>
     Int64 calculatePredictLength(Int64 offset) {
-        if (offset + 1 >= _rawData.Count || offset < 0) {
+        if (offset + 1 >= _rawData.Length || offset < 0) {
             return Int32.MaxValue;
         }
 
@@ -297,7 +295,7 @@ public class Asn1Reader {
         }
         Int32 lengthBytes = _rawData[(Int32)(offset + 1)] - 128;
         // max length can be encoded by using 4 bytes.
-        if (lengthBytes > 4 || offset + 2 >= _rawData.Count) {
+        if (lengthBytes > 4 || offset + 2 >= _rawData.Length) {
             return Int32.MaxValue;
         }
         Int32 pPayloadLength = _rawData[(Int32)(offset + 2)];
@@ -334,7 +332,17 @@ public class Asn1Reader {
         for (Int32 i = 0; i < headerLength; i++) {
             array[i] = _rawData[Offset + i];
         }
+
         return array;
+    }
+    /// <summary>
+    /// Gets current structure header. Header contains tag and tag length byte (or bytes).
+    /// </summary>
+    /// <returns>Current structure header. Header contains tag and tag length byte (or bytes).</returns>
+    public ReadOnlySpan<Byte> GetHeaderAsSpan() {
+        Int32 headerLength = PayloadStartOffset - Offset;
+
+        return _rawData.AsSpan(Offset, headerLength);
     }
     /// <summary>
     /// Gets the byte array of the current structure's payload.
@@ -348,6 +356,13 @@ public class Asn1Reader {
         return array;
     }
     /// <summary>
+    /// Gets the byte array of the current structure's payload.
+    /// </summary>
+    /// <returns>Memory span of the current structure's payload.</returns>
+    public ReadOnlySpan<Byte> GetPayloadAsSpan() {
+        return _rawData.AsSpan(PayloadStartOffset, PayloadLength);
+    }
+    /// <summary>
     /// Gets the raw data of the tag, which includes tag, length bytes and payload.
     /// </summary>
     /// <returns>A full binary copy of the tag.</returns>
@@ -359,15 +374,29 @@ public class Asn1Reader {
         return array;
     }
     /// <summary>
+    /// Gets the raw data of the tag, which includes tag, length bytes and payload.
+    /// </summary>
+    /// <returns>A full binary copy of the tag.</returns>
+    public ReadOnlySpan<Byte> GetTagRawDataAsSpan() {
+        return _rawData.AsSpan(Offset, TagLength);
+    }
+    /// <summary>
     /// Gets a copy of internal ASN.1 stream. The size of the stream is equals to <see cref="Length"/> member value.
     /// </summary>
     /// <returns>A full binary copy of the internal byte stream.</returns>
     public Byte[] GetRawData() {
-        Byte[] array = new Byte[_rawData.Count];
-        for (Int32 i = 0; i < _rawData.Count; i++) {
+        Byte[] array = new Byte[_rawData.Length];
+        for (Int32 i = 0; i < _rawData.Length; i++) {
             array[i] = _rawData[i];
         }
         return array;
+    }
+    /// <summary>
+    /// Gets a copy of internal ASN.1 stream. The size of the stream is equals to <see cref="Length"/> member value.
+    /// </summary>
+    /// <returns>A full binary copy of the internal byte stream.</returns>
+    public ReadOnlySpan<Byte> GetRawDataAsSpan() {
+        return _rawData.AsSpan();
     }
     /// <summary>
     /// Gets the count of nested nodes under node in the current position.
@@ -525,6 +554,7 @@ public class Asn1Reader {
         }
         currentPosition = value;
         decode(null, newPosition);
+
         return true;
     }
 
