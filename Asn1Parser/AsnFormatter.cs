@@ -149,7 +149,7 @@ public static class AsnFormatter {
     /// <returns>Original byte array.</returns>
     /// <remarks>
     ///     This method may not be fully compatible with
-    ///     <see cref="BinaryToString(Byte[],EncodingType,EncodingFormat,Int32,Int32,Boolean)">BinaryToString</see>
+    ///     <see cref="BinaryToString(ReadOnlySpan{Byte}, EncodingType, EncodingFormat, Boolean)">BinaryToString</see>
     ///     method.
     /// <para>
     ///     If encoding parameter is set to <strong>Base64Header</strong>, the method will accept any properly formatted PEM header
