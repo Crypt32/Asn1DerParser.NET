@@ -113,9 +113,9 @@ public enum EncodingType : UInt32 {
     /// <item>Base64Header</item>
     /// <item>Base64</item>
     /// </list>
-    /// <strong><see cref="AsnFormatter.BinaryToString">BinaryToString</see></strong> method do not support this flag.
+    /// <strong><see cref="AsnFormatter.BinaryToString(ReadOnlySpan{Byte}, EncodingType, EncodingFormat, Boolean)">BinaryToString</see></strong> method do not support this flag.
     /// </summary>
-    Base64Any           = 6,
+    Base64Any = 6,
     /// <summary>
     /// Tries the following, in order:
     /// <list type="bullet">
@@ -123,9 +123,9 @@ public enum EncodingType : UInt32 {
     /// <item>Base64</item>
     /// <item>Binary</item>
     /// </list>
-    /// <strong><see cref="AsnFormatter.BinaryToString">BinaryToString</see></strong> method do not support this flag.
+    /// <strong><see cref="AsnFormatter.BinaryToString(ReadOnlySpan{Byte}, EncodingType, EncodingFormat, Boolean)">BinaryToString</see></strong> method do not support this flag.
     /// </summary>
-    StringAny           = 7,
+    StringAny = 7,
     /// <summary>
     /// <list type="bullet">
     /// Tries the following, in order:
@@ -135,9 +135,9 @@ public enum EncodingType : UInt32 {
     /// <item>HexRaw</item>
     /// <item>HexAscii</item>
     /// </list>
-    /// <strong><see cref="AsnFormatter.BinaryToString">BinaryToString</see></strong> method do not support this flag.
+    /// <strong><see cref="AsnFormatter.BinaryToString(ReadOnlySpan{Byte}, EncodingType, EncodingFormat, Boolean)">BinaryToString</see></strong> method do not support this flag.
     /// </summary>
-    HexAny              = 8,
+    HexAny = 8,
     /// <summary>
     /// Base64, with X.509 certificate revocation list (CRL) beginning and ending headers.
     /// </summary>
