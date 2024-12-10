@@ -1,31 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace SysadminsLV.Asn1Parser;
 
 static class BinaryToStringFormatter {
-    public static String ToHexRaw(IReadOnlyList<Byte> rawData, Int32 start, Int32 count, Boolean forceUpperCase) {
-        count = getCount(rawData.Count, start, count);
+    public static String ToHexRaw(ReadOnlySpan<Byte> rawData, Boolean forceUpperCase) {
         var SB = new StringBuilder();
-        for (Int32 i = start; i < start + count; i++) {
-            byteToHexOctet(SB, rawData[i], forceUpperCase);
+        foreach (Byte b in rawData) {
+            byteToHexOctet(SB, b, forceUpperCase);
         }
+        
         return SB.ToString();
     }
-    public static String ToHex(IReadOnlyList<Byte> rawData, EncodingFormat format, Int32 start, Int32 count, Boolean forceUpperCase) {
-        count = getCount(rawData.Count, start, count);
+    public static String ToHex(ReadOnlySpan<Byte> rawData, EncodingFormat format, Boolean forceUpperCase) {
         var sb = new StringBuilder();
-        Int32 n = 0;
-        for (Int32 index = start; index < start + count; index++) {
-            n++;
+        for (Int32 index = 0; index < rawData.Length; index++) {
             byteToHexOctet(sb, rawData[index], forceUpperCase);
-            if (index == start) {
+            if (index == 0) {
                 sb.Append(" ");
                 continue;
             }
-            if (n % 16 == 0) {
+            if ((index + 1) % 16 == 0) {
+                // if current octet is the last octet in a row, append EOL format
                 switch (format) {
                     case EncodingFormat.NOCRLF:
                         sb.Append(" ");
@@ -35,7 +31,7 @@ static class BinaryToStringFormatter {
                     case EncodingFormat.NOCR:
                         sb.Append("\n"); break;
                 }
-            } else if (n % 8 == 0 && format != EncodingFormat.NOCRLF) {
+            } else if ((index + 1) % 8 == 0 && format != EncodingFormat.NOCRLF) {
                 sb.Append("  ");
             } else {
                 sb.Append(" ");
@@ -44,13 +40,12 @@ static class BinaryToStringFormatter {
 
         return finalizeBinaryToString(sb, format);
     }
-    public static String ToHexAddress(IReadOnlyList<Byte> rawData, EncodingFormat format, Int32 start, Int32 count, Boolean forceUpperCase) {
-        count = getCount(rawData.Count, start, count);
+    public static String ToHexAddress(ReadOnlySpan<Byte> rawData, EncodingFormat format, Boolean forceUpperCase) {
         var sb = new StringBuilder();
-        Int32 rowCount = 0, n = 0;
-        Int32 addrLength = getAddrLength(rawData.Count);
-        for (Int32 index = start; index < start + count; index++) {
-            if (n % 16 == 0) {
+        Int32 rowCount = 0;
+        Int32 addrLength = getAddrLength(rawData.Length);
+        for (Int32 index = 0; index < rawData.Length; index++) {
+            if (index % 16 == 0) {
                 String hexAddress = Convert.ToString(rowCount, 16).PadLeft(addrLength, '0');
                 if (forceUpperCase) {
                     hexAddress = hexAddress.ToUpper();
@@ -60,66 +55,64 @@ static class BinaryToStringFormatter {
                 rowCount += 16;
             }
             byteToHexOctet(sb, rawData[index], forceUpperCase);
-            if (index == start) {
+            if (index == 0) {
                 sb.Append(" ");
-                n++;
                 continue;
             }
-            if ((n + 1) % 16 == 0) {
+            
+            if ((index + 1) % 16 == 0) {
+                // if current octet is the last octet in a row, append EOL format
                 sb.Append(format == EncodingFormat.NOCR ? "\n" : "\r\n");
-            } else if ((n + 1) % 8 == 0) {
+            } else if ((index + 1) % 8 == 0) {
+                // if current octet is center octet in a row, append extra space
                 sb.Append("  ");
             } else {
                 sb.Append(" ");
             }
-            n++;
         }
 
         return finalizeBinaryToString(sb, format);
     }
-    public static String ToHexAscii(Byte[] rawData, EncodingFormat format, Int32 start, Int32 count, Boolean forceUpperCase) {
-        count = getCount(rawData.Length, start, count);
+    public static String ToHexAscii(ReadOnlySpan<Byte> rawData, EncodingFormat format, Boolean forceUpperCase) {
         var sb = new StringBuilder();
         var ascii = new StringBuilder(8);
-        Int32 n = 0;
-        for (Int32 index = 0; index < start + count; index++) {
-            n++;
+        for (Int32 index = 0; index < rawData.Length; index++) {
             byteToHexOctet(sb, rawData[index], forceUpperCase);
             Char c = rawData[index] < 32 || rawData[index] > 126
                 ? '.'
                 : (Char)rawData[index];
             ascii.Append(c);
-            if (index == start) {
+            if (index == 0) {
                 sb.Append(" ");
                 continue;
             }
-            if (n % 16 == 0) {
+            if ((index + 1) % 16 == 0) {
                 sb.Append("   ");
                 sb.Append(ascii);
                 ascii.Clear();
+                // if current octet is the last octet in a row, append EOL format
                 sb.Append(format == EncodingFormat.NOCR ? "\n" : "\r\n");
-            } else if (n % 8 == 0) {
+            } else if ((index + 1) % 8 == 0) {
                 sb.Append("  ");
             } else {
                 sb.Append(" ");
             }
             // handle last byte to complete partial ASCII panel.
-            if (n == count) {
-                sb.Append(getAsciiPadding(n));
+            if (index + 1 == rawData.Length) {
+                sb.Append(getAsciiPadding(index + 1));
                 sb.Append(ascii);
             }
         }
 
         return finalizeBinaryToString(sb, format);
     }
-    public static String ToHexAddressAndAscii(IReadOnlyList<Byte> rawData, EncodingFormat format, Int32 start, Int32 count, Boolean forceUpperCase) {
-        count = getCount(rawData.Count, start, count);
+    public static String ToHexAddressAndAscii(ReadOnlySpan<Byte> rawData, EncodingFormat format, Boolean forceUpperCase) {
         var sb = new StringBuilder();
         var ascii = new StringBuilder(8);
-        Int32 addrLength = getAddrLength(rawData.Count);
-        Int32 rowCount = 0, n = 0;
-        for (Int32 index = 0; index < start + count; index++) {
-            if (n % 16 == 0) {
+        Int32 addrLength = getAddrLength(rawData.Length);
+        Int32 rowCount = 0;
+        for (Int32 index = 0; index < rawData.Length; index++) {
+            if (index % 16 == 0) {
                 String hexAddress = Convert.ToString(rowCount, 16).PadLeft(addrLength, '0');
                 if (forceUpperCase) {
                     hexAddress = hexAddress.ToUpper();
@@ -135,32 +128,29 @@ static class BinaryToStringFormatter {
             ascii.Append(c);
             if (index == 0) {
                 sb.Append(" ");
-                n++;
                 continue;
             }
-            if ((n + 1) % 16 == 0) {
+            if ((index + 1) % 16 == 0) {
                 sb.Append("   ");
                 sb.Append(ascii);
                 ascii.Clear();
                 sb.Append(format == EncodingFormat.NOCR ? "\n" : "\r\n");
-            } else if ((n + 1) % 8 == 0) {
+            } else if ((index + 1) % 8 == 0) {
                 sb.Append("  ");
             } else {
                 sb.Append(" ");
             }
             // handle last byte to complete partial ASCII panel.
-            if (n + 1 == count) {
+            if (index + 1 == rawData.Length) {
                 sb.Append(getAsciiPadding(index + 1));
                 sb.Append(ascii);
             }
-            n++;
         }
 
         return finalizeBinaryToString(sb, format);
     }
-    public static String ToBase64(IReadOnlyCollection<Byte> rawData, EncodingType encoding, EncodingFormat format, Int32 start, Int32 count) {
-        count = getCount(rawData.Count, start, count);
-        var sb = new StringBuilder(Convert.ToBase64String(rawData.Skip(start).Take(count).ToArray()));
+    public static String ToBase64(ReadOnlySpan<Byte> rawData, EncodingType encoding, EncodingFormat format) {
+        var sb = new StringBuilder(Convert.ToBase64String(rawData.ToArray()));
         String splitter;
         switch (format) {
             case EncodingFormat.NOCR:
@@ -228,12 +218,6 @@ static class BinaryToStringFormatter {
         }
 
         return new String(' ', (17 - remainder) * 3);
-    }
-    static Int32 getCount(Int32 size, Int32 start, Int32 count) {
-        if (start < 0 || start >= size) {
-            throw new OverflowException();
-        }
-        return count == 0 || start + count > size ? size - start : count;
     }
     static Int32 getAddrLength(Int32 size) {
         Int32 div = size / 16;
