@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SysadminsLV.Asn1Parser;
@@ -66,7 +65,7 @@ public class Asn1DateTimeTests {
         Assert.AreEqual((Byte)expectedType, adt.Tag);
         Assert.AreEqual(DateTimeKind.Local, adt.Value.Kind);
 
-        String gts = Encoding.ASCII.GetString(adt.GetRawData().Skip(2).ToArray());
+        String gts = Encoding.ASCII.GetString(adt.GetRawDataAsMemory()[2..].ToArray());
         Assert.AreEqual(dt, adt.Value);
         if (adt.ZoneInfo == null) {
             dt = dt.ToUniversalTime();
