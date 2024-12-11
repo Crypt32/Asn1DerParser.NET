@@ -31,7 +31,7 @@ public class Asn1Reader {
         (Byte)Asn1Type.SET,
         (Byte)Asn1Type.SET | (Byte)Asn1Class.CONSTRUCTED
     ];
-    Byte[] _rawData = [];
+    ReadOnlyMemory<Byte> _rawData;
     readonly Dictionary<Int64, AsnInternalMap> _offsetMap = [];
     AsnInternalMap currentPosition;
     Int32 childCount;
@@ -44,7 +44,7 @@ public class Asn1Reader {
     /// <remarks>
     ///		This constructor creates a copy of a current position of an existing <strong>ASN1</strong> object.
     /// </remarks>
-    public Asn1Reader(Asn1Reader asn) : this(asn.GetTagRawData()) { }
+    public Asn1Reader(Asn1Reader asn) : this(asn.GetTagRawDataAsMemory(), 0, true) { }
     /// <summary>
     /// Initializes a new instance of the <strong>ASN1</strong> class by using an ASN.1 encoded byte array.
     /// </summary>
@@ -60,17 +60,26 @@ public class Asn1Reader {
     ///     required bytes from input data.
     /// </remarks>
     public Asn1Reader(Byte[] rawData) : this(rawData, 0) { }
+    /// <summary>
+    /// Initializes a new instance of the <strong>ASN1</strong> class by using an ASN.1 encoded byte array.
+    /// </summary>
+    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <exception cref="InvalidDataException">
+    ///     The data in the <strong>rawData</strong> parameter is not valid ASN sequence.
+    /// </exception>
+    /// <remarks>
+    ///     If <strong>rawData</strong> size is greater than outer structure size, constructor will take only
+    ///     required bytes from input data.
+    /// </remarks>
+    public Asn1Reader(ReadOnlyMemory<Byte> rawData) : this(rawData, 0) { }
 
-    Asn1Reader(Byte[] rawData, Int32 offset) {
-        if (rawData == null) {
-            throw new ArgumentNullException(nameof(rawData));
-        }
+    Asn1Reader(ReadOnlyMemory<Byte> rawData, Int32 offset, Boolean skipCopy = false) {
         if (rawData.Length < 2) {
             throw new Win32Exception(ErrorCode.InvalidDataException);
         }
         currentPosition = new AsnInternalMap(0, 0);
         _offsetMap.Add(0, currentPosition);
-        decode(rawData, offset);
+        decode(rawData, offset, skipCopy);
     }
 
     /// <summary>
@@ -118,20 +127,24 @@ public class Asn1Reader {
     /// </summary>
     /// <param name="index">Binary array index to access.</param>
     /// <exception cref="IndexOutOfRangeException"><strong>index</strong> parameter is outside of binary array boundaries.</exception>
-    public Byte this[Int32 index] => _rawData[index];
+    public Byte this[Int32 index] => _rawData.Span[index];
 
-    void decode(Byte[]? raw, Int32 pOffset) {
+    void decode(ReadOnlyMemory<Byte> raw, Int32 pOffset, Boolean skipCopy = false) {
         IsConstructed = false;
         childCount = 0;
-        if (raw != null) {
-            _rawData = raw;
+        if (!raw.IsEmpty) {
+            if (skipCopy) {
+                _rawData = raw;
+            } else {
+                _rawData = raw.ToArray();
+            }
         }
         Offset = pOffset;
-        Tag = _rawData[Offset];
+        Tag = _rawData.Span[Offset];
         calculateLength();
         // strip possible unnecessary bytes
-        if (raw != null && TagLength != _rawData.Length) {
-            _rawData = raw.Take(TagLength).ToArray();
+        if (!raw.IsEmpty && TagLength != _rawData.Length) {
+            _rawData = raw.Slice(0, TagLength).ToArray();
         }
         TagName = GetTagName(Tag);
         // 0 Tag is reserved for BER and is not available in DER
@@ -210,7 +223,7 @@ public class Asn1Reader {
         if (start > Int32.MaxValue) {
             return false;
         }
-        return start >= 0 && start < _rawData.Length && _rawData[(Int32)start] != 0;
+        return start >= 0 && start < _rawData.Length && _rawData.Span[(Int32)start] != 0;
     }
     /// <summary>
     /// Checks if current primitive type is sub-typed (contains nested types) or not.
@@ -227,7 +240,7 @@ public class Asn1Reader {
             return false;
         }
         // if current type is primitive, then nested type can be either, primitive or constructed only.
-        if (_rawData[(Int32)start] >= (Byte)Asn1Class.APPLICATION) {
+        if (_rawData.Span[(Int32)start] >= (Byte)Asn1Class.APPLICATION) {
             return false;
         }
         // otherwise, attempt to resolve nested type. Only single nested type is allowed for primitive types.
@@ -262,20 +275,20 @@ public class Asn1Reader {
         return sum == projectedLength;
     }
     void calculateLength() {
-        if (_rawData[Offset + 1] < 128) {
+        if (_rawData.Span[Offset + 1] < 128) {
             PayloadStartOffset = Offset + 2;
-            PayloadLength = _rawData[Offset + 1];
+            PayloadLength = _rawData.Span[Offset + 1];
             TagLength = PayloadLength + 2;
         } else {
-            Int32 lengthBytes = _rawData[Offset + 1] - 128;
+            Int32 lengthBytes = _rawData.Span[Offset + 1] - 128;
             // max length can be encoded by using 4 bytes.
             if (lengthBytes > 4) {
                 throw new OverflowException("Data length is too large.");
             }
             PayloadStartOffset = Offset + 2 + lengthBytes;
-            PayloadLength = _rawData[Offset + 2];
+            PayloadLength = _rawData.Span[Offset + 2];
             for (Int32 i = Offset + 3; i < PayloadStartOffset; i++) {
-                PayloadLength = (PayloadLength << 8) | _rawData[i];
+                PayloadLength = (PayloadLength << 8) | _rawData.Span[i];
             }
             TagLength = PayloadLength + lengthBytes + 2;
         }
@@ -290,17 +303,17 @@ public class Asn1Reader {
             return Int32.MaxValue;
         }
 
-        if (_rawData[(Int32)(offset + 1)] < 128) {
-            return _rawData[(Int32) (offset + 1)] + 2;
+        if (_rawData.Span[(Int32)(offset + 1)] < 128) {
+            return _rawData.Span[(Int32) (offset + 1)] + 2;
         }
-        Int32 lengthBytes = _rawData[(Int32)(offset + 1)] - 128;
+        Int32 lengthBytes = _rawData.Span[(Int32)(offset + 1)] - 128;
         // max length can be encoded by using 4 bytes.
         if (lengthBytes > 4 || offset + 2 >= _rawData.Length) {
             return Int32.MaxValue;
         }
-        Int32 pPayloadLength = _rawData[(Int32)(offset + 2)];
+        Int32 pPayloadLength = _rawData.Span[(Int32)(offset + 2)];
         for (Int32 i = (Int32)(offset + 3); i < offset + 2 + lengthBytes; i++) {
-            pPayloadLength = (pPayloadLength << 8) | _rawData[i];
+            pPayloadLength = (pPayloadLength << 8) | _rawData.Span[i];
         }
         // 2 -- transitional + tag
         return pPayloadLength + lengthBytes + 2;
@@ -330,7 +343,7 @@ public class Asn1Reader {
         Int32 headerLength = PayloadStartOffset - Offset;
         Byte[] array = new Byte[headerLength];
         for (Int32 i = 0; i < headerLength; i++) {
-            array[i] = _rawData[Offset + i];
+            array[i] = _rawData.Span[Offset + i];
         }
 
         return array;
@@ -339,10 +352,10 @@ public class Asn1Reader {
     /// Gets current structure header. Header contains tag and tag length byte (or bytes).
     /// </summary>
     /// <returns>Current structure header. Header contains tag and tag length byte (or bytes).</returns>
-    public ReadOnlySpan<Byte> GetHeaderAsSpan() {
+    public ReadOnlyMemory<Byte> GetHeaderAsMemory() {
         Int32 headerLength = PayloadStartOffset - Offset;
 
-        return _rawData.AsSpan(Offset, headerLength);
+        return _rawData.Slice(Offset, headerLength);
     }
     /// <summary>
     /// Gets the byte array of the current structure's payload.
@@ -351,7 +364,7 @@ public class Asn1Reader {
     public Byte[] GetPayload() {
         Byte[] array = new Byte[PayloadLength];
         for (Int32 i = 0; i < PayloadLength; i++) {
-            array[i] = _rawData[PayloadStartOffset + i];
+            array[i] = _rawData.Span[PayloadStartOffset + i];
         }
         return array;
     }
@@ -359,8 +372,8 @@ public class Asn1Reader {
     /// Gets the byte array of the current structure's payload.
     /// </summary>
     /// <returns>Memory span of the current structure's payload.</returns>
-    public ReadOnlySpan<Byte> GetPayloadAsSpan() {
-        return _rawData.AsSpan(PayloadStartOffset, PayloadLength);
+    public ReadOnlyMemory<Byte> GetPayloadAsMemory() {
+        return _rawData.Slice(PayloadStartOffset, PayloadLength);
     }
     /// <summary>
     /// Gets the raw data of the tag, which includes tag, length bytes and payload.
@@ -369,7 +382,7 @@ public class Asn1Reader {
     public Byte[] GetTagRawData() {
         Byte[] array = new Byte[TagLength];
         for (Int32 i = 0; i < TagLength; i++) {
-            array[i] = _rawData[Offset + i];
+            array[i] = _rawData.Span[Offset + i];
         }
         return array;
     }
@@ -377,8 +390,8 @@ public class Asn1Reader {
     /// Gets the raw data of the tag, which includes tag, length bytes and payload.
     /// </summary>
     /// <returns>A full binary copy of the tag.</returns>
-    public ReadOnlySpan<Byte> GetTagRawDataAsSpan() {
-        return _rawData.AsSpan(Offset, TagLength);
+    public ReadOnlyMemory<Byte> GetTagRawDataAsMemory() {
+        return _rawData.Slice(Offset, TagLength);
     }
     /// <summary>
     /// Gets a copy of internal ASN.1 stream. The size of the stream is equals to <see cref="Length"/> member value.
@@ -387,7 +400,7 @@ public class Asn1Reader {
     public Byte[] GetRawData() {
         Byte[] array = new Byte[_rawData.Length];
         for (Int32 i = 0; i < _rawData.Length; i++) {
-            array[i] = _rawData[i];
+            array[i] = _rawData.Span[i];
         }
         return array;
     }
@@ -395,8 +408,8 @@ public class Asn1Reader {
     /// Gets a copy of internal ASN.1 stream. The size of the stream is equals to <see cref="Length"/> member value.
     /// </summary>
     /// <returns>A full binary copy of the internal byte stream.</returns>
-    public ReadOnlySpan<Byte> GetRawDataAsSpan() {
-        return _rawData.AsSpan();
+    public ReadOnlyMemory<Byte> GetRawDataAsMemory() {
+        return _rawData;
     }
     /// <summary>
     /// Gets the count of nested nodes under node in the current position.

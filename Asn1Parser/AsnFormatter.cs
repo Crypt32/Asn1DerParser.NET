@@ -123,19 +123,19 @@ public static class AsnFormatter {
             return String.Empty;
         }
         if ((Int32)encoding > 20 && (Int32)encoding < 45) {
-            return BinaryToStringFormatter.ToBase64(asn.GetRawDataAsSpan(), encoding, format);
+            return BinaryToStringFormatter.ToBase64(asn.GetRawDataAsMemory().Span, encoding, format);
         }
         if (PemHeader.ContainsEncoding(encoding)) {
-            return BinaryToStringFormatter.ToBase64(asn.GetRawDataAsSpan(), encoding, format);
+            return BinaryToStringFormatter.ToBase64(asn.GetRawDataAsMemory().Span, encoding, format);
         }
 
         return encoding switch {
-            EncodingType.Base64          => BinaryToStringFormatter.ToBase64(asn.GetRawDataAsSpan(), encoding, format),
-            EncodingType.Hex             => BinaryToStringFormatter.ToHex(asn.GetRawDataAsSpan(), format, forceUpperCase),
-            EncodingType.HexAddress      => BinaryToStringFormatter.ToHexAddress(asn.GetRawDataAsSpan(), format, forceUpperCase),
-            EncodingType.HexAscii        => BinaryToStringFormatter.ToHexAscii(asn.GetRawDataAsSpan(), format, forceUpperCase),
-            EncodingType.HexAsciiAddress => BinaryToStringFormatter.ToHexAddressAndAscii(asn.GetRawDataAsSpan(), format, forceUpperCase),
-            EncodingType.HexRaw          => BinaryToStringFormatter.ToHexRaw(asn.GetRawDataAsSpan(), forceUpperCase),
+            EncodingType.Base64          => BinaryToStringFormatter.ToBase64(asn.GetRawDataAsMemory().Span, encoding, format),
+            EncodingType.Hex             => BinaryToStringFormatter.ToHex(asn.GetRawDataAsMemory().Span, format, forceUpperCase),
+            EncodingType.HexAddress      => BinaryToStringFormatter.ToHexAddress(asn.GetRawDataAsMemory().Span, format, forceUpperCase),
+            EncodingType.HexAscii        => BinaryToStringFormatter.ToHexAscii(asn.GetRawDataAsMemory().Span, format, forceUpperCase),
+            EncodingType.HexAsciiAddress => BinaryToStringFormatter.ToHexAddressAndAscii(asn.GetRawDataAsMemory().Span, format, forceUpperCase),
+            EncodingType.HexRaw          => BinaryToStringFormatter.ToHexRaw(asn.GetRawDataAsMemory().Span, forceUpperCase),
             _                            => throw new ArgumentException("Specified encoding is invalid.")
         };
     }

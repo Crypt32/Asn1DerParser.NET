@@ -207,19 +207,19 @@ public static class Asn1Utils {
             "Unused bits: {0} : {1}",
             asn[asn.PayloadStartOffset],
             AsnFormatter.BinaryToString(
-                asn.GetRawDataAsSpan().Slice(asn.PayloadStartOffset + 1, asn.PayloadLength - 1),
+                asn.GetRawDataAsMemory().Slice(asn.PayloadStartOffset + 1, asn.PayloadLength - 1).Span,
                 EncodingType.HexRaw,
                 EncodingFormat.NOCRLF)
         );
     }
     static String decodeOctetString(Asn1Reader asn) {
         return AsnFormatter.BinaryToString(
-            asn.GetRawDataAsSpan().Slice(asn.PayloadStartOffset, asn.PayloadLength),
+            asn.GetRawDataAsMemory().Slice(asn.PayloadStartOffset, asn.PayloadLength).Span,
             EncodingType.HexRaw,
             EncodingFormat.NOCRLF);
     }
     static String decodeAsciiString(Asn1Reader asn) {
-        return Encoding.ASCII.GetString(asn.GetRawDataAsSpan().ToArray(), asn.PayloadStartOffset, asn.PayloadLength);
+        return Encoding.ASCII.GetString(asn.GetRawDataAsMemory().ToArray(), asn.PayloadStartOffset, asn.PayloadLength);
     }
     static String decodeUtcTime(Asn1Reader asn) {
         DateTime dt = new Asn1UtcTime(asn).Value;
