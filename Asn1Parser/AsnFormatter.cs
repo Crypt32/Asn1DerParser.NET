@@ -70,7 +70,7 @@ public static class AsnFormatter {
     /// </list>
     /// </remarks>
     public static String BinaryToString(ReadOnlySpan<Byte> rawData, EncodingType encoding = EncodingType.HexRaw, EncodingFormat format = EncodingFormat.CRLF, Boolean forceUpperCase = false) {
-        if (rawData == null || rawData.Length == 0) {
+        if (rawData.IsEmpty) {
             return String.Empty;
         }
         if (PemHeader.ContainsEncoding(encoding)) {
