@@ -73,12 +73,11 @@ public static class AsnFormatter {
         if (rawData.IsEmpty) {
             return String.Empty;
         }
-        if (PemHeader.ContainsEncoding(encoding)) {
+        if (encoding == EncodingType.Base64 || PemHeader.ContainsEncoding(encoding)) {
             return BinaryToStringFormatter.ToBase64(rawData, encoding, format);
         }
 
         return encoding switch {
-            EncodingType.Base64          => BinaryToStringFormatter.ToBase64(rawData, encoding, format),
             EncodingType.Hex             => BinaryToStringFormatter.ToHex(rawData, format, forceUpperCase),
             EncodingType.HexAddress      => BinaryToStringFormatter.ToHexAddress(rawData, format, forceUpperCase),
             EncodingType.HexAscii        => BinaryToStringFormatter.ToHexAscii(rawData, format, forceUpperCase),
@@ -119,25 +118,8 @@ public static class AsnFormatter {
         if (asn == null) {
             throw new ArgumentNullException(nameof(asn));
         }
-        if (asn.PayloadLength == 0) {
-            return String.Empty;
-        }
-        if ((Int32)encoding > 20 && (Int32)encoding < 45) {
-            return BinaryToStringFormatter.ToBase64(asn.GetRawDataAsMemory().Span, encoding, format);
-        }
-        if (PemHeader.ContainsEncoding(encoding)) {
-            return BinaryToStringFormatter.ToBase64(asn.GetRawDataAsMemory().Span, encoding, format);
-        }
 
-        return encoding switch {
-            EncodingType.Base64          => BinaryToStringFormatter.ToBase64(asn.GetRawDataAsMemory().Span, encoding, format),
-            EncodingType.Hex             => BinaryToStringFormatter.ToHex(asn.GetRawDataAsMemory().Span, format, forceUpperCase),
-            EncodingType.HexAddress      => BinaryToStringFormatter.ToHexAddress(asn.GetRawDataAsMemory().Span, format, forceUpperCase),
-            EncodingType.HexAscii        => BinaryToStringFormatter.ToHexAscii(asn.GetRawDataAsMemory().Span, format, forceUpperCase),
-            EncodingType.HexAsciiAddress => BinaryToStringFormatter.ToHexAddressAndAscii(asn.GetRawDataAsMemory().Span, format, forceUpperCase),
-            EncodingType.HexRaw          => BinaryToStringFormatter.ToHexRaw(asn.GetRawDataAsMemory().Span, forceUpperCase),
-            _                            => throw new ArgumentException("Specified encoding is invalid.")
-        };
+        return BinaryToString(asn.GetTagRawDataAsMemory().Span, encoding, format, forceUpperCase);
     }
     /// <summary>
     /// Converts previously formatted string back to a byte array.
