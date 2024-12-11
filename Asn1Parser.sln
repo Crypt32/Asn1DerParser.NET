@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{CA656832
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Asn1Parser.Tests", "tests\Asn1Parser.Tests\Asn1Parser.Tests.csproj", "{739EADA6-013A-4BA3-BF41-70D667B9682A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asn1Parser.Benchmark", "tests\Asn1Parser.Benchmark\Asn1Parser.Benchmark.csproj", "{492FCE10-32C2-4485-A529-CC08AF075D5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,12 +30,17 @@ Global
 		{739EADA6-013A-4BA3-BF41-70D667B9682A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{739EADA6-013A-4BA3-BF41-70D667B9682A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{739EADA6-013A-4BA3-BF41-70D667B9682A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{492FCE10-32C2-4485-A529-CC08AF075D5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{492FCE10-32C2-4485-A529-CC08AF075D5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{492FCE10-32C2-4485-A529-CC08AF075D5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{492FCE10-32C2-4485-A529-CC08AF075D5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{739EADA6-013A-4BA3-BF41-70D667B9682A} = {CA656832-2531-426B-ACF5-724FA0A6EDC7}
+		{492FCE10-32C2-4485-A529-CC08AF075D5A} = {CA656832-2531-426B-ACF5-724FA0A6EDC7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B1F6FDE1-A4A9-4257-82D9-2CFC87B32B09}
