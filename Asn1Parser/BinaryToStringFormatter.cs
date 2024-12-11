@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Buffers;
+using System.Buffers.Text;
 using System.Text;
 
 namespace SysadminsLV.Asn1Parser;
@@ -150,51 +152,62 @@ static class BinaryToStringFormatter {
         return finalizeBinaryToString(sb, format);
     }
     public static String ToBase64(ReadOnlySpan<Byte> rawData, EncodingType encoding, EncodingFormat format) {
-        var sb = new StringBuilder(Convert.ToBase64String(rawData.ToArray()));
-        String splitter;
-        switch (format) {
-            case EncodingFormat.NOCR:
-                splitter = "\n";
-                // Base64FormattingOptions inserts new lines at 76 position, while we need 64.
-                for (Int32 i = 64; i < sb.Length; i += 65) { // 64 + "\r\n"
-                    sb.Insert(i, splitter);
-                }
-                break;
-            case EncodingFormat.NOCRLF:
-                splitter = String.Empty;
-                break;
-            default:
-                splitter = "\r\n";
-                // Base64FormattingOptions inserts new lines at 76 position, while we need 64.
-                for (Int32 i = 64; i < sb.Length; i += 66) { // 64 + "\r\n"
-                    sb.Insert(i, splitter);
-                }
-                break;
-        }
+        Int32 b64Length = Base64.GetMaxEncodedToUtf8Length(rawData.Length);
+        Span<Byte> base64 = new Byte[b64Length];
+        OperationStatus result = Base64.EncodeToUtf8(rawData, base64, out _, out _);
+        String eol = getEOL(format);
+        Int32 rowCount = (Int32)Math.Floor(b64Length / 64d);
+        Int32 eolCount = rowCount * eol.Length + eol.Length;
+        PemHeader? pem = null;
         switch (encoding) {
             case EncodingType.Base64:
                 break;
             default:
-                finalizeBase64WithHeader(sb, encoding, splitter);
+                pem = getPemHeader(encoding);
                 break;
         }
+        Int32 totalLength = b64Length + eolCount;
+        if (pem is not null) {
+            // total length is a sum of:
+            // - PEM header length + EOL
+            // - main base64 content with EOLs
+            // - PEM footer length + EOL
+            // - final EOL
+            totalLength = totalLength + pem.GetHeader().Length + pem.GetFooter().Length + eol.Length * 2 + 1;
+        }
+        var sb = new StringBuilder(totalLength);
+        // append PEM header if available
+        if (pem is not null) {
+            sb.Append(pem.GetHeader()).Append(eol);
+        }
+        // copy first full lines
+        for (Int32 i = 0; i < rowCount; i++) {
+            for (Int32 j = 0; j < 64; j++) {
+                sb.Append((Char)base64[i * 64 + j]);
+            }
+            sb.Append(eol);
+        }
+        for (Int32 i = rowCount * 64; i < b64Length; i++) {
+            sb.Append((Char)base64[i]);
+        }
+        // append PEM footer if available
+        if (pem is not null) {
+            sb.Append(eol);
+            sb.Append(pem.GetFooter());
+        }
+        sb.Append(eol);
 
-        return finalizeBinaryToString(sb, format);
+        return sb.ToString();
     }
 
     #region string finalizers
 
-    static void finalizeBase64WithHeader(StringBuilder sb, EncodingType encoding, String splitter) {
-        Func<String> header, footer;
+    static PemHeader getPemHeader(EncodingType encoding) {
         if (PemHeader.ContainsEncoding(encoding)) {
-            PemHeader pemHeader = PemHeader.GetHeader(encoding);
-            header = pemHeader.GetHeader;
-            footer = pemHeader.GetFooter;
-        } else {
-            throw new ArgumentException("Specified encoding is not valid Base64 encoding.");
+            return PemHeader.GetHeader(encoding);
         }
-        sb.Insert(0, header.Invoke() + splitter);
-        sb.Append(splitter + footer.Invoke());
+
+        throw new ArgumentException("Specified encoding is not valid Base64 encoding.");
     }
     static String finalizeBinaryToString(StringBuilder sb, EncodingFormat format) {
         switch (format) {
@@ -205,6 +218,14 @@ static class BinaryToStringFormatter {
             default:
                 return sb.Append("\r\n").ToString();
         }
+    }
+    static String getEOL(EncodingFormat format) {
+        return format switch {
+            EncodingFormat.CRLF   => "\r\n",
+            EncodingFormat.NOCRLF => String.Empty,
+            EncodingFormat.NOCR   => "\n",
+            _                     => throw new ArgumentOutOfRangeException(nameof(format), format, null)
+        };
     }
 
     #endregion
