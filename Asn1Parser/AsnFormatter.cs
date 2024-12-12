@@ -82,7 +82,7 @@ public static class AsnFormatter {
             EncodingType.HexAddress      => BinaryToStringFormatter.ToHexAddress(rawData, format, forceUpperCase),
             EncodingType.HexAscii        => BinaryToStringFormatter.ToHexAscii(rawData, format, forceUpperCase),
             EncodingType.HexAsciiAddress => BinaryToStringFormatter.ToHexAddressAndAscii(rawData, format, forceUpperCase),
-            EncodingType.HexRaw          => BinaryToStringFormatter.ToHexRaw(rawData, forceUpperCase),
+            EncodingType.HexRaw          => BinaryToStringFormatter.ToHexRaw(rawData, format, forceUpperCase),
             _                            => throw new ArgumentException("Specified encoding is invalid.")
         };
     }
