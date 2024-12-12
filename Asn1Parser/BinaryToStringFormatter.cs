@@ -44,9 +44,13 @@ static class BinaryToStringFormatter {
         return finalizeBinaryToString(sb, format);
     }
     public static String ToHexAddress(ReadOnlySpan<Byte> rawData, EncodingFormat format, Boolean forceUpperCase) {
-        var sb = new StringBuilder();
         Int32 rowCount = 0;
         Int32 addrLength = getAddrLength(rawData.Length);
+        String eol = format == EncodingFormat.NOCR ? "\n" : "\r\n";
+        String eof = getEOL(format);
+        Int32 totalRows = (Int32)Math.Ceiling(rawData.Length / 16d);
+        Int32 bufferSize = addrLength + (52 + eol.Length) * totalRows + eof.Length;
+        var sb = new StringBuilder(bufferSize);
         for (Int32 index = 0; index < rawData.Length; index++) {
             if (index % 16 == 0) {
                 String hexAddress = Convert.ToString(rowCount, 16).PadLeft(addrLength, '0');
@@ -62,10 +66,10 @@ static class BinaryToStringFormatter {
                 sb.Append(" ");
                 continue;
             }
-            
+
             if ((index + 1) % 16 == 0) {
                 // if current octet is the last octet in a row, append EOL format
-                sb.Append(format == EncodingFormat.NOCR ? "\n" : "\r\n");
+                sb.Append(eol);
             } else if ((index + 1) % 8 == 0) {
                 // if current octet is center octet in a row, append extra space
                 sb.Append("  ");
@@ -74,7 +78,7 @@ static class BinaryToStringFormatter {
             }
         }
 
-        return finalizeBinaryToString(sb, format);
+        return sb.Append(eof).ToString();
     }
     public static String ToHexAscii(ReadOnlySpan<Byte> rawData, EncodingFormat format, Boolean forceUpperCase) {
         var sb = new StringBuilder();
