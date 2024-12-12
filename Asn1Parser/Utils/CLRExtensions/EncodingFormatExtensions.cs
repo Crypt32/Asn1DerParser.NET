@@ -5,7 +5,7 @@ namespace SysadminsLV.Asn1Parser.Utils.CLRExtensions;
 /// <summary>
 /// Contains extension methods for <see cref="EncodingFormat"/> enumeration.
 /// </summary>
-static class EncodingFormatExtensions {
+internal static class EncodingFormatExtensions {
     /// <summary>
     /// Gets end of line implementation.
     /// </summary>
