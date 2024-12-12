@@ -7,7 +7,7 @@ namespace SysadminsLV.Asn1Parser.Utils.CLRExtensions;
 /// <summary>
 /// Extension class for <see cref="BigInteger"/> class.
 /// </summary>
-static class BigIntegerExtensions {
+internal static class BigIntegerExtensions {
     /// <summary>
     /// Gets a byte array in the big-endian order.
     /// </summary>
