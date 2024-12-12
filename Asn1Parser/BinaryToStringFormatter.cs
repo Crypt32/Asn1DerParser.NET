@@ -6,13 +6,14 @@ using System.Text;
 namespace SysadminsLV.Asn1Parser;
 
 static class BinaryToStringFormatter {
-    public static String ToHexRaw(ReadOnlySpan<Byte> rawData, Boolean forceUpperCase) {
+    public static String ToHexRaw(ReadOnlySpan<Byte> rawData, EncodingFormat format, Boolean forceUpperCase) {
+        String eol = getEOL(format);
         var SB = new StringBuilder();
         foreach (Byte b in rawData) {
             byteToHexOctet(SB, b, forceUpperCase);
         }
         
-        return SB.ToString();
+        return SB.Append(eol).ToString();
     }
     public static String ToHex(ReadOnlySpan<Byte> rawData, EncodingFormat format, Boolean forceUpperCase) {
         var sb = new StringBuilder();
