@@ -61,9 +61,4 @@ public sealed class Asn1NumericString : Asn1String {
         }
         Value = Encoding.ASCII.GetString(asn.GetPayload());
     }
-        
-    /// <inheritdoc/>
-    public override String GetDisplayValue() {
-        return Value;
-    }
 }

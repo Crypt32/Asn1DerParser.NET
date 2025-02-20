@@ -21,9 +21,7 @@ public sealed class Asn1VideotexString : Asn1String {
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid VideotexString character.
     /// </exception>
-    public Asn1VideotexString(Asn1Reader asn) : base(asn, TYPE) {
-        decode(asn);
-    }
+    public Asn1VideotexString(Asn1Reader asn) : base(asn, TYPE) { }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1VideotexString</strong> from a ASN.1-encoded byte array.
     /// </summary>
@@ -34,7 +32,7 @@ public sealed class Asn1VideotexString : Asn1String {
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid VideotexString character.
     /// </exception>
-    public Asn1VideotexString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1VideotexString(Byte[] rawData) : base(new Asn1Reader(rawData), TYPE) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1VideotexString</strong> class from a unicode string.
     /// </summary>
@@ -50,12 +48,12 @@ public sealed class Asn1VideotexString : Asn1String {
         Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TYPE)));
         Value = inputString;
     }
-    void decode(Asn1Reader asn) {
-        Value = Encoding.ASCII.GetString(asn.GetPayload());
-    }
+    protected override String Decode(ReadOnlySpan<Byte> payload) {
+        var sb = new StringBuilder(payload.Length);
+        foreach (Byte b in payload) {
+            sb.Append((Char)b);
+        }
 
-    /// <inheritdoc/>
-    public override String GetDisplayValue() {
-        return Value;
+        return sb.ToString();
     }
 }

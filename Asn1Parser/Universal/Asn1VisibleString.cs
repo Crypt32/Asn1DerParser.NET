@@ -58,14 +58,9 @@ public sealed class Asn1VisibleString : Asn1String {
         Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TYPE)));
     }
     void m_decode(Asn1Reader asn) {
-        if (asn.GetPayload().Any(b => b < 32 || b > 126)) {
+        if (asn.GetPayload().Any(b => b is < 32 or > 126)) {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
         Value = Encoding.ASCII.GetString(asn.GetPayload());
-    }
-        
-    /// <inheritdoc/>
-    public override String GetDisplayValue() {
-        return Value;
     }
 }

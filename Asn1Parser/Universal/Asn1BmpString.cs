@@ -44,9 +44,4 @@ public sealed class Asn1BMPString : Asn1String {
     void m_decode(Asn1Reader asn) {
         Value = Encoding.BigEndianUnicode.GetString(asn.GetPayload());
     }
-
-    /// <inheritdoc/>
-    public override String GetDisplayValue() {
-        return Value;
-    }
 }
