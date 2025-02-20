@@ -73,9 +73,4 @@ public sealed class Asn1PrintableString : Asn1String {
         List<Byte> alphabet = StringUtils.GetAlphabet(TYPE);
         return rawData.All(alphabet.Contains);
     }
-
-    /// <inheritdoc />
-    public override String GetDisplayValue() {
-        return Value;
-    }
 }

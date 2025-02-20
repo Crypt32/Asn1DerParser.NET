@@ -49,9 +49,4 @@ public sealed class Asn1UniversalString : Asn1String {
     void m_decode(Asn1Reader asn) {
         Value = new String(Encoding.UTF32.GetString(asn.GetPayload().Reverse().ToArray()).Reverse().ToArray());
     }
-
-    /// <inheritdoc/>
-    public override String GetDisplayValue() {
-        return Value;
-    }
 }

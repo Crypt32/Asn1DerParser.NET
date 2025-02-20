@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace SysadminsLV.Asn1Parser.Universal;
@@ -39,12 +40,33 @@ public abstract class Asn1String : Asn1Universal {
     /// </summary>
     /// <param name="asn"><see cref="Asn1Reader"/> object in the position that represents ASN.1 date/time object.</param>
     /// <param name="type">Optional expected ASN.1 type.</param>
-    protected Asn1String(Asn1Reader asn, Asn1Type? type) : base(asn, type) { }
+    protected Asn1String(Asn1Reader asn, Asn1Type type) : base(asn, type) {
+        decode(asn, type);
+    }
 
     /// <summary>
     /// Gets value associated with the current object.
     /// </summary>
     public String Value { get; protected set; } = String.Empty;
+
+    void decode(Asn1Reader reader, Asn1Type type) {
+        ReadOnlyMemory<Byte> payload = reader.GetPayloadAsMemory();
+        if (!IsValidString(payload.Span)) {
+            throw new InvalidDataException(String.Format(InvalidType, type));
+        }
+
+        Value = Decode(payload.Span);
+    }
+
+    protected virtual Boolean IsValidString(ReadOnlySpan<Byte> value) {
+        return true;
+    }
+    protected virtual String Decode(ReadOnlySpan<Byte> payload) {return String.Empty;}
+
+    /// <inheritdoc/>
+    public sealed override String GetDisplayValue() {
+        return Value;
+    }
 
     /// <summary>
     /// Decodes any ASN.1-encoded binary string into ASN.1 string type instance.

@@ -61,9 +61,4 @@ public sealed class Asn1UTF8String : Asn1String {
     static Boolean testValue(String str) {
         return str.All(x => Convert.ToUInt32(x) <= 255);
     }
-
-    /// <inheritdoc/>
-    public override String GetDisplayValue() {
-        return Value;
-    }
 }
