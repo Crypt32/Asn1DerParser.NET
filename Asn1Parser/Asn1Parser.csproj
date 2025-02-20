@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+    <TargetFrameworks>net8.0;net472</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Version>1.3.0</Version>
     <AssemblyName>SysadminsLV.Asn1Parser</AssemblyName>
@@ -17,8 +17,8 @@
     <SignAssembly>True</SignAssembly>
     <!--<AssemblyOriginatorKeyFile>strongname.snk</AssemblyOriginatorKeyFile>-->
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|netstandard2.0'">
-    <DocumentationFile>bin\Release\netstandard2.0\SysadminsLV.Asn1Parser.xml</DocumentationFile>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net8.0'">
+    <DocumentationFile>bin\Release\net8.0\SysadminsLV.Asn1Parser.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net472'">
     <DocumentationFile>bin\Release\net472\SysadminsLV.Asn1Parser.xml</DocumentationFile>
