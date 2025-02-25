@@ -92,6 +92,13 @@ public abstract class Asn1Universal {
         IsContainer = asn.IsConstructed;
     }
     /// <summary>
+    /// Gets internal reader instance.
+    /// </summary>
+    /// <returns>ASN.1 reader.</returns>
+    protected Asn1Reader GetInternalReader() {
+        return asnReader!.GetReader();
+    }
+    /// <summary>
     /// Constant string to display error message for tag mismatch exceptions.
     /// </summary>
     protected const String InvalidType = "Input data does not represent valid '{0}' type.";
