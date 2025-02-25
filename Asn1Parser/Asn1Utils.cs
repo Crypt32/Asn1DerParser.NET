@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using SysadminsLV.Asn1Parser.Universal;
 
@@ -57,7 +58,7 @@ public static class Asn1Utils {
     /// <strong>asnHeader</strong> parameter length is more than 4 bytes or is invalid value.
     /// </exception>
     /// <returns>ASN.1 payload length in bytes.</returns>
-    public static Int64 CalculatePayloadLength(Byte[] asnHeader) {
+    public static Int64 CalculatePayloadLength(ReadOnlySpan<Byte> asnHeader) {
         if (asnHeader == null) {
             throw new ArgumentNullException(nameof(asnHeader));
         }
@@ -83,10 +84,34 @@ public static class Asn1Utils {
     /// </summary>
     /// <remarks>This method do not check whether the data in <strong>rawData</strong> is valid data for specified enclosing type.</remarks>
     /// <param name="rawData">A byte array to wrap.</param>
+    /// <param name="type">An enumeration of <see cref="Asn1Type"/>.</param>
+    /// <returns>Wrapped encoded byte array.</returns>
+    /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
+    [Obsolete("Consider the use of other overloads that accept 'ReadOnlySpan' as a parameter.")]
+    public static Byte[] Encode(Byte[] rawData, Asn1Type type) {
+        return Encode(rawData.AsSpan(), type).ToArray();
+    }
+    /// <summary>
+    /// Wraps encoded data to an ASN.1 type/structure.
+    /// </summary>
+    /// <remarks>This method do not check whether the data in <strong>rawData</strong> is valid data for specified enclosing type.</remarks>
+    /// <param name="rawData">A byte array to wrap.</param>
+    /// <param name="enclosingTag">An enumeration of <see cref="Asn1Type"/>.</param>
+    /// <returns>Wrapped encoded byte array.</returns>
+    /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
+    [Obsolete("Consider the use of other overloads that accept 'ReadOnlySpan' as a parameter.")]
+    public static Byte[] Encode(Byte[] rawData, Byte enclosingTag) {
+        return Encode(rawData.AsSpan(), enclosingTag).ToArray();
+    }
+    /// <summary>
+    /// Wraps encoded data to an ASN.1 type/structure.
+    /// </summary>
+    /// <remarks>This method do not check whether the data in <strong>rawData</strong> is valid data for specified enclosing type.</remarks>
+    /// <param name="rawData">A byte array to wrap.</param>
     /// <param name="enclosingTag">An enumeration of <see cref="Asn1Type"/> type represented as byte.</param>
     /// <returns>Wrapped encoded byte array.</returns>
     /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
-    public static Memory<Byte> Encode(ReadOnlySpan<Byte> rawData, Byte enclosingTag) {
+    public static ReadOnlyMemory<Byte> Encode(ReadOnlySpan<Byte> rawData, Byte enclosingTag) {
         Byte[] retValue;
         if (rawData == null) {
             retValue = [enclosingTag, 0];
@@ -139,18 +164,7 @@ public static class Asn1Utils {
     /// <param name="type">An enumeration of <see cref="Asn1Type"/>.</param>
     /// <returns>Wrapped encoded byte array.</returns>
     /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
-    public static Byte[] Encode(Byte[] rawData, Asn1Type type) {
-        return Encode(rawData, (Byte)type).ToArray();
-    }
-    /// <summary>
-    /// Wraps encoded data to an ASN.1 type/structure.
-    /// </summary>
-    /// <remarks>This method do not check whether the data in <strong>rawData</strong> is valid data for specified enclosing type.</remarks>
-    /// <param name="rawData">A byte array to wrap.</param>
-    /// <param name="type">An enumeration of <see cref="Asn1Type"/>.</param>
-    /// <returns>Wrapped encoded byte array.</returns>
-    /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
-    public static Memory<Byte> Encode(ReadOnlySpan<Byte> rawData, Asn1Type type) {
+    public static ReadOnlyMemory<Byte> Encode(ReadOnlySpan<Byte> rawData, Asn1Type type) {
         return Encode(rawData, (Byte)type);
     }
     /// <summary>
@@ -169,11 +183,11 @@ public static class Asn1Utils {
     /// </summary>
     /// <remarks>This method do not check whether the data in <strong>rawData</strong> is valid data for specified enclosing type.</remarks>
     /// <param name="rawData">A byte array to wrap.</param>
-    /// <param name="type">An enumeration of <see cref="Asn1Type"/>.</param>
+    /// <param name="enclosingTag">An enumeration of <see cref="Asn1Type"/>.</param>
     /// <returns>ASN.1 reader that represents encoded type.</returns>
     /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
-    public static Asn1Reader EncodeAsReader(ReadOnlySpan<Byte> rawData, Byte type) {
-        return new Asn1Reader(Encode(rawData, type));
+    public static Asn1Reader EncodeAsReader(ReadOnlySpan<Byte> rawData, Byte enclosingTag) {
+        return new Asn1Reader(Encode(rawData, enclosingTag));
     }
     #endregion
 
