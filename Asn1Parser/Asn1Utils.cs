@@ -144,6 +144,28 @@ public static class Asn1Utils {
     public static Memory<Byte> Encode(ReadOnlySpan<Byte> rawData, Asn1Type type) {
         return Encode(rawData, (Byte)type);
     }
+    /// <summary>
+    /// Wraps encoded data to an ASN.1 type/structure and returns ASN.1 reader instance.
+    /// </summary>
+    /// <remarks>This method do not check whether the data in <strong>rawData</strong> is valid data for specified enclosing type.</remarks>
+    /// <param name="rawData">A byte array to wrap.</param>
+    /// <param name="type">An enumeration of <see cref="Asn1Type"/>.</param>
+    /// <returns>ASN.1 reader that represents encoded type.</returns>
+    /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
+    public static Asn1Reader EncodeAsReader(ReadOnlySpan<Byte> rawData, Asn1Type type) {
+        return new Asn1Reader(Encode(rawData, (Byte)type));
+    }
+    /// <summary>
+    /// Wraps encoded data to an ASN.1 type/structure and returns ASN.1 reader instance.
+    /// </summary>
+    /// <remarks>This method do not check whether the data in <strong>rawData</strong> is valid data for specified enclosing type.</remarks>
+    /// <param name="rawData">A byte array to wrap.</param>
+    /// <param name="type">An enumeration of <see cref="Asn1Type"/>.</param>
+    /// <returns>ASN.1 reader that represents encoded type.</returns>
+    /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
+    public static Asn1Reader EncodeAsReader(ReadOnlySpan<Byte> rawData, Byte type) {
+        return new Asn1Reader(Encode(rawData, type));
+    }
     #endregion
 
     #region internal
