@@ -68,7 +68,7 @@ public class Asn1OidTests {
     static void testOidBiDirectional(String oidString, String expectedB64) {
         // test OID string -> binary encoding process
         var oid = new Asn1ObjectIdentifier(oidString);
-        String encodedB64 = Convert.ToBase64String(oid.GetRawData());
+        String encodedB64 = Convert.ToBase64String(oid.GetRawDataAsMemory().ToArray());
         Assert.AreEqual(expectedB64, encodedB64);
         // test binary -> OID string decoding process
         oid = new Asn1ObjectIdentifier(Convert.FromBase64String(expectedB64));

@@ -32,6 +32,14 @@ public sealed class Asn1UniversalString : Asn1String {
     /// </exception>
     public Asn1UniversalString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
+    /// Initializes a new instance of <strong>Asn1UniversalString</strong> from a ASN.1-encoded byte array.
+    /// </summary>
+    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <exception cref="Asn1InvalidTagException">
+    /// <strong>rawData</strong> is not <strong>UniversalString</strong> data type.
+    /// </exception>
+    public Asn1UniversalString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
+    /// <summary>
     /// Initializes a new instance of the <strong>Asn1UniversalString</strong> class from a unicode string.
     /// </summary>
     /// <param name="inputString">A unicode string to encode.</param>

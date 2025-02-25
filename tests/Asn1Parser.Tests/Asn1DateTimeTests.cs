@@ -80,8 +80,8 @@ public class Asn1DateTimeTests {
     }
     static void assertDateTimeDecode(Asn1Type expectedTime, Asn1DateTime adt, DateTime dt, String expectedFormat) {
         adt = expectedTime == Asn1Type.UTCTime
-            ? new Asn1UtcTime(adt.GetRawData())
-            : new Asn1GeneralizedTime(adt.GetRawData());
+            ? new Asn1UtcTime(adt.GetRawDataAsMemory())
+            : new Asn1GeneralizedTime(adt.GetRawDataAsMemory());
         assertDateTimeEncode(expectedTime, adt, dt, expectedFormat, true);
     }
 }

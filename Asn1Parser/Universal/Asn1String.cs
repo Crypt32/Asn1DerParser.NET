@@ -83,19 +83,16 @@ public abstract class Asn1String : Asn1Universal {
     /// <exception cref="Asn1InvalidTagException">
     ///     Input data is not valid string type.
     /// </exception>
-    public static Asn1String DecodeAnyString(Byte[] rawData, IEnumerable<Asn1Type>? allowedStringTypes = null) {
-        if (rawData == null) {
-            throw new ArgumentNullException(nameof(rawData));
-        }
+    public static Asn1String DecodeAnyString(ReadOnlyMemory<Byte> rawData, IEnumerable<Asn1Type>? allowedStringTypes = null) {
         if (rawData.Length < 2) {
             throw new ArgumentException("Raw data must have at least tag (1 byte) and length components (1 byte) in TLV structure.");
         }
 
         IEnumerable<Asn1Type> asn1Types = allowedStringTypes?.ToList();
-        if (asn1Types != null && !asn1Types.Contains((Asn1Type)rawData[0])) {
+        if (asn1Types != null && !asn1Types.Contains((Asn1Type)rawData.Span[0])) {
             throw new ArgumentException("Input string is not permitted by restriction.");
         }
-        var tag = (Asn1Type)(rawData[0] & (Int32)Asn1Type.TAG_MASK);
+        var tag = (Asn1Type)(rawData.Span[0] & (Int32)Asn1Type.TAG_MASK);
         return tag switch {
             Asn1Type.IA5String       => new Asn1IA5String(rawData),
             Asn1Type.PrintableString => new Asn1PrintableString(rawData),

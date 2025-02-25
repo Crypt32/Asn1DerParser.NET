@@ -40,7 +40,7 @@ public class Asn1RelativeOidTests {
     static void testOidBiDirectional(String oidString, String expectedB64) {
         // test OID string -> binary encoding process
         var oid = new Asn1RelativeOid(oidString);
-        String encodedB64 = Convert.ToBase64String(oid.GetRawData());
+        String encodedB64 = Convert.ToBase64String(oid.GetRawDataAsMemory().ToArray());
         Assert.AreEqual(expectedB64, encodedB64);
         if (oidString.StartsWith('.')) {
             Assert.AreEqual(oidString, oid.Value);
