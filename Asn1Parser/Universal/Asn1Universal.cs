@@ -86,7 +86,7 @@ public abstract class Asn1Universal {
     /// </summary>
     /// <param name="asn">Existing <see cref="Asn1Reader"/> object.</param>
     protected void Initialize(Asn1Reader asn) {
-        asnReader = new Asn1Reader(asn); // do not store external ASN reader reference.
+        asnReader = asn.GetReader(); // do not store external ASN reader reference.
         Tag = asn.Tag;
         TagName = asn.TagName;
         IsContainer = asn.IsConstructed;
