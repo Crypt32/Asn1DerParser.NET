@@ -13,7 +13,7 @@ public sealed class Asn1Null : Asn1Universal {
     /// Initializes a new instance of <strong>Asn1Null</strong> class.
     /// </summary>
     public Asn1Null() : base(TYPE) {
-        Initialize(new Asn1Reader([5, 0]));
+        Initialize(new Asn1Reader(new Byte[] { 5, 0 }.AsMemory()));
     }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1Null</strong> class from an <see cref="Asn1Reader"/>
@@ -33,7 +33,15 @@ public sealed class Asn1Null : Asn1Universal {
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not valid <strong>NULL</strong> data type.
     /// </exception>
-    public Asn1Null(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1Null(Byte[] rawData) : this(rawData.AsMemory()) { }
+    /// <summary>
+    /// Initializes a new instance of <strong>Asn1Null</strong> from a ASN.1-encoded byte array.
+    /// </summary>
+    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <exception cref="Asn1InvalidTagException">
+    /// <strong>rawData</strong> is not valid <strong>NULL</strong> data type.
+    /// </exception>
+    public Asn1Null(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
 
     void m_decode(Asn1Reader asn) {
         if (asn.PayloadLength > 0) {

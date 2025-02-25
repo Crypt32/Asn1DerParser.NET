@@ -32,7 +32,13 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
     /// that represents encoded object identifier.
     /// </summary>
     /// <param name="rawData">Byte array that represents encoded object identifier.</param>
-    public Asn1ObjectIdentifier(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1ObjectIdentifier(Byte[] rawData) : this(rawData.AsMemory()) { }
+    /// <summary>
+    /// Initializes a new instance of the <strong>Asn1ObjectIdentifier</strong> class from a byte array
+    /// that represents encoded object identifier.
+    /// </summary>
+    /// <param name="rawData">Byte array that represents encoded object identifier.</param>
+    public Asn1ObjectIdentifier(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1ObjectIdentifier</strong> class from a string
     /// that represents object identifier value.
@@ -63,7 +69,7 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
 
     void m_encode(Oid oid) {
         if (String.IsNullOrWhiteSpace(oid.Value)) {
-            Initialize(new Asn1Reader([Tag, 0]));
+            Initialize(new Asn1Reader(new Byte[] { Tag, 0 }.AsMemory()));
             Value = new Oid();
             return;
         }
@@ -77,7 +83,7 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
         Initialize(new Asn1Reader(Asn1Utils.Encode(encode(tokens), TYPE)));
     }
 
-    static Byte[] encode(IList<BigInteger> tokens) {
+    static ReadOnlySpan<Byte> encode(IList<BigInteger> tokens) {
         var rawOid = new List<Byte>();
         for (Int32 tokenIndex = 0; tokenIndex < tokens.Count; tokenIndex++) {
             BigInteger token = tokens[tokenIndex];

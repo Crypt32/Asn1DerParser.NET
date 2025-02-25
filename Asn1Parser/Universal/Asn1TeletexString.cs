@@ -33,7 +33,7 @@ public sealed class Asn1TeletexString : Asn1String {
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid TeletexString character.
     /// </exception>
-    public Asn1TeletexString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1TeletexString(Byte[] rawData) : this(rawData.AsMemory()) { }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1TeletexString</strong> from an ASN.1-encoded byte array.
     /// </summary>

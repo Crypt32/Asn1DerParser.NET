@@ -30,7 +30,7 @@ public sealed class Asn1UniversalString : Asn1String {
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>UniversalString</strong> data type.
     /// </exception>
-    public Asn1UniversalString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1UniversalString(Byte[] rawData) : this(rawData.AsMemory()) { }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1UniversalString</strong> from a ASN.1-encoded byte array.
     /// </summary>

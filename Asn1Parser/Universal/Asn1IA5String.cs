@@ -36,7 +36,7 @@ public sealed class Asn1IA5String : Asn1String {
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid IA5String character.
     /// </exception>
-    public Asn1IA5String(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1IA5String(Byte[] rawData) : this(rawData.AsMemory()) { }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1IA5String</strong> from a ASN.1-encoded byte array.
     /// </summary>
@@ -64,7 +64,7 @@ public sealed class Asn1IA5String : Asn1String {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
         Value = inputString;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TYPE)));
+        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE)));
     }
     void m_decode(Asn1Reader asn) {
         if (asn.GetPayload().Any(b => b > 127)) {

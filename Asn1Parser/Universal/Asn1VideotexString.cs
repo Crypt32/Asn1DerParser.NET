@@ -32,7 +32,7 @@ public sealed class Asn1VideotexString : Asn1String {
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid VideotexString character.
     /// </exception>
-    public Asn1VideotexString(Byte[] rawData) : base(new Asn1Reader(rawData), TYPE) { }
+    public Asn1VideotexString(Byte[] rawData) : this(rawData.AsMemory()) { }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1VideotexString</strong> from a ASN.1-encoded byte array.
     /// </summary>
@@ -56,7 +56,7 @@ public sealed class Asn1VideotexString : Asn1String {
     }
 
     void encode(String inputString) {
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TYPE)));
+        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE)));
         Value = inputString;
     }
     protected override String Decode(ReadOnlySpan<Byte> payload) {

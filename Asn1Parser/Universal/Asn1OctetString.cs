@@ -35,19 +35,7 @@ public sealed class Asn1OctetString : Asn1Universal {
     /// Input data contains invalid NumericString character.
     /// </exception>
     [Obsolete("Consider using constructor that accepts 'ReadOnlyMemory' instead.")]
-    public Asn1OctetString(Byte[] rawData, Boolean tagged) : base(TYPE) {
-        if (tagged) {
-            var asn = new Asn1Reader(rawData);
-            if (asn.Tag != Tag) {
-                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
-            }
-            Value = asn.GetPayload();
-            Initialize(asn);
-        } else {
-            Value = rawData;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(rawData.AsSpan(), TYPE)));
-        }
-    }
+    public Asn1OctetString(Byte[] rawData, Boolean tagged) : this(rawData.AsMemory(), tagged) { }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1NumericString</strong> from a ASN.1-encoded memory buffer.
     /// </summary>

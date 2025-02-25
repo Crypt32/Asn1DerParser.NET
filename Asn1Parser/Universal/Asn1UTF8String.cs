@@ -36,7 +36,7 @@ public sealed class Asn1UTF8String : Asn1String {
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid UTF8String character.
     /// </exception>
-    public Asn1UTF8String(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1UTF8String(Byte[] rawData) : this(rawData.AsMemory()) { }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1UTF8String</strong> from a ASN.1-encoded byte array.
     /// </summary>

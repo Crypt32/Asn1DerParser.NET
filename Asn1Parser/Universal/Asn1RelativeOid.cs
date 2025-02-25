@@ -28,7 +28,13 @@ public class Asn1RelativeOid : Asn1Universal {
     /// that represents encoded relative object identifier.
     /// </summary>
     /// <param name="rawData">Byte array that represents encoded relative object identifier.</param>
-    public Asn1RelativeOid(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1RelativeOid(Byte[] rawData) : this(rawData.AsMemory()) { }
+    /// <summary>
+    /// Initializes a new instance of the <strong>Asn1RelativeOid</strong> class from a byte array
+    /// that represents encoded relative object identifier.
+    /// </summary>
+    /// <param name="rawData">Byte array that represents encoded relative object identifier.</param>
+    public Asn1RelativeOid(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1RelativeOid</strong> class from a string
     /// that represents relative object identifier value.
@@ -59,7 +65,7 @@ public class Asn1RelativeOid : Asn1Universal {
 
     void m_encode(String oidString) {
         if (String.IsNullOrWhiteSpace(oidString)) {
-            Initialize(new Asn1Reader([Tag, 0]));
+            Initialize(new Asn1Reader(new Byte[] { Tag, 0 }.AsMemory()));
             Value = String.Empty;
             return;
         }
@@ -72,7 +78,7 @@ public class Asn1RelativeOid : Asn1Universal {
             .Select(BigInteger.Parse);
         Initialize(new Asn1Reader(Asn1Utils.Encode(encode(tokens), TYPE)));
     }
-    static Byte[] encode(IEnumerable<BigInteger> tokens) {
+    static ReadOnlySpan<Byte> encode(IEnumerable<BigInteger> tokens) {
         var rawOid = new List<Byte>();
         foreach (BigInteger token in tokens) {
             rawOid.AddRange(OidUtils.EncodeOidArc(token));

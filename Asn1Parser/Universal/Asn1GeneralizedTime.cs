@@ -47,7 +47,7 @@ public sealed class Asn1GeneralizedTime : Asn1DateTime {
     /// <exception cref="Asn1InvalidTagException">
     /// The current state of <strong>ASN1</strong> object is not Generalized Time.
     /// </exception>
-    public Asn1GeneralizedTime(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1GeneralizedTime(Byte[] rawData) : this(rawData.AsMemory()) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1GeneralizedTime</strong> class from a byte array that
     /// represents encoded UTC time.

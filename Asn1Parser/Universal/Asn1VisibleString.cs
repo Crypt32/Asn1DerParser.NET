@@ -38,7 +38,7 @@ public sealed class Asn1VisibleString : Asn1String {
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid VisibleString character.
     /// </exception>
-    public Asn1VisibleString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1VisibleString(Byte[] rawData) : this(rawData.AsMemory()) { }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1VisibleString</strong> from a ASN.1-encoded byte array.
     /// </summary>
@@ -66,7 +66,7 @@ public sealed class Asn1VisibleString : Asn1String {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
         Value = inputString;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TYPE)));
+        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE)));
     }
     void m_decode(Asn1Reader asn) {
         if (asn.GetPayload().Any(b => b is < 32 or > 126)) {

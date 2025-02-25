@@ -30,7 +30,15 @@ public sealed class Asn1Enumerated : Asn1Universal {
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not valid <strong>INTEGER</strong> data type.
     /// </exception>
-    public Asn1Enumerated(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1Enumerated(Byte[] rawData) : this(rawData.AsMemory()) { }
+    /// <summary>
+    /// Initializes a new instance of <strong>Asn1Enumerated</strong> from a ASN.1-encoded byte array.
+    /// </summary>
+    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <exception cref="Asn1InvalidTagException">
+    /// <strong>rawData</strong> is not valid <strong>INTEGER</strong> data type.
+    /// </exception>
+    public Asn1Enumerated(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1Enumerated</strong> class from an integer value.
     /// </summary>
