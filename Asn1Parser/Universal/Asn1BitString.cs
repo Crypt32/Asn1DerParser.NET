@@ -29,7 +29,7 @@ public sealed class Asn1BitString : Asn1Universal {
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>BIT_STRING</strong> data type.
     /// </exception>
-    public Asn1BitString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1BitString(Byte[] rawData) : this(new Asn1Reader(rawData.AsMemory())) { }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1BitString</strong> from a raw byte array to encode and parameter that indicates
     /// whether the bit length is decremented to exclude trailing zero bits.
@@ -62,6 +62,7 @@ public sealed class Asn1BitString : Asn1Universal {
     /// <summary>
     /// Gets raw value of BIT_STRING without unused bits identifier.
     /// </summary>
+    [Obsolete("Use 'GetValue()' method instead.")]
     public Byte[] Value { get; private set; } = [];
 
     void m_encode(ReadOnlySpan<Byte> value, Boolean calc, Byte unusedBits) {
@@ -72,7 +73,7 @@ public sealed class Asn1BitString : Asn1Universal {
         Span<Byte> v = new Byte[value.Length + 1];
         v[0] = UnusedBits;
         value.CopyTo(v.Slice(1));
-        Initialize(new Asn1Reader(Asn1Utils.Encode(v, (Byte)TYPE)));
+        Initialize(new Asn1Reader(Asn1Utils.Encode(v, TYPE)));
     }
 
     /// <summary>
@@ -82,10 +83,17 @@ public sealed class Asn1BitString : Asn1Universal {
     public override String GetDisplayValue() {
         var SB = new StringBuilder();
         SB.AppendFormat("Unused bits={0}\r\n", UnusedBits);
-        String tempString = AsnFormatter.BinaryToString(Value, EncodingType.HexAddress);
+        String tempString = AsnFormatter.BinaryToString(GetValue().Span, EncodingType.HexAddress);
         SB.AppendFormat("{0}\r\n", tempString.Replace("\r\n", "\r\n    ").TrimEnd());
 
         return SB.ToString();
+    }
+    /// <summary>
+    /// Gets raw value of BIT_STRING without unused bits identifier.
+    /// </summary>
+    /// <returns>BIT_STRING value.</returns>
+    public ReadOnlyMemory<Byte> GetValue() {
+        return GetInternalReader().GetPayloadAsMemory();
     }
 
     /// <summary>

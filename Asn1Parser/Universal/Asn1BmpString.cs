@@ -28,7 +28,7 @@ public sealed class Asn1BMPString : Asn1String {
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>BMPString</strong> data type.
     /// </exception>
-    public Asn1BMPString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1BMPString(Byte[] rawData) : this(new Asn1Reader(rawData.AsMemory())) { }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1BitString</strong> from a ASN.1-encoded byte array.
     /// </summary>
@@ -47,7 +47,7 @@ public sealed class Asn1BMPString : Asn1String {
 
     void m_encode(String inputString) {
         Value = inputString;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.BigEndianUnicode.GetBytes(inputString), TYPE)));
+        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.BigEndianUnicode.GetBytes(inputString).AsSpan(), TYPE)));
     }
     void m_decode(Asn1Reader asn) {
         Value = Encoding.BigEndianUnicode.GetString(asn.GetPayload());

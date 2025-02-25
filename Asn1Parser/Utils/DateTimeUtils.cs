@@ -7,7 +7,7 @@ using System.Text;
 namespace SysadminsLV.Asn1Parser.Utils;
 
 static class DateTimeUtils {
-    public static Byte[] Encode(DateTime time, ref TimeZoneInfo? zone, Boolean UTC, Boolean usePrecise) {
+    public static ReadOnlySpan<Byte> Encode(DateTime time, ref TimeZoneInfo? zone, Boolean UTC, Boolean usePrecise) {
         String suffix = String.Empty;
         String preValue;
         String format = UTC
