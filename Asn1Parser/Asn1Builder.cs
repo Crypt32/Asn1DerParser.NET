@@ -13,7 +13,7 @@ namespace SysadminsLV.Asn1Parser;
 /// Represents ASN.1 Distinguished Encoding Rules (DER) binary builder.
 /// </summary>
 public class Asn1Builder {
-    readonly List<Byte> _rawData;
+    readonly List<ReadOnlyMemory<Byte>> _rawData;
 
     Asn1Builder() {
         _rawData = [];
@@ -31,7 +31,7 @@ public class Asn1Builder {
     /// </param>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddBoolean(Boolean value) {
-        _rawData.AddRange(new Asn1Boolean(value).GetRawData());
+        _rawData.Add(new Asn1Boolean(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -42,7 +42,7 @@ public class Asn1Builder {
     /// </param>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddInteger(BigInteger value) {
-        _rawData.AddRange(new Asn1Integer(value).GetRawData());
+        _rawData.Add(new Asn1Integer(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -59,7 +59,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1BitString(value, unusedBits).GetRawData());
+        _rawData.Add(new Asn1BitString(value, unusedBits).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -76,7 +76,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1BitString(value, calculateUnusedBits).GetRawData());
+        _rawData.Add(new Asn1BitString(value, calculateUnusedBits).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -93,7 +93,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1OctetString(value, false).GetRawData());
+        _rawData.Add(new Asn1OctetString(value, false).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -101,7 +101,7 @@ public class Asn1Builder {
     /// </summary>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddNull() {
-        _rawData.AddRange(new Asn1Null().GetRawData());
+        _rawData.Add(new Asn1Null().GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -118,7 +118,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1ObjectIdentifier(value).GetRawData());
+        _rawData.Add(new Asn1ObjectIdentifier(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -136,7 +136,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1RelativeOid(value).GetRawData());
+        _rawData.Add(new Asn1RelativeOid(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -147,7 +147,7 @@ public class Asn1Builder {
     /// </param>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddEnumerated(UInt64 value) {
-        _rawData.AddRange(new Asn1Enumerated(value).GetRawData());
+        _rawData.Add(new Asn1Enumerated(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -164,7 +164,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1UTF8String(value).GetRawData());
+        _rawData.Add(new Asn1UTF8String(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -184,11 +184,12 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        IEnumerable<Byte> encoded = Asn1Utils.Encode(value, 0x30);
         var asn = new Asn1Reader(value);
         asn.BuildOffsetMap();
         // if we reach this far, most likely, the data is ok.
-        _rawData.AddRange(encoded);
+        ReadOnlyMemory<Byte> encoded = Asn1Utils.Encode(value, 0x30);
+        _rawData.Add(encoded);
+
         return this;
     }
     /// <summary>
@@ -208,11 +209,13 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        IEnumerable<Byte> encoded = Asn1Utils.Encode(value, 0x31);
+
         var asn = new Asn1Reader(value);
         asn.BuildOffsetMap();
         // if we reach this far, most likely, the data is ok.
-        _rawData.AddRange(encoded);
+        ReadOnlyMemory<Byte> encoded = Asn1Utils.Encode(value, 0x31);
+        _rawData.Add(encoded);
+
         return this;
     }
     /// <summary>
@@ -229,7 +232,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1NumericString(value).GetRawData());
+        _rawData.Add(new Asn1NumericString(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -246,7 +249,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1PrintableString(value).GetRawData());
+        _rawData.Add(new Asn1PrintableString(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -263,7 +266,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1TeletexString(value).GetRawData());
+        _rawData.Add(new Asn1TeletexString(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -280,7 +283,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(Asn1Utils.Encode(Encoding.ASCII.GetBytes(value), Asn1Type.VideotexString));
+        _rawData.Add(Asn1Utils.Encode(Encoding.ASCII.GetBytes(value), Asn1Type.VideotexString));
         return this;
     }
     /// <summary>
@@ -297,7 +300,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1IA5String(value).GetRawData());
+        _rawData.Add(new Asn1IA5String(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -308,7 +311,7 @@ public class Asn1Builder {
     /// </param>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddUtcTime(DateTime value) {
-        _rawData.AddRange(new Asn1UtcTime(value).GetRawData());
+        _rawData.Add(new Asn1UtcTime(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -319,7 +322,7 @@ public class Asn1Builder {
     /// </param>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddGeneralizedTime(DateTime value) {
-        _rawData.AddRange(new Asn1GeneralizedTime(value).GetRawData());
+        _rawData.Add(new Asn1GeneralizedTime(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -334,9 +337,9 @@ public class Asn1Builder {
     ///     <strong>Generalized Time</strong>.
     /// </remarks>
     public Asn1Builder AddRfcDateTime(DateTime value) {
-        _rawData.AddRange(value.Year < 2050
-            ? new Asn1UtcTime(value).GetRawData()
-            : new Asn1GeneralizedTime(value).GetRawData());
+        _rawData.Add(value.Year < 2050
+            ? new Asn1UtcTime(value).GetRawDataAsMemory()
+            : new Asn1GeneralizedTime(value).GetRawDataAsMemory());
 
         return this;
     }
@@ -354,7 +357,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1VisibleString(value).GetRawData());
+        _rawData.Add(new Asn1VisibleString(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -371,7 +374,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1UniversalString(value).GetRawData());
+        _rawData.Add(new Asn1UniversalString(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -388,7 +391,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(new Asn1BMPString(value).GetRawData());
+        _rawData.Add(new Asn1BMPString(value).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -407,7 +410,7 @@ public class Asn1Builder {
         }
         var asn = new Asn1Reader(value);
         asn.BuildOffsetMap();
-        _rawData.AddRange(value);
+        _rawData.Add(value);
         return this;
     }
     /// <summary>
@@ -427,7 +430,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.AddRange(Asn1Utils.Encode(value, outerTag));
+        _rawData.Add(Asn1Utils.Encode(value, outerTag));
         return this;
     }
     /// <summary>
@@ -462,7 +465,7 @@ public class Asn1Builder {
             throw new ArgumentNullException(nameof(value));
         }
         if (mustEncode) {
-            _rawData.AddRange(Asn1Utils.Encode(value, (Byte)(0x80 + implicitTag)));
+            _rawData.Add(Asn1Utils.Encode(value, (Byte)(0x80 + implicitTag)));
         } else {
             if (value.Length < 2) {
                 throw new InvalidDataException();
@@ -471,7 +474,7 @@ public class Asn1Builder {
             asn.BuildOffsetMap();
             Byte[] valueCopy = value.ToArray();
             valueCopy[0] = (Byte)(0x80 + implicitTag);
-            _rawData.AddRange(valueCopy);
+            _rawData.Add(valueCopy);
         }
         return this;
     }
@@ -506,13 +509,13 @@ public class Asn1Builder {
             throw new ArgumentNullException(nameof(value));
         }
         if (mustEncode) {
-            _rawData.AddRange(Asn1Utils.Encode(value, (Byte)(0xa0 + explicitTag)));
+            _rawData.Add(Asn1Utils.Encode(value, (Byte)(0xa0 + explicitTag)));
         } else {
             var asn = new Asn1Reader(value);
             asn.BuildOffsetMap();
             Byte[] valueCopy = value.ToArray();
             valueCopy[0] = (Byte)(0xa0 + explicitTag);
-            _rawData.AddRange(valueCopy);
+            _rawData.Add(valueCopy);
         }
         return this;
     }
@@ -532,7 +535,7 @@ public class Asn1Builder {
             throw new ArgumentNullException(nameof(selector));
         }
         Asn1Builder b = selector(new Asn1Builder());
-        _rawData.AddRange(new Asn1BitString(b._rawData.ToArray(), 0).GetRawData());
+        _rawData.Add(new Asn1BitString(b.GetRawDataAsMemory().Span, 0).GetRawDataAsMemory());
         return this;
     }
     /// <summary>
@@ -551,7 +554,7 @@ public class Asn1Builder {
             throw new ArgumentNullException(nameof(selector));
         }
         Asn1Builder b = selector(new Asn1Builder());
-        _rawData.AddRange(Asn1Utils.Encode(b._rawData.ToArray(), Asn1Type.OCTET_STRING));
+        _rawData.Add(Asn1Utils.Encode(b.GetRawDataAsMemory().Span, (Byte)Asn1Type.OCTET_STRING));
         return this;
     }
     /// <summary>
@@ -567,7 +570,7 @@ public class Asn1Builder {
             throw new ArgumentNullException(nameof(selector));
         }
         Asn1Builder b = selector(new Asn1Builder());
-        _rawData.AddRange(Asn1Utils.Encode(b._rawData.ToArray(), 0x30));
+        _rawData.Add(Asn1Utils.Encode(b.GetRawDataAsMemory().Span, 0x30));
         return this;
     }
     /// <summary>
@@ -583,7 +586,7 @@ public class Asn1Builder {
             throw new ArgumentNullException(nameof(selector));
         }
         Asn1Builder b = selector(new Asn1Builder());
-        _rawData.AddRange(Asn1Utils.Encode(b._rawData.ToArray(), 0x31));
+        _rawData.Add(Asn1Utils.Encode(b.GetRawDataAsMemory().Span, 0x31));
         return this;
     }
     /// <summary>
@@ -602,7 +605,7 @@ public class Asn1Builder {
             throw new ArgumentNullException(nameof(selector));
         }
         Asn1Builder b = selector(new Asn1Builder());
-        _rawData.AddRange(Asn1Utils.Encode(b._rawData.ToArray(), (Byte)(0xa0 + explicitTag)));
+        _rawData.Add(Asn1Utils.Encode(b.GetRawDataAsMemory().Span, (Byte)(0xa0 + explicitTag)));
         return this;
     }
 
@@ -618,12 +621,40 @@ public class Asn1Builder {
     ///     A new instance of ASN.1 DER builder that contains the state of the current instance.
     /// </returns>
     public Asn1Builder Encode(Byte outerTag = 0x30) {
-        IEnumerable<Byte> encoded = GetEncoded(outerTag);
+        Byte[] encoded = GetEncoded(outerTag);
         _rawData.Clear();
-        _rawData.AddRange(encoded);
+        _rawData.Add(encoded);
         return new Asn1Builder(this);
     }
 
+    Byte[] getEncoded(Byte outerTag, Boolean includeHeader) {
+        Int32 payloadLength = 0;
+        foreach (ReadOnlyMemory<Byte> chunk in _rawData) {
+            payloadLength += chunk.Length;
+        }
+        Int32 headerLength = 0;
+        Byte[]? header = null;
+        if (includeHeader) {
+            header = Asn1Utils.GetLengthBytes(payloadLength);
+            headerLength = header.Length;
+        }
+        Byte[] memory = new Byte[headerLength + payloadLength];
+        Int32 i = 0;
+        if (includeHeader) {
+            for (; i < header!.Length; i++) {
+                memory[i] = header[i];
+            }
+        }
+
+        foreach (ReadOnlyMemory<Byte> chunk in _rawData) {
+            foreach (Byte b in chunk.Span) {
+                memory[i] = b;
+                i++;
+            }
+        }
+
+        return memory;
+    }
     /// <summary>
     ///     Gets ASN.1-encoded byte array that represents current state of builder wrapped using outer ASN.1 type.
     /// </summary>
@@ -635,16 +666,38 @@ public class Asn1Builder {
     ///     ASN.1-encoded byte array.
     /// </returns>
     public Byte[] GetEncoded(Byte outerTag = 0x30) {
-        return Asn1Utils.Encode(_rawData.ToArray(), outerTag);
+        return getEncoded(outerTag, true);
     }
     /// <summary>
-    /// Gets a raw data of the current state of the builder.
+    ///     Gets ASN.1-encoded memory that represents current state of builder wrapped using outer ASN.1 type.
+    /// </summary>
+    /// <param name="outerTag">
+    ///     Outer type to wrap current state of builder. Outer type must not by the type that is used in primitive form only.
+    ///     Default outer tag is constructed SEQUENCE (0x30 or decimal 48).
+    /// </param>
+    /// <returns>
+    ///     ASN.1-encoded memory.
+    /// </returns>
+    public ReadOnlyMemory<Byte> GetEncodedAsMemory(Byte outerTag) {
+        return getEncoded(outerTag, true);
+    }
+    /// <summary>
+    /// Gets an unencoded raw data of the current state of the builder.
     /// </summary>
     /// <returns>
     /// Raw data.
     /// </returns>
     public Byte[] GetRawData() {
-        return _rawData.ToArray();
+        return getEncoded(0, false);
+    }
+    /// <summary>
+    /// Gets an unencoded raw data of the current state of the builder.
+    /// </summary>
+    /// <returns>
+    /// Raw data.
+    /// </returns>
+    public ReadOnlyMemory<Byte> GetRawDataAsMemory() {
+        return getEncoded(0, false);
     }
 
     /// <summary>
@@ -661,7 +714,18 @@ public class Asn1Builder {
     /// <returns>ASN.1 Builder.</returns>
     public static Asn1Builder Create(IEnumerable<Byte> rawData) {
         var builder = new Asn1Builder();
-        builder._rawData.AddRange(rawData);
+        builder._rawData.Add(rawData.ToArray());
+        
+        return builder;
+    }
+    /// <summary>
+    /// Creates a default instance of <strong>Asn1Builder</strong> class from existing ASN.1-encoded data.
+    /// </summary>
+    /// <param name="rawData">ASN.1-encoded data to initialize the builder from.</param>
+    /// <returns>ASN.1 Builder.</returns>
+    public static Asn1Builder Create(ReadOnlySpan<Byte> rawData) {
+        var builder = new Asn1Builder();
+        builder._rawData.Add(new ReadOnlyMemory<Byte>(rawData.ToArray()));
 
         return builder;
     }
