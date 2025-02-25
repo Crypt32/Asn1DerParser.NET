@@ -29,20 +29,9 @@ public sealed class Asn1PrintableString : Asn1String {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1PrintableString</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1PrintableString</strong> from a ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
-    /// <exception cref="Asn1InvalidTagException">
-    /// <strong>rawData</strong> is not <strong>PrintableString</strong> data type.
-    /// </exception>
-    /// <exception cref="InvalidDataException">
-    /// Input data contains invalid PrintableString character.
-    /// </exception>
-    public Asn1PrintableString(Byte[] rawData) : this(rawData.AsMemory()) { }
-    /// <summary>
-    /// Initializes a new instance of <strong>Asn1PrintableString</strong> from a ASN.1-encoded byte array.
-    /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>PrintableString</strong> data type.
     /// </exception>

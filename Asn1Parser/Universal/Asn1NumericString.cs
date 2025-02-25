@@ -27,20 +27,9 @@ public sealed class Asn1NumericString : Asn1String {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1NumericString</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1NumericString</strong> from a ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
-    /// <exception cref="Asn1InvalidTagException">
-    /// <strong>rawData</strong> is not <strong>NumericString</strong> data type.
-    /// </exception>
-    /// <exception cref="InvalidDataException">
-    /// Input data contains invalid NumericString character.
-    /// </exception>
-    public Asn1NumericString(Byte[] rawData) : this(rawData.AsMemory()) { }
-    /// <summary>
-    /// Initializes a new instance of <strong>Asn1NumericString</strong> from a ASN.1-encoded byte array.
-    /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>NumericString</strong> data type.
     /// </exception>

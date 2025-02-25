@@ -28,16 +28,10 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
         Value = new Oid(decode(asn));
     }
     /// <summary>
-    /// Initializes a new instance of the <strong>Asn1ObjectIdentifier</strong> class from a byte array
+    /// Initializes a new instance of the <strong>Asn1ObjectIdentifier</strong> class from a memory buffer
     /// that represents encoded object identifier.
     /// </summary>
-    /// <param name="rawData">Byte array that represents encoded object identifier.</param>
-    public Asn1ObjectIdentifier(Byte[] rawData) : this(rawData.AsMemory()) { }
-    /// <summary>
-    /// Initializes a new instance of the <strong>Asn1ObjectIdentifier</strong> class from a byte array
-    /// that represents encoded object identifier.
-    /// </summary>
-    /// <param name="rawData">Byte array that represents encoded object identifier.</param>
+    /// <param name="rawData">Memory buffer that represents encoded object identifier.</param>
     public Asn1ObjectIdentifier(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1ObjectIdentifier</strong> class from a string

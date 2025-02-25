@@ -24,16 +24,10 @@ public class Asn1RelativeOid : Asn1Universal {
         Value = decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of the <strong>Asn1RelativeOid</strong> class from a byte array
+    /// Initializes a new instance of the <strong>Asn1RelativeOid</strong> class from a memory buffer
     /// that represents encoded relative object identifier.
     /// </summary>
-    /// <param name="rawData">Byte array that represents encoded relative object identifier.</param>
-    public Asn1RelativeOid(Byte[] rawData) : this(rawData.AsMemory()) { }
-    /// <summary>
-    /// Initializes a new instance of the <strong>Asn1RelativeOid</strong> class from a byte array
-    /// that represents encoded relative object identifier.
-    /// </summary>
-    /// <param name="rawData">Byte array that represents encoded relative object identifier.</param>
+    /// <param name="rawData">Memory buffer that represents encoded relative object identifier.</param>
     public Asn1RelativeOid(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1RelativeOid</strong> class from a string
