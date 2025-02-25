@@ -38,6 +38,17 @@ public sealed class Asn1IA5String : Asn1String {
     /// </exception>
     public Asn1IA5String(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
+    /// Initializes a new instance of <strong>Asn1IA5String</strong> from a ASN.1-encoded byte array.
+    /// </summary>
+    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <exception cref="Asn1InvalidTagException">
+    /// <strong>rawData</strong> is not <strong>IA5String</strong> data type.
+    /// </exception>
+    /// <exception cref="InvalidDataException">
+    /// Input data contains invalid IA5String character.
+    /// </exception>
+    public Asn1IA5String(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
+    /// <summary>
     /// Initializes a new instance of the <strong>Asn1IA5String</strong> class from a unicode string.
     /// </summary>
     /// <param name="inputString">A unicode string to encode.</param>

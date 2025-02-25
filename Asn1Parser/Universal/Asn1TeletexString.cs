@@ -35,6 +35,17 @@ public sealed class Asn1TeletexString : Asn1String {
     /// </exception>
     public Asn1TeletexString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
+    /// Initializes a new instance of <strong>Asn1TeletexString</strong> from an ASN.1-encoded byte array.
+    /// </summary>
+    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <exception cref="InvalidDataException">
+    /// <strong>rawData</strong> parameter represents different data type.
+    /// </exception>
+    /// <exception cref="InvalidDataException">
+    /// Input data contains invalid TeletexString character.
+    /// </exception>
+    public Asn1TeletexString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
+    /// <summary>
     /// Initializes a new instance of <strong>Asn1TeletexString</strong> from a string that contains valid
     /// Teletex String characters.
     /// </summary>

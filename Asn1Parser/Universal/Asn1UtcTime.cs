@@ -48,4 +48,13 @@ public sealed class Asn1UtcTime : Asn1DateTime {
     /// The current state of <strong>ASN1</strong> object is not UTC time.
     /// </exception>
     public Asn1UtcTime(Byte[] rawData) : base(new Asn1Reader(rawData), TYPE) { }
+    /// <summary>
+    /// Initializes a new instance of the <strong>Asn1UtcTime</strong> class from a byte array that
+    /// represents encoded UTC time.
+    /// </summary>
+    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <exception cref="Asn1InvalidTagException">
+    /// The current state of <strong>ASN1</strong> object is not UTC time.
+    /// </exception>
+    public Asn1UtcTime(ReadOnlyMemory<Byte> rawData) : base(new Asn1Reader(rawData), TYPE) { }
 }

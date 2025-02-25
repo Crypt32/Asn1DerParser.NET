@@ -40,6 +40,17 @@ public sealed class Asn1VisibleString : Asn1String {
     /// </exception>
     public Asn1VisibleString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
+    /// Initializes a new instance of <strong>Asn1VisibleString</strong> from a ASN.1-encoded byte array.
+    /// </summary>
+    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <exception cref="Asn1InvalidTagException">
+    /// <strong>rawData</strong> is not <strong>VisibleString</strong> data type.
+    /// </exception>
+    /// <exception cref="InvalidDataException">
+    /// Input data contains invalid VisibleString character.
+    /// </exception>
+    public Asn1VisibleString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
+    /// <summary>
     /// Initializes a new instance of the <strong>Asn1VisibleString</strong> class from a unicode string.
     /// </summary>
     /// <param name="inputString">A unicode string to encode.</param>
