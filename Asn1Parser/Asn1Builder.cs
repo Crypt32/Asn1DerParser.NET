@@ -90,10 +90,21 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddOctetString(Byte[] value) {
-        if (value == null) {
-            throw new ArgumentNullException(nameof(value));
-        }
+        return AddOctetString(value.AsMemory());
+    }
+    /// <summary>
+    ///     Adds ASN.1 OCTET_STRING value.
+    /// </summary>
+    /// <param name="value">
+    ///     Value to encode.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    ///     <strong>value</strong> parameter is null.
+    /// </exception>
+    /// <returns>Current instance with added value.</returns>
+    public Asn1Builder AddOctetString(ReadOnlyMemory<Byte> value) {
         _rawData.Add(new Asn1OctetString(value, false).GetRawDataAsMemory());
+
         return this;
     }
     /// <summary>
@@ -641,6 +652,8 @@ public class Asn1Builder {
         Byte[] memory = new Byte[headerLength + payloadLength];
         Int32 i = 0;
         if (includeHeader) {
+            memory[0] = outerTag;
+            i = 1;
             for (; i < header!.Length; i++) {
                 memory[i] = header[i];
             }
