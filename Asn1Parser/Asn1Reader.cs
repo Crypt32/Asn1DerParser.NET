@@ -44,6 +44,7 @@ public class Asn1Reader {
     /// <remarks>
     ///		This constructor creates a copy of a current position of an existing <strong>ASN1</strong> object.
     /// </remarks>
+    [Obsolete("Consider using 'GetReader()' method on existing instance.", true)]
     public Asn1Reader(Asn1Reader asn) : this(asn.GetTagRawDataAsMemory(), 0, true) { }
     /// <summary>
     /// Initializes a new instance of the <strong>ASN1</strong> class by using an ASN.1 encoded byte array.
@@ -59,6 +60,7 @@ public class Asn1Reader {
     ///     If <strong>rawData</strong> size is greater than outer structure size, constructor will take only
     ///     required bytes from input data.
     /// </remarks>
+    [Obsolete("Use constructor that accepts 'ReadOnlyMemory' parameter.")]
     public Asn1Reader(Byte[] rawData) : this(rawData, 0) { }
     /// <summary>
     /// Initializes a new instance of the <strong>ASN1</strong> class by using an ASN.1 encoded byte array.
@@ -605,6 +607,13 @@ public class Asn1Reader {
             (Byte)Asn1Type.BMPString         => new Asn1BMPString(this),
             _                                => new Asn1AnyType(this)
         };
+    }
+    /// <summary>
+    /// Returns a new instance of <see cref="Asn1Reader"/> that points to current tag. This method does not allocate extra memory.
+    /// </summary>
+    /// <returns>A new instance of <see cref="Asn1Reader"/>.</returns>
+    public Asn1Reader GetReader() {
+        return new Asn1Reader(GetRawDataAsMemory(), 0, true);
     }
     /// <summary>
     /// Recursively processes ASN tree and builds internal offset map.
