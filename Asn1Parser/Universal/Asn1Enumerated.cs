@@ -54,7 +54,7 @@ public sealed class Asn1Enumerated : Asn1Universal {
 
     void m_encode(BigInteger inputInteger) {
         Value = (UInt64)inputInteger;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(inputInteger.GetAsnBytes(), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(inputInteger.GetAsnBytes(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
         var value = new BigInteger(asn.GetPayload().Reverse().ToArray());

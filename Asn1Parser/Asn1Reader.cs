@@ -50,22 +50,6 @@ public class Asn1Reader {
     /// Initializes a new instance of the <strong>ASN1</strong> class by using an ASN.1 encoded byte array.
     /// </summary>
     /// <param name="rawData">ASN.1-encoded byte array.</param>
-    /// <exception cref="ArgumentNullException">
-    ///     <strong>rawData</strong> parameter is null reference.
-    /// </exception>
-    /// <exception cref="InvalidDataException">
-    ///     The data in the <strong>rawData</strong> parameter is not valid ASN sequence.
-    /// </exception>
-    /// <remarks>
-    ///     If <strong>rawData</strong> size is greater than outer structure size, constructor will take only
-    ///     required bytes from input data.
-    /// </remarks>
-    [Obsolete("Use constructor that accepts 'ReadOnlyMemory' parameter.")]
-    public Asn1Reader(Byte[] rawData) : this(rawData, 0) { }
-    /// <summary>
-    /// Initializes a new instance of the <strong>ASN1</strong> class by using an ASN.1 encoded byte array.
-    /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
     /// <exception cref="InvalidDataException">
     ///     The data in the <strong>rawData</strong> parameter is not valid ASN sequence.
     /// </exception>

@@ -76,7 +76,7 @@ public class Asn1RelativeOid : Asn1Universal {
         IEnumerable<BigInteger> tokens = oidString
             .Split(['.'], StringSplitOptions.RemoveEmptyEntries)
             .Select(BigInteger.Parse);
-        Initialize(new Asn1Reader(Asn1Utils.Encode(encode(tokens), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(encode(tokens), TYPE));
     }
     static ReadOnlySpan<Byte> encode(IEnumerable<BigInteger> tokens) {
         var rawOid = new List<Byte>();

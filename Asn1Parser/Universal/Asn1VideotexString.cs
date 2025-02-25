@@ -56,7 +56,7 @@ public sealed class Asn1VideotexString : Asn1String {
     }
 
     void encode(String inputString) {
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE));
         Value = inputString;
     }
     protected override String Decode(ReadOnlySpan<Byte> payload) {

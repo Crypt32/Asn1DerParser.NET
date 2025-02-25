@@ -64,7 +64,7 @@ public sealed class Asn1UTF8String : Asn1String {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
         Value = inputString;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.UTF8.GetBytes(inputString).AsMemory().Span, TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(Encoding.UTF8.GetBytes(inputString).AsMemory().Span, TYPE));
     }
     void m_decode(Asn1Reader asn) {
         Value = Encoding.UTF8.GetString(asn.GetPayload());
