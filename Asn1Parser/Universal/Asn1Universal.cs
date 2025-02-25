@@ -13,7 +13,7 @@ public abstract class Asn1Universal {
     protected Asn1Universal(Asn1Type type) {
         Tag = (Byte)type;
         TagName = Asn1Reader.GetTagName(Tag);
-        IsContainer = (Tag & (Byte)Asn1Class.CONSTRUCTED) > 0;
+        IsConstructed = (Tag & (Byte)Asn1Class.CONSTRUCTED) > 0;
     }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1Universal</strong> from an existing <see cref="Asn1Reader"/>
@@ -74,7 +74,9 @@ public abstract class Asn1Universal {
     ///     <item>BMPString</item>
     /// </list>
     /// </remarks>
-    public Boolean IsContainer { get; private set; }
+    public Boolean IsConstructed { get; private set; }
+    [Obsolete("Use 'IsConstructed' member instead.", true)]
+    public Boolean IsContainer => IsConstructed;
     /// <summary>
     /// Gets the full tag raw data, including header and payload information.
     /// </summary>
@@ -89,7 +91,7 @@ public abstract class Asn1Universal {
         asnReader = asn.GetReader(); // do not store external ASN reader reference.
         Tag = asn.Tag;
         TagName = asn.TagName;
-        IsContainer = asn.IsConstructed;
+        IsConstructed = asn.IsConstructed;
     }
     /// <summary>
     /// Gets internal reader instance.
