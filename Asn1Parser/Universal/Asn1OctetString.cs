@@ -44,12 +44,41 @@ public sealed class Asn1OctetString : Asn1Universal {
             Initialize(asn);
         } else {
             Value = rawData;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(rawData, TYPE)));
+            Initialize(new Asn1Reader(Asn1Utils.Encode(rawData.AsSpan(), TYPE)));
+        }
+    }
+    /// <summary>
+    /// Initializes a new instance of <strong>Asn1NumericString</strong> from a ASN.1-encoded memory buffer.
+    /// </summary>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
+    /// <param name="tagged">Boolean value that indicates whether the byte array in <strong>rawData</strong> parameter is encoded or not.</param>
+    /// <exception cref="Asn1InvalidTagException">
+    /// <strong>rawData</strong> is not <strong>NumericString</strong> data type.
+    /// </exception>
+    /// <exception cref="InvalidDataException">
+    /// Input data contains invalid NumericString character.
+    /// </exception>
+    public Asn1OctetString(ReadOnlyMemory<Byte> rawData, Boolean tagged) : base(TYPE) {
+        if (tagged) {
+            var asn = new Asn1Reader(rawData);
+            if (asn.Tag != Tag) {
+                throw new Asn1InvalidTagException(String.Format(InvalidType, TYPE.ToString()));
+            }
+            Value = asn.GetPayload();
+            Initialize(asn);
+        } else {
+            Value = rawData.ToArray();
+            Initialize(new Asn1Reader(Asn1Utils.Encode(rawData.Span, TYPE)));
         }
     }
 
     /// <summary>
     /// Gets value associated with the current object.
     /// </summary>
+    [Obsolete("Use 'GetValue()' method instead.")]
     public Byte[] Value { get; private set; }
+
+    public ReadOnlyMemory<Byte> GetValue() {
+        return GetInternalReader().GetPayloadAsMemory();
+    }
 }
