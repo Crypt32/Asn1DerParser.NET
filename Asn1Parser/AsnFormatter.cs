@@ -16,40 +16,6 @@ public static class AsnFormatter {
     /// 	Specifies the encoding options. The default behavior is to use a carriage return/line feed
     /// 	(CR/LF) pair (0x0D/0x0A) to represent a new line.
     /// </param>
-    /// <param name="start">Specifies the start position of the byte array to format. Default is zero.</param>
-    /// <param name="count">Specifies how many bytes must be formatted. If zero, entire byte array will be encoded.</param>
-    /// <param name="forceUpperCase">
-    /// Specifies whether the force hex octet representation in upper case. Default is lower case.
-    /// <para>
-    /// This parameter has effect only when hex encoding is selected in the <strong>encoding</strong> parameter:
-    /// <strong>Hex</strong>, <strong>HexRaw</strong>, <strong>HexAddress</strong>, <strong>HexAscii</strong>
-    /// and <strong>HexAsciiAddress</strong>. For other values, this parameter is silently ignored.
-    /// </para>
-    /// </param>
-    /// <exception cref="ArgumentException">An invalid encoding type was specified.</exception>
-    /// <returns>Encoded and formatted string.</returns>
-    /// <remarks>
-    /// This method do not support the following encoding types:
-    /// <list type="bullet">
-    /// <item><description>Binary</description></item>
-    /// <item><description>Base64Any</description></item>
-    /// <item><description>StringAny</description></item>
-    /// <item><description>HexAny</description></item>
-    /// </list>
-    /// </remarks>
-    public static String BinaryToString(Byte[] rawData, EncodingType encoding = EncodingType.HexRaw, EncodingFormat format = EncodingFormat.CRLF, Int32 start = 0, Int32 count = 0, Boolean forceUpperCase = false) {
-        Span<Byte> slice = count == 0 ? rawData.AsSpan() : rawData.AsSpan().Slice(start, count);
-        return BinaryToString(slice, encoding, format, forceUpperCase);
-    }
-    /// <summary>
-    /// Converts and formats byte array to a string. See <see cref="EncodingType"/> for encoding examples.
-    /// </summary>
-    /// <param name="rawData">Byte array to format.</param>
-    /// <param name="encoding">Specifies the encoding for formatting. Default is <strong>HexRaw</strong></param>
-    /// <param name="format">
-    /// 	Specifies the encoding options. The default behavior is to use a carriage return/line feed
-    /// 	(CR/LF) pair (0x0D/0x0A) to represent a new line.
-    /// </param>
     /// <param name="forceUpperCase">
     /// Specifies whether the force hex octet representation in upper case. Default is lower case.
     /// <para>

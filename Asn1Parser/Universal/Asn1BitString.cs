@@ -23,15 +23,15 @@ public sealed class Asn1BitString : Asn1Universal {
         Value = asn.GetPayload().Skip(1).ToArray();
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1BitString</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1BitString</strong> from an ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>BIT_STRING</strong> data type.
     /// </exception>
     public Asn1BitString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1BitString</strong> from a raw byte array to encode and parameter that indicates
+    /// Initializes a new instance of <strong>Asn1BitString</strong> from a raw memory buffer to encode and parameter that indicates
     /// whether the bit length is decremented to exclude trailing zero bits.
     /// </summary>
     /// <param name="valueToEncode">Raw value to encode.</param>
@@ -46,7 +46,7 @@ public sealed class Asn1BitString : Asn1Universal {
         m_encode(valueToEncode, calculateUnusedBits, 0);
     }
     ///  <summary>
-    /// Initializes a new instance of <strong>Asn1BitString</strong> from a raw byte array to encode and a number of unused bits
+    /// Initializes a new instance of <strong>Asn1BitString</strong> from a raw memory buffer to encode and a number of unused bits
     /// in a current bit string.
     /// </summary>
     /// <param name="valueToEncode">Raw value to encode.</param>

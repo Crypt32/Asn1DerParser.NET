@@ -24,17 +24,9 @@ public sealed class Asn1UniversalString : Asn1String {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1UniversalString</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1UniversalString</strong> from a ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
-    /// <exception cref="Asn1InvalidTagException">
-    /// <strong>rawData</strong> is not <strong>UniversalString</strong> data type.
-    /// </exception>
-    public Asn1UniversalString(Byte[] rawData) : this(rawData.AsMemory()) { }
-    /// <summary>
-    /// Initializes a new instance of <strong>Asn1UniversalString</strong> from a ASN.1-encoded byte array.
-    /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>UniversalString</strong> data type.
     /// </exception>

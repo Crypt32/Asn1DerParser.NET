@@ -15,7 +15,7 @@ public sealed class Asn1TeletexString : Asn1String {
     /// <summary>
     /// Initializes a new instance of <strong>Asn1TeletexString</strong> from an ASN reader object.
     /// </summary>
-    /// <param name="asn">ASN.1-encoded byte array.</param>
+    /// <param name="asn">Existing <see cref="Asn1Reader"/> object.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// Current position in the <strong>ASN.1</strong> object is not <strong>TeletexString</strong>.
     /// </exception>
@@ -24,20 +24,9 @@ public sealed class Asn1TeletexString : Asn1String {
     /// </exception>
     public Asn1TeletexString(Asn1Reader asn) : base(asn, TYPE) { }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1TeletexString</strong> from an ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1TeletexString</strong> from an ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
-    /// <exception cref="InvalidDataException">
-    /// <strong>rawData</strong> parameter represents different data type.
-    /// </exception>
-    /// <exception cref="InvalidDataException">
-    /// Input data contains invalid TeletexString character.
-    /// </exception>
-    public Asn1TeletexString(Byte[] rawData) : this(rawData.AsMemory()) { }
-    /// <summary>
-    /// Initializes a new instance of <strong>Asn1TeletexString</strong> from an ASN.1-encoded byte array.
-    /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="InvalidDataException">
     /// <strong>rawData</strong> parameter represents different data type.
     /// </exception>
