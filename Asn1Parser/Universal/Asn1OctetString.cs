@@ -79,6 +79,9 @@ public sealed class Asn1OctetString : Asn1Universal {
     [Obsolete("Use 'GetValue()' method instead.")]
     public Byte[] Value { get; private set; }
 
+    /// <summary>
+    /// Gets value associated with the current object.
+    /// </summary>
     public ReadOnlyMemory<Byte> GetValue() {
         return GetInternalReader().GetPayloadAsMemory();
     }
