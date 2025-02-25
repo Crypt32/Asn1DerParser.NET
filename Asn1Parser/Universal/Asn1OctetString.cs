@@ -34,6 +34,7 @@ public sealed class Asn1OctetString : Asn1Universal {
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid NumericString character.
     /// </exception>
+    [Obsolete("Consider using constructor that accepts 'ReadOnlyMemory' instead.")]
     public Asn1OctetString(Byte[] rawData, Boolean tagged) : base(TYPE) {
         if (tagged) {
             var asn = new Asn1Reader(rawData);
