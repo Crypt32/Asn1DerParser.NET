@@ -12,14 +12,6 @@ namespace SysadminsLV.Asn1Parser;
 /// Provides a set of properties and generic methods to work with ASN.1 structures in Distinguished Encoding
 /// Rules (<strong>DER</strong>) encoding.
 /// </summary>
-/// <remarks>
-/// Static methods of this class provides an encoders and decoders for the generic .NET types and unmanaged
-/// structures.
-/// <para>Static methods (except <see cref="Asn1Utils.Encode(Byte[], Byte)">Encode</see>) strictly verify
-/// whether the encoded or source data is valid for the specific ASN.1 type. If the data is not appropriate
-/// for the method, it throws <see cref="InvalidDataException"/>
-/// </para>
-/// </remarks>
 public class Asn1Reader {
     // a list of primitive tags. Source: http://en.wikipedia.org/wiki/Distinguished_Encoding_Rules#DER_encoding
     // although we actively do lookups, it is NOT recommended to use sets (HashSet<T>), because at current collection size

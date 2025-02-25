@@ -7,6 +7,15 @@ namespace SysadminsLV.Asn1Parser;
 /// <summary>
 /// Contains utility methods for ASN.1 data.
 /// </summary>
+/// <remarks>
+/// Static methods of this class provides an encoders and decoders for the generic .NET types and unmanaged
+/// structures.
+/// <para>Static methods (except <see cref="Encode(ReadOnlySpan{Byte}, Byte)">Encode(ReadOnlySpan&lt;Byte&gt;, Byte)</see>
+/// and <see cref="Encode(ReadOnlySpan{Byte}, Asn1Type)">Encode(ReadOnlySpan&lt;Byte&gt;, Asn1Type)</see>) strictly verify
+/// whether the encoded or source data is valid for the specific ASN.1 type. If the data is not appropriate
+/// for the method, it throws <see cref="InvalidDataException"/>
+/// </para>
+/// </remarks>
 public static class Asn1Utils {
     #region ASN.1 helper methods
     /// <summary>
