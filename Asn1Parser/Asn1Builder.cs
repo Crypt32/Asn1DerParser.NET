@@ -726,10 +726,7 @@ public class Asn1Builder {
     /// <param name="rawData">ASN.1-encoded data to initialize the builder from.</param>
     /// <returns>ASN.1 Builder.</returns>
     public static Asn1Builder Create(IEnumerable<Byte> rawData) {
-        var builder = new Asn1Builder();
-        builder._rawData.Add(rawData.ToArray());
-        
-        return builder;
+        return Create(rawData.ToArray().AsSpan());
     }
     /// <summary>
     /// Creates a default instance of <strong>Asn1Builder</strong> class from existing ASN.1-encoded data.
