@@ -55,7 +55,7 @@ public class Asn1Builder {
     ///     Unused bits in bit string. This value must fall in range between 0 and 7.
     /// </param>
     /// <returns>Current instance with added value.</returns>
-    public Asn1Builder AddBitString(Byte[] value, Byte unusedBits) {
+    public Asn1Builder AddBitString(ReadOnlySpan<Byte> value, Byte unusedBits) {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
@@ -78,19 +78,6 @@ public class Asn1Builder {
         }
         _rawData.Add(new Asn1BitString(value, calculateUnusedBits).GetRawDataAsMemory());
         return this;
-    }
-    /// <summary>
-    ///     Adds ASN.1 OCTET_STRING value.
-    /// </summary>
-    /// <param name="value">
-    ///     Value to encode.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    ///     <strong>value</strong> parameter is null.
-    /// </exception>
-    /// <returns>Current instance with added value.</returns>
-    public Asn1Builder AddOctetString(Byte[] value) {
-        return AddOctetString(value.AsMemory());
     }
     /// <summary>
     ///     Adds ASN.1 OCTET_STRING value.
@@ -191,51 +178,10 @@ public class Asn1Builder {
     /// <remarks>
     ///     In the current implementation, SEQUENCE is encoded using constructed form only.
     /// </remarks>
-    [Obsolete]
-    public Asn1Builder AddSequence(Byte[] value) {
-        if (value == null) {
-            throw new ArgumentNullException(nameof(value));
-        }
-
-        return AddSequence(value.AsSpan());
-    }
-    /// <summary>
-    ///     Adds ASN.1 SEQUENCE value.
-    /// </summary>
-    /// <param name="value">
-    ///     Value to encode.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    ///     <strong>value</strong> parameter is null.
-    /// </exception>
-    /// <returns>Current instance with added value.</returns>
-    /// <remarks>
-    ///     In the current implementation, SEQUENCE is encoded using constructed form only.
-    /// </remarks>
     public Asn1Builder AddSequence(ReadOnlySpan<Byte> value) {
         _rawData.Add(Asn1Utils.Encode(value, 0x30));
 
         return this;
-    }
-    /// <summary>
-    ///     Adds ASN.1 SET value.
-    /// </summary>
-    /// <param name="value">
-    ///     Value to encode.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    ///     <strong>value</strong> parameter is null.
-    /// </exception>
-    /// <returns>Current instance with added value.</returns>
-    /// <remarks>
-    ///     In the current implementation, SET is encoded using constructed form only.
-    /// </remarks>
-    public Asn1Builder AddSet(Byte[] value) {
-        if (value == null) {
-            throw new ArgumentNullException(nameof(value));
-        }
-
-        return AddSet(value.AsSpan());
     }
     /// <summary>
     ///     Adds ASN.1 SET value.
@@ -320,7 +266,7 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        _rawData.Add(Asn1Utils.Encode(Encoding.ASCII.GetBytes(value), Asn1Type.VideotexString));
+        _rawData.Add(Asn1Utils.Encode(Encoding.ASCII.GetBytes(value).AsSpan(), Asn1Type.VideotexString));
         return this;
     }
     /// <summary>
@@ -441,23 +387,6 @@ public class Asn1Builder {
     ///     <strong>value</strong> parameter is null.
     /// </exception>
     /// <returns>Current instance with added value.</returns>
-    public Asn1Builder AddDerData(Byte[] value) {
-        if (value == null) {
-            throw new ArgumentNullException(nameof(value));
-        }
-
-        return AddDerData(value.AsSpan());
-    }
-    /// <summary>
-    ///     Adds arbitrary ASN.1-encoded data.
-    /// </summary>
-    /// <param name="value">
-    ///     Value to encode.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    ///     <strong>value</strong> parameter is null.
-    /// </exception>
-    /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddDerData(ReadOnlySpan<Byte> value) {
         var asn = new Asn1Reader(value.ToArray());
         asn.BuildOffsetMap();
@@ -478,11 +407,9 @@ public class Asn1Builder {
     ///     <strong>value</strong> parameter is null.
     /// </exception>
     /// <returns>Current instance with added value.</returns>
-    public Asn1Builder AddDerData(Byte[] value, Byte outerTag) {
-        if (value == null) {
-            throw new ArgumentNullException(nameof(value));
-        }
-        _rawData.Add(Asn1Utils.Encode(value, outerTag));
+    public Asn1Builder AddDerData(ReadOnlyMemory<Byte> value, Byte outerTag) {
+        _rawData.Add(Asn1Utils.Encode(value.Span, outerTag));
+
         return this;
     }
     /// <summary>
@@ -680,6 +607,8 @@ public class Asn1Builder {
     }
 
     Byte[] getEncoded(Byte outerTag, Boolean includeHeader) {
+        // we do all this complexity to allocate only one buffer of exact required size
+        // and avoid dynamic List<T> resize overhead
         Int32 payloadLength = 0;
         foreach (ReadOnlyMemory<Byte> chunk in _rawData) {
             payloadLength += chunk.Length;
