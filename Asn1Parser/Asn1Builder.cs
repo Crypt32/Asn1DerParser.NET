@@ -685,7 +685,7 @@ public class Asn1Builder {
     ///     Gets ASN.1-encoded memory that represents current state of builder wrapped using outer ASN.1 type.
     /// </summary>
     /// <param name="outerTag">
-    ///     Outer type to wrap current state of builder. Outer type must not by the type that is used in primitive form only.
+    ///     Outer type to wrap current state of builder. Outer type must not be the type that is used in primitive form only.
     ///     Default outer tag is constructed SEQUENCE (0x30 or decimal 48).
     /// </param>
     /// <returns>
