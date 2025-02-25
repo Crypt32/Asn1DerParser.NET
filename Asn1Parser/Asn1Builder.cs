@@ -72,7 +72,7 @@ public class Asn1Builder {
     ///     Indicates whether unused bits should be calculated. If set to <strong>false</strong>, unused bits value is set to zero.
     /// </param>
     /// <returns>Current instance with added value.</returns>
-    public Asn1Builder AddBitString(Byte[] value, Boolean calculateUnusedBits = false) {
+    public Asn1Builder AddBitString(ReadOnlySpan<Byte> value, Boolean calculateUnusedBits = false) {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
@@ -191,15 +191,29 @@ public class Asn1Builder {
     /// <remarks>
     ///     In the current implementation, SEQUENCE is encoded using constructed form only.
     /// </remarks>
+    [Obsolete]
     public Asn1Builder AddSequence(Byte[] value) {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        var asn = new Asn1Reader(value);
-        asn.BuildOffsetMap();
-        // if we reach this far, most likely, the data is ok.
-        ReadOnlyMemory<Byte> encoded = Asn1Utils.Encode(value, 0x30);
-        _rawData.Add(encoded);
+
+        return AddSequence(value.AsSpan());
+    }
+    /// <summary>
+    ///     Adds ASN.1 SEQUENCE value.
+    /// </summary>
+    /// <param name="value">
+    ///     Value to encode.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    ///     <strong>value</strong> parameter is null.
+    /// </exception>
+    /// <returns>Current instance with added value.</returns>
+    /// <remarks>
+    ///     In the current implementation, SEQUENCE is encoded using constructed form only.
+    /// </remarks>
+    public Asn1Builder AddSequence(ReadOnlySpan<Byte> value) {
+        _rawData.Add(Asn1Utils.Encode(value, 0x30));
 
         return this;
     }
@@ -221,11 +235,23 @@ public class Asn1Builder {
             throw new ArgumentNullException(nameof(value));
         }
 
-        var asn = new Asn1Reader(value);
-        asn.BuildOffsetMap();
-        // if we reach this far, most likely, the data is ok.
-        ReadOnlyMemory<Byte> encoded = Asn1Utils.Encode(value, 0x31);
-        _rawData.Add(encoded);
+        return AddSet(value.AsSpan());
+    }
+    /// <summary>
+    ///     Adds ASN.1 SET value.
+    /// </summary>
+    /// <param name="value">
+    ///     Value to encode.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    ///     <strong>value</strong> parameter is null.
+    /// </exception>
+    /// <returns>Current instance with added value.</returns>
+    /// <remarks>
+    ///     In the current implementation, SET is encoded using constructed form only.
+    /// </remarks>
+    public Asn1Builder AddSet(ReadOnlySpan<Byte> value) {
+        _rawData.Add(Asn1Utils.Encode(value, 0x31));
 
         return this;
     }
@@ -419,9 +445,24 @@ public class Asn1Builder {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
-        var asn = new Asn1Reader(value);
+
+        return AddDerData(value.AsSpan());
+    }
+    /// <summary>
+    ///     Adds arbitrary ASN.1-encoded data.
+    /// </summary>
+    /// <param name="value">
+    ///     Value to encode.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    ///     <strong>value</strong> parameter is null.
+    /// </exception>
+    /// <returns>Current instance with added value.</returns>
+    public Asn1Builder AddDerData(ReadOnlySpan<Byte> value) {
+        var asn = new Asn1Reader(value.ToArray());
         asn.BuildOffsetMap();
-        _rawData.Add(value);
+        _rawData.Add(asn.GetRawDataAsMemory());
+        
         return this;
     }
     /// <summary>
@@ -471,7 +512,7 @@ public class Asn1Builder {
     ///     not. If <strong>mustEncode</strong> parameter is set to <strong>false</strong> and value passed in
     ///     <strong>value</strong> parameter is untagged, an exception will be thrown.
     /// </remarks>
-    public Asn1Builder AddImplicit(Byte implicitTag, Byte[] value, Boolean mustEncode) {
+    public Asn1Builder AddImplicit(Byte implicitTag, ReadOnlySpan<Byte> value, Boolean mustEncode) {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
@@ -481,11 +522,11 @@ public class Asn1Builder {
             if (value.Length < 2) {
                 throw new InvalidDataException();
             }
-            var asn = new Asn1Reader(value);
+            Byte[] buff = value.ToArray();
+            var asn = new Asn1Reader(buff);
             asn.BuildOffsetMap();
-            Byte[] valueCopy = value.ToArray();
-            valueCopy[0] = (Byte)(0x80 + implicitTag);
-            _rawData.Add(valueCopy);
+            buff[0] = (Byte)(0x80 + implicitTag);
+            _rawData.Add(buff);
         }
         return this;
     }
@@ -515,18 +556,18 @@ public class Asn1Builder {
     ///     If <strong>mustEncode</strong> parameter is set to <strong>false</strong> and value passed in <strong>value</strong> parameter
     ///     is untagged, invalid type will be produced.
     /// </remarks>
-    public Asn1Builder AddExplicit(Byte explicitTag, Byte[] value, Boolean mustEncode) {
+    public Asn1Builder AddExplicit(Byte explicitTag, ReadOnlySpan<Byte> value, Boolean mustEncode) {
         if (value == null) {
             throw new ArgumentNullException(nameof(value));
         }
         if (mustEncode) {
             _rawData.Add(Asn1Utils.Encode(value, (Byte)(0xa0 + explicitTag)));
         } else {
-            var asn = new Asn1Reader(value);
+            Byte[] buff = value.ToArray();
+            var asn = new Asn1Reader(buff);
             asn.BuildOffsetMap();
-            Byte[] valueCopy = value.ToArray();
-            valueCopy[0] = (Byte)(0xa0 + explicitTag);
-            _rawData.Add(valueCopy);
+            buff[0] = (Byte)(0xa0 + explicitTag);
+            _rawData.Add(buff);
         }
         return this;
     }

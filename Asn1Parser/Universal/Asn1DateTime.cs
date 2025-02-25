@@ -48,7 +48,7 @@ public abstract class Asn1DateTime : Asn1Universal {
             : TimeZoneInfo.ConvertTimeToUtc(time, zone).ToLocalTime();
         Value = time;
         Boolean utcTime = type == Asn1Type.UTCTime;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(DateTimeUtils.Encode(time, ref zone, utcTime, preciseTime), type)));
+        Initialize(Asn1Utils.EncodeAsReader(DateTimeUtils.Encode(time, ref zone, utcTime, preciseTime), type));
         ZoneInfo = zone;
     }
     void m_decode(ReadOnlyMemory<Byte> rawData) {

@@ -29,7 +29,7 @@ public sealed class Asn1BitString : Asn1Universal {
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>BIT_STRING</strong> data type.
     /// </exception>
-    public Asn1BitString(Byte[] rawData) : this(new Asn1Reader(rawData.AsMemory())) { }
+    public Asn1BitString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1BitString</strong> from a raw byte array to encode and parameter that indicates
     /// whether the bit length is decremented to exclude trailing zero bits.
@@ -39,8 +39,10 @@ public sealed class Asn1BitString : Asn1Universal {
     /// <strong>True</strong> if the bit length is decremented to exclude trailing zero bits. Otherwise <strong>False</strong>.
     /// </param>
     /// <exception cref="ArgumentNullException"><strong>valueToEncode</strong> parameter is null reference.</exception>
-    public Asn1BitString(Byte[] valueToEncode, Boolean calculateUnusedBits) : base(TYPE) {
-        if (valueToEncode == null) { throw new ArgumentNullException(nameof(valueToEncode)); }
+    public Asn1BitString(ReadOnlySpan<Byte> valueToEncode, Boolean calculateUnusedBits) : base(TYPE) {
+        if (valueToEncode == null) {
+            throw new ArgumentNullException(nameof(valueToEncode));
+        }
         m_encode(valueToEncode, calculateUnusedBits, 0);
     }
     ///  <summary>
@@ -73,7 +75,7 @@ public sealed class Asn1BitString : Asn1Universal {
         Span<Byte> v = new Byte[value.Length + 1];
         v[0] = UnusedBits;
         value.CopyTo(v.Slice(1));
-        Initialize(new Asn1Reader(Asn1Utils.Encode(v, TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(v, TYPE));
     }
 
     /// <summary>

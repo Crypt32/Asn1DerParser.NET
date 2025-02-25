@@ -57,7 +57,7 @@ public sealed class Asn1OctetString : Asn1Universal {
             Initialize(asn);
         } else {
             Value = rawData.ToArray();
-            Initialize(new Asn1Reader(Asn1Utils.Encode(rawData.Span, TYPE)));
+            Initialize(Asn1Utils.EncodeAsReader(rawData.Span, TYPE));
         }
     }
 

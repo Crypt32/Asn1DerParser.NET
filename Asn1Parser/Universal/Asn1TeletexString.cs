@@ -62,7 +62,7 @@ public sealed class Asn1TeletexString : Asn1String {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
         Value = inputString;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TYPE)));
+        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE)));
     }
 
     protected override Boolean IsValidString(ReadOnlySpan<Byte> value) {

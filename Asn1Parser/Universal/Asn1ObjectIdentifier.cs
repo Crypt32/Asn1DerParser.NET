@@ -80,7 +80,7 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
         Value = oid;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(encode(tokens), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(encode(tokens), TYPE));
     }
 
     static ReadOnlySpan<Byte> encode(IList<BigInteger> tokens) {

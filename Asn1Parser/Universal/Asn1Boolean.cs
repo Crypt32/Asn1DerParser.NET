@@ -50,7 +50,7 @@ public sealed class Asn1Boolean : Asn1Universal {
     void m_encode(Boolean fValue) {
         Value = fValue;
         Byte value = (Byte)(fValue ? 255 : 0);
-        Initialize(new Asn1Reader(Asn1Utils.Encode([value], TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader([value], TYPE));
     }
     void m_decode(Asn1Reader asn) {
         Value = asn[asn.PayloadStartOffset] > 0;
