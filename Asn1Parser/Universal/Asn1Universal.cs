@@ -23,7 +23,7 @@ public abstract class Asn1Universal {
     /// <param name="type">ASN.1 type.</param>
     /// <exception cref="Asn1Reader"><strong>asn</strong> parameter is null reference.</exception>
     protected Asn1Universal(Asn1Reader asn, Asn1Type? type) {
-        if (asn == null) {
+        if (asn is null) {
             throw new ArgumentNullException(nameof(asn));
         }
         if (type.HasValue && asn.Tag != (Byte)type.Value) {
@@ -110,7 +110,7 @@ public abstract class Asn1Universal {
     /// </summary>
     /// <returns>Decoded type value.</returns>
     public virtual String GetDisplayValue() {
-        return asnReader == null
+        return asnReader is null
             ? String.Empty
             : AsnFormatter.BinaryToString(asnReader, EncodingType.HexRaw, EncodingFormat.NOCRLF);
     }
@@ -120,7 +120,7 @@ public abstract class Asn1Universal {
     /// <param name="encoding">Specifies the output encoding.</param>
     /// <returns>Encoded text value.</returns>
     public virtual String Format(EncodingType encoding = EncodingType.Base64) {
-        return asnReader == null
+        return asnReader is null
             ? String.Empty
             : AsnFormatter.BinaryToString(asnReader, encoding);
     }

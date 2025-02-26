@@ -297,7 +297,7 @@ public class Asn1Reader {
         return pPayloadLength + lengthBytes + 2;
     }
     void moveAndExpectTypes(Func<Boolean> action, params Byte[] expectedTypes) {
-        if (expectedTypes == null) {
+        if (expectedTypes is null) {
             throw new ArgumentNullException(nameof(expectedTypes));
         }
         var set = new HashSet<Byte>();
@@ -537,9 +537,6 @@ public class Asn1Reader {
     /// method calls are not necessary.
     /// </remarks>
     public Boolean Seek(Int32 newPosition) {
-        if (_offsetMap == null) {
-            throw new InvalidOperationException();
-        }
         if (!_offsetMap.TryGetValue(newPosition, out AsnInternalMap value)) {
             return false;
         }

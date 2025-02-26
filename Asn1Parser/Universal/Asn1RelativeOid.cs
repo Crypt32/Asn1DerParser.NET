@@ -41,7 +41,7 @@ public class Asn1RelativeOid : Asn1Universal {
     /// <exception cref="OverflowException">The string is too large.</exception>
     /// <remarks>Maximum relative object identifier string is 8kb.</remarks>
     public Asn1RelativeOid(String relativeOid) : base(TYPE) {
-        if (relativeOid == null) {
+        if (relativeOid is null) {
             throw new ArgumentNullException(nameof(relativeOid));
         }
         m_encode(relativeOid);

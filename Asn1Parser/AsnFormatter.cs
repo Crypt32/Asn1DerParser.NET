@@ -81,7 +81,7 @@ public static class AsnFormatter {
     /// </list>
     /// </remarks>
     public static String BinaryToString(Asn1Reader asn, EncodingType encoding = EncodingType.HexRaw, EncodingFormat format = EncodingFormat.CRLF, Boolean forceUpperCase = false) {
-        if (asn == null) {
+        if (asn is null) {
             throw new ArgumentNullException(nameof(asn));
         }
 
@@ -127,7 +127,7 @@ public static class AsnFormatter {
         }
 
         
-        if (rawData == null) {
+        if (rawData is null) {
             throw new InvalidDataException("The data is invalid.");
         }
         return rawData;
@@ -143,31 +143,31 @@ public static class AsnFormatter {
         Byte[]? rawBytes;
         foreach (PemHeader pemHeader in PemHeader.GetPemHeaders()) {
             rawBytes = StringToBinaryFormatter.FromBase64Header(input, pemHeader.GetHeader(), pemHeader.GetFooter());
-            if (rawBytes != null) {
+            if (rawBytes is not null) {
                 return pemHeader.Encoding;
             }
         }
         rawBytes = StringToBinaryFormatter.FromBase64Header(input);
-        if (rawBytes != null) {
+        if (rawBytes is not null) {
             return EncodingType.Base64Header;
         }
         rawBytes = StringToBinaryFormatter.FromBase64(input);
-        if (rawBytes != null) {
+        if (rawBytes is not null) {
             return EncodingType.Base64;
         }
         rawBytes = StringToBinaryFormatter.FromHexAddr(input);
-        if (rawBytes != null) {
+        if (rawBytes is not null) {
             return EncodingType.HexAddress;
         }
         rawBytes = StringToBinaryFormatter.FromHexAddrAscii(input);
-        if (rawBytes != null) {
+        if (rawBytes is not null) {
             return EncodingType.HexAsciiAddress;
         }
         rawBytes = StringToBinaryFormatter.FromHex(input);
-        if (rawBytes != null) {
+        if (rawBytes is not null) {
             return EncodingType.Hex;
         }
         rawBytes = StringToBinaryFormatter.FromHexAscii(input);
-        return rawBytes != null ? EncodingType.HexAscii : EncodingType.Binary;
+        return rawBytes is not null ? EncodingType.HexAscii : EncodingType.Binary;
     }
 }

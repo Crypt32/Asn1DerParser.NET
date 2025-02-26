@@ -50,7 +50,7 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
     /// <exception cref="InvalidDataException">The string is not valid object identifier.</exception>
     /// <exception cref="OverflowException">The string is too large.</exception>
     public Asn1ObjectIdentifier(Oid oid) : base(TYPE) {
-        if (oid == null) {
+        if (oid is null) {
             throw new ArgumentNullException(nameof(oid));
         }
         m_encode(oid);
