@@ -582,7 +582,7 @@ public class Asn1Reader {
         };
     }
     /// <summary>
-    /// Returns a new instance of <see cref="Asn1Reader"/> that points to current tag. This method does not allocate extra memory.
+    /// Returns a new instance of <see cref="Asn1Reader"/> that is sourced from the current tag.
     /// </summary>
     /// <returns>A new instance of <see cref="Asn1Reader"/>.</returns>
     public Asn1Reader GetReader() {
