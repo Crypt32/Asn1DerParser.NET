@@ -43,7 +43,7 @@ public abstract class Asn1DateTime : Asn1Universal {
 
     void m_encode(Asn1Type type, DateTime time, TimeZoneInfo? zone, Boolean preciseTime) {
         zone = DateTimeUtils.CoerceTimeZone(zone);
-        time = zone == null
+        time = zone is null
             ? DateTime.SpecifyKind(time, DateTimeKind.Local)
             : TimeZoneInfo.ConvertTimeToUtc(time, zone).ToLocalTime();
         Value = time;

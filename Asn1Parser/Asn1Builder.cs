@@ -56,9 +56,6 @@ public class Asn1Builder {
     /// </param>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddBitString(ReadOnlySpan<Byte> value, Byte unusedBits) {
-        if (value == null) {
-            throw new ArgumentNullException(nameof(value));
-        }
         _rawData.Add(new Asn1BitString(value, unusedBits).GetRawDataAsMemory());
         return this;
     }
@@ -73,9 +70,6 @@ public class Asn1Builder {
     /// </param>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddBitString(ReadOnlySpan<Byte> value, Boolean calculateUnusedBits = false) {
-        if (value == null) {
-            throw new ArgumentNullException(nameof(value));
-        }
         _rawData.Add(new Asn1BitString(value, calculateUnusedBits).GetRawDataAsMemory());
         return this;
     }
@@ -91,7 +85,6 @@ public class Asn1Builder {
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddOctetString(ReadOnlyMemory<Byte> value) {
         _rawData.Add(new Asn1OctetString(value, false).GetRawDataAsMemory());
-
         return this;
     }
     /// <summary>
@@ -113,7 +106,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddObjectIdentifier(Oid value) {
-        if (value == null) {
+        if (value is null) {
             throw new ArgumentNullException(nameof(value));
         }
         _rawData.Add(new Asn1ObjectIdentifier(value).GetRawDataAsMemory());
@@ -131,7 +124,7 @@ public class Asn1Builder {
     /// <exception cref="FormatException">Specified value doesn't represent valid decimal-dot format.</exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddRelativeOid(String value) {
-        if (value == null) {
+        if (value is null) {
             throw new ArgumentNullException(nameof(value));
         }
         _rawData.Add(new Asn1RelativeOid(value).GetRawDataAsMemory());
@@ -159,7 +152,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddUTF8String(String value) {
-        if (value == null) {
+        if (value is null) {
             throw new ArgumentNullException(nameof(value));
         }
         _rawData.Add(new Asn1UTF8String(value).GetRawDataAsMemory());
@@ -212,7 +205,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddNumericString(String value) {
-        if (value == null) {
+        if (value is null) {
             throw new ArgumentNullException(nameof(value));
         }
         _rawData.Add(new Asn1NumericString(value).GetRawDataAsMemory());
@@ -229,7 +222,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddPrintableString(String value) {
-        if (value == null) {
+        if (value is null) {
             throw new ArgumentNullException(nameof(value));
         }
         _rawData.Add(new Asn1PrintableString(value).GetRawDataAsMemory());
@@ -246,7 +239,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddTeletexString(String value) {
-        if (value == null) {
+        if (value is null) {
             throw new ArgumentNullException(nameof(value));
         }
         _rawData.Add(new Asn1TeletexString(value).GetRawDataAsMemory());
@@ -263,7 +256,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddVideotexString(String value) {
-        if (value == null) {
+        if (value is null) {
             throw new ArgumentNullException(nameof(value));
         }
         _rawData.Add(Asn1Utils.Encode(Encoding.ASCII.GetBytes(value).AsSpan(), Asn1Type.VideotexString));
@@ -280,7 +273,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddIA5String(String value) {
-        if (value == null) {
+        if (value is null) {
             throw new ArgumentNullException(nameof(value));
         }
         _rawData.Add(new Asn1IA5String(value).GetRawDataAsMemory());
@@ -337,7 +330,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddVisibleString(String value) {
-        if (value == null) {
+        if (value is null) {
             throw new ArgumentNullException(nameof(value));
         }
         _rawData.Add(new Asn1VisibleString(value).GetRawDataAsMemory());
@@ -354,7 +347,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddUniversalString(String value) {
-        if (value == null) {
+        if (value is null) {
             throw new ArgumentNullException(nameof(value));
         }
         _rawData.Add(new Asn1UniversalString(value).GetRawDataAsMemory());
@@ -371,7 +364,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddBMPString(String value) {
-        if (value == null) {
+        if (value is null) {
             throw new ArgumentNullException(nameof(value));
         }
         _rawData.Add(new Asn1BMPString(value).GetRawDataAsMemory());
@@ -424,9 +417,6 @@ public class Asn1Builder {
     /// <param name="mustEncode">
     ///     Specifies if data in <strong>value</strong> parameter must be encoded or not. See Remarks for more details.
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    ///     <strong>value</strong> parameter is null.
-    /// </exception>
     /// <exception cref="InvalidDataException">
     ///     <strong>value</strong> is not encoded.
     /// </exception>
@@ -440,9 +430,6 @@ public class Asn1Builder {
     ///     <strong>value</strong> parameter is untagged, an exception will be thrown.
     /// </remarks>
     public Asn1Builder AddImplicit(Byte implicitTag, ReadOnlySpan<Byte> value, Boolean mustEncode) {
-        if (value == null) {
-            throw new ArgumentNullException(nameof(value));
-        }
         if (mustEncode) {
             _rawData.Add(Asn1Utils.Encode(value, (Byte)(0x80 + implicitTag)));
         } else {
@@ -469,9 +456,6 @@ public class Asn1Builder {
     /// <param name="mustEncode">
     ///     Specifies if data in <strong>value</strong> parameter must be encoded or not. See Remarks for more details.
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    ///     <strong>value</strong> parameter is null.
-    /// </exception>
     /// <exception cref="InvalidDataException">
     ///     <strong>value</strong> is not encoded.
     /// </exception>
@@ -484,9 +468,6 @@ public class Asn1Builder {
     ///     is untagged, invalid type will be produced.
     /// </remarks>
     public Asn1Builder AddExplicit(Byte explicitTag, ReadOnlySpan<Byte> value, Boolean mustEncode) {
-        if (value == null) {
-            throw new ArgumentNullException(nameof(value));
-        }
         if (mustEncode) {
             _rawData.Add(Asn1Utils.Encode(value, (Byte)(0xa0 + explicitTag)));
         } else {
@@ -510,7 +491,7 @@ public class Asn1Builder {
     ///     In the current implementation, constructed BIT_STRING is encoded using primitive form.
     /// </remarks>
     public Asn1Builder AddBitString(Func<Asn1Builder, Asn1Builder> selector) {
-        if (selector == null) {
+        if (selector is null) {
             throw new ArgumentNullException(nameof(selector));
         }
         Asn1Builder b = selector(new Asn1Builder());
@@ -529,7 +510,7 @@ public class Asn1Builder {
     ///     In the current implementation, constructed OCTET_STRING is encoded using primitive form.
     /// </remarks>
     public Asn1Builder AddOctetString(Func<Asn1Builder, Asn1Builder> selector) {
-        if (selector == null) {
+        if (selector is null) {
             throw new ArgumentNullException(nameof(selector));
         }
         Asn1Builder b = selector(new Asn1Builder());
@@ -545,7 +526,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddSequence(Func<Asn1Builder, Asn1Builder> selector) {
-        if (selector == null) {
+        if (selector is null) {
             throw new ArgumentNullException(nameof(selector));
         }
         Asn1Builder b = selector(new Asn1Builder());
@@ -561,7 +542,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddSet(Func<Asn1Builder, Asn1Builder> selector) {
-        if (selector == null) {
+        if (selector is null) {
             throw new ArgumentNullException(nameof(selector));
         }
         Asn1Builder b = selector(new Asn1Builder());
@@ -580,7 +561,7 @@ public class Asn1Builder {
     /// </exception>
     /// <returns>Current instance with added value.</returns>
     public Asn1Builder AddExplicit(Byte explicitTag, Func<Asn1Builder, Asn1Builder> selector) {
-        if (selector == null) {
+        if (selector is null) {
             throw new ArgumentNullException(nameof(selector));
         }
         Asn1Builder b = selector(new Asn1Builder());

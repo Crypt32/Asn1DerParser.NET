@@ -51,17 +51,11 @@ public static class Asn1Utils {
     /// Calculates the ASN.1 payload length from a given ASN.1 length header.
     /// </summary>
     /// <param name="asnHeader">A byte array that represents ASN.1 length header</param>
-    /// <exception cref="ArgumentNullException">
-    /// <strong>asnHeader</strong> parameter is null.
-    /// </exception>
     /// <exception cref="OverflowException">
     /// <strong>asnHeader</strong> parameter length is more than 4 bytes or is invalid value.
     /// </exception>
     /// <returns>ASN.1 payload length in bytes.</returns>
     public static Int64 CalculatePayloadLength(ReadOnlySpan<Byte> asnHeader) {
-        if (asnHeader == null) {
-            throw new ArgumentNullException(nameof(asnHeader));
-        }
         if (asnHeader.Length == 0) {
             return 0;
         }
@@ -113,7 +107,7 @@ public static class Asn1Utils {
     /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
     public static ReadOnlyMemory<Byte> Encode(ReadOnlySpan<Byte> rawData, Byte enclosingTag) {
         Byte[] retValue;
-        if (rawData == null) {
+        if (rawData.Length == 0) {
             retValue = [enclosingTag, 0];
 
             return retValue;

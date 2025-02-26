@@ -38,11 +38,7 @@ public sealed class Asn1BitString : Asn1Universal {
     /// <param name="calculateUnusedBits">
     /// <strong>True</strong> if the bit length is decremented to exclude trailing zero bits. Otherwise <strong>False</strong>.
     /// </param>
-    /// <exception cref="ArgumentNullException"><strong>valueToEncode</strong> parameter is null reference.</exception>
     public Asn1BitString(ReadOnlySpan<Byte> valueToEncode, Boolean calculateUnusedBits) : base(TYPE) {
-        if (valueToEncode == null) {
-            throw new ArgumentNullException(nameof(valueToEncode));
-        }
         m_encode(valueToEncode, calculateUnusedBits, 0);
     }
     ///  <summary>
@@ -51,9 +47,7 @@ public sealed class Asn1BitString : Asn1Universal {
     /// </summary>
     /// <param name="valueToEncode">Raw value to encode.</param>
     /// <param name="unusedBits">A number of unused bits in bit string.</param>
-    /// <exception cref="ArgumentNullException"><strong>valueToEncode</strong> parameter is null reference.</exception>
     public Asn1BitString(ReadOnlySpan<Byte> valueToEncode, Byte unusedBits) : base(TYPE) {
-        if (valueToEncode == null) { throw new ArgumentNullException(nameof(valueToEncode)); }
         m_encode(valueToEncode, false, unusedBits);
     }
 
@@ -105,10 +99,6 @@ public sealed class Asn1BitString : Asn1Universal {
     /// <returns>The number of unused bits.</returns>
     /// <exception cref="ArgumentNullException"><strong>bytes</strong> parameter is null reference.</exception>
     public static Byte CalculateUnusedBits(ReadOnlySpan<Byte> bytes) {
-        if (bytes == null) {
-            throw new ArgumentNullException(nameof(bytes));
-        }
-
         return CalculateUnusedBits(bytes[bytes.Length - 1]); // calculate unused bits based on last byte.
     }
     /// <summary>

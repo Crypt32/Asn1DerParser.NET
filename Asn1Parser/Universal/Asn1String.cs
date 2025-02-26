@@ -89,7 +89,7 @@ public abstract class Asn1String : Asn1Universal {
         }
 
         IEnumerable<Asn1Type> asn1Types = allowedStringTypes?.ToList();
-        if (asn1Types != null && !asn1Types.Contains((Asn1Type)rawData.Span[0])) {
+        if (asn1Types is not null && !asn1Types.Contains((Asn1Type)rawData.Span[0])) {
             throw new ArgumentException("Input string is not permitted by restriction.");
         }
         var tag = (Asn1Type)(rawData.Span[0] & (Int32)Asn1Type.TAG_MASK);

@@ -67,12 +67,12 @@ public class Asn1DateTimeTests {
 
         String gts = Encoding.ASCII.GetString(adt.GetRawDataAsMemory()[2..].ToArray());
         Assert.AreEqual(dt, adt.Value);
-        if (adt.ZoneInfo == null) {
+        if (adt.ZoneInfo is null) {
             dt = dt.ToUniversalTime();
         }
         Assert.AreEqual(dt.ToString(expectedFormat), gts);
         if (!decode) {
-            if (adt.ZoneInfo == null) {
+            if (adt.ZoneInfo is null) {
                 dt = dt.ToLocalTime();
             }
             assertDateTimeDecode(expectedType, adt, dt, expectedFormat);

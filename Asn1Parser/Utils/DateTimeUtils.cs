@@ -20,7 +20,7 @@ static class DateTimeUtils {
             suffix += (time.Millisecond / 1000d).ToString(CultureInfo.InvariantCulture).Substring(1);
         }
         zone = CoerceTimeZone(zone);
-        if (zone == null) {
+        if (zone is null) {
             preValue = time.ToUniversalTime().ToString(format) + suffix + "Z";
         } else {
             suffix += zone.BaseUtcOffset is { Hours: >= 0, Minutes: >= 0 }
