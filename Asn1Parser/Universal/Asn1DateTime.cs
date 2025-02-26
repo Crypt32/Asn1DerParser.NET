@@ -54,7 +54,7 @@ public abstract class Asn1DateTime : Asn1Universal {
     void m_decode(ReadOnlyMemory<Byte> rawData) {
         var asn = new Asn1Reader(rawData);
         Initialize(asn);
-        Value = DateTimeUtils.Decode(asn, out TimeZoneInfo zoneInfo);
+        Value = DateTimeUtils.Decode(asn, out TimeZoneInfo? zoneInfo);
         ZoneInfo = zoneInfo;
     }
 

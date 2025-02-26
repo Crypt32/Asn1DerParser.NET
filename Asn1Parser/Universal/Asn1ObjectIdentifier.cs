@@ -170,7 +170,7 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
     /// <inheritdoc/>
     public override String GetDisplayValue() {
         return String.IsNullOrEmpty(Value.FriendlyName)
-            ? Value.Value
+            ? Value.Value!
             : $"{Value.FriendlyName} ({Value.Value})";
     }
 }
