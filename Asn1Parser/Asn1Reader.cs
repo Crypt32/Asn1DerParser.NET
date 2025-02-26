@@ -586,7 +586,7 @@ public class Asn1Reader {
     /// </summary>
     /// <returns>A new instance of <see cref="Asn1Reader"/>.</returns>
     public Asn1Reader GetReader() {
-        return new Asn1Reader(GetRawDataAsMemory(), 0, true);
+        return new Asn1Reader(GetTagRawDataAsMemory(), 0, true);
     }
     /// <summary>
     /// Recursively processes ASN tree and builds internal offset map.
