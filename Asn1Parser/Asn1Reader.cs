@@ -589,6 +589,29 @@ public class Asn1Reader {
         return new Asn1Reader(GetTagRawDataAsMemory(), 0, true);
     }
     /// <summary>
+    /// Returns a cloned instance of current object and current state.
+    /// </summary>
+    /// <returns>A cloned instance of <see cref="Asn1Reader"/>.</returns>
+    public Asn1Reader Clone() {
+        var reader = new Asn1Reader(GetRawDataAsMemory(), 0, true) {
+            currentPosition = new AsnInternalMap(currentPosition.LevelStart, currentPosition.LevelEnd),
+            childCount = childCount,
+            Tag = Tag,
+            TagName = TagName,
+            TagLength = TagLength,
+            PayloadStartOffset = PayloadStartOffset,
+            PayloadLength = PayloadLength,
+            NextSiblingOffset = NextSiblingOffset,
+            NextOffset = NextOffset,
+            IsConstructed = IsConstructed
+        };
+        foreach (KeyValuePair<Int64, AsnInternalMap> mapEntry in _offsetMap) {
+            reader._offsetMap.Add(mapEntry.Key, mapEntry.Value);
+        }
+
+        return reader;
+    }
+    /// <summary>
     /// Recursively processes ASN tree and builds internal offset map.
     /// </summary>
     /// <returns>A number of processed ASN structures.</returns>
