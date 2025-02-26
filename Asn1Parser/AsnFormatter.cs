@@ -105,7 +105,7 @@ public static class AsnFormatter {
     /// </para>
     /// </remarks>
     public static Byte[] StringToBinary(String input, EncodingType encoding = EncodingType.Base64) {
-        Byte[] rawData;
+        Byte[]? rawData;
         if (PemHeader.ContainsEncoding(encoding)) {
             var pemHeader = PemHeader.GetHeader(encoding);
             rawData = StringToBinaryFormatter.FromBase64Header(input, pemHeader.GetHeader(), pemHeader.GetFooter());

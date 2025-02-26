@@ -88,7 +88,7 @@ public abstract class Asn1String : Asn1Universal {
             throw new ArgumentException("Raw data must have at least tag (1 byte) and length components (1 byte) in TLV structure.");
         }
 
-        IEnumerable<Asn1Type> asn1Types = allowedStringTypes?.ToList();
+        IEnumerable<Asn1Type>? asn1Types = allowedStringTypes?.ToList();
         if (asn1Types is not null && !asn1Types.Contains((Asn1Type)rawData.Span[0])) {
             throw new ArgumentException("Input string is not permitted by restriction.");
         }

@@ -537,7 +537,7 @@ public class Asn1Reader {
     /// method calls are not necessary.
     /// </remarks>
     public Boolean Seek(Int32 newPosition) {
-        if (!_offsetMap.TryGetValue(newPosition, out AsnInternalMap value)) {
+        if (!_offsetMap.TryGetValue(newPosition, out AsnInternalMap? value)) {
             return false;
         }
         currentPosition = value;

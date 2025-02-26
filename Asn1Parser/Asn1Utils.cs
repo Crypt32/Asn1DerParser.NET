@@ -187,10 +187,11 @@ public static class Asn1Utils {
 
     #region internal
     public static String GetViewValue(Asn1Reader asn) {
-        if (asn.PayloadLength == 0 && asn.Tag != (Byte)Asn1Type.NULL) { return "NULL"; }
+        if (asn.PayloadLength == 0 && asn.Tag != (Byte)Asn1Type.NULL) {
+            return "NULL";
+        }
 
         return asn.Tag switch {
-
             (Byte)Asn1Type.BOOLEAN           => new Asn1Boolean(asn).Value.ToString(),
             (Byte)Asn1Type.INTEGER           => new Asn1Integer(asn).Value.ToString(),
             (Byte)Asn1Type.BIT_STRING        => decodeBitString(asn),
