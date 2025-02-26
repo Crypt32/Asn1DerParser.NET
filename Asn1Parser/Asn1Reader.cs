@@ -27,7 +27,7 @@ public class Asn1Reader {
     readonly Dictionary<Int64, AsnInternalMap> _offsetMap = [];
     AsnInternalMap currentPosition;
     Int32 childCount;
-
+    
     /// <summary>
     /// Initializes a new instance of the <strong>ASN1</strong> class from an existing
     /// <strong>ASN1</strong> object.
@@ -58,6 +58,12 @@ public class Asn1Reader {
         currentPosition = new AsnInternalMap(0, 0);
         _offsetMap.Add(0, currentPosition);
         decode(rawData, offset, skipCopy);
+    }
+    // this constructor is used for clone purposes only.
+    Asn1Reader(ReadOnlyMemory<Byte> rawData, AsnInternalMap position, Int32 childCount) {
+        _rawData = rawData;
+        currentPosition = new AsnInternalMap(position.LevelStart, position.LevelEnd);
+        this.childCount = childCount;
     }
 
     /// <summary>
@@ -593,9 +599,7 @@ public class Asn1Reader {
     /// </summary>
     /// <returns>A cloned instance of <see cref="Asn1Reader"/>.</returns>
     public Asn1Reader Clone() {
-        var reader = new Asn1Reader(GetRawDataAsMemory(), 0, true) {
-            currentPosition = new AsnInternalMap(currentPosition.LevelStart, currentPosition.LevelEnd),
-            childCount = childCount,
+        var reader = new Asn1Reader(_rawData, currentPosition, childCount) {
             Tag = Tag,
             TagName = TagName,
             TagLength = TagLength,
