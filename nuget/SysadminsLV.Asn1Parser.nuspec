@@ -13,7 +13,7 @@
     <copyright>Copyright © Sysadmins LV 2012-$year$</copyright>
     <tags>ASN.1 ASN ASN1</tags>
     <dependencies>
-      <group targetFramework=".NETFramework4.7.2">
+      <group targetFramework="net4.7.2">
         <dependency id="System.Memory" version="4.6.0" />
       </group>
       <group targetFramework="net8.0">
