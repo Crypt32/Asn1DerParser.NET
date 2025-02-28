@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
@@ -670,14 +669,6 @@ public class Asn1Builder {
     /// <returns>ASN.1 Builder.</returns>
     public static Asn1Builder Create() {
         return new Asn1Builder();
-    }
-    /// <summary>
-    /// Creates a default instance of <strong>Asn1Builder</strong> class from existing ASN.1-encoded data.
-    /// </summary>
-    /// <param name="rawData">ASN.1-encoded data to initialize the builder from.</param>
-    /// <returns>ASN.1 Builder.</returns>
-    public static Asn1Builder Create(IEnumerable<Byte> rawData) {
-        return Create(rawData.ToArray().AsSpan());
     }
     /// <summary>
     /// Creates a default instance of <strong>Asn1Builder</strong> class from existing ASN.1-encoded data.
