@@ -597,16 +597,16 @@ public class Asn1Builder {
         Byte[]? header = null;
         if (includeHeader) {
             header = Asn1Utils.GetLengthBytes(payloadLength);
-            headerLength = header.Length;
+            headerLength = header.Length + 1;
         }
         Byte[] memory = new Byte[headerLength + payloadLength];
         Int32 i = 0;
         if (includeHeader) {
             memory[0] = outerTag;
-            i = 1;
             for (; i < header!.Length; i++) {
-                memory[i] = header[i];
+                memory[i + 1] = header[i];
             }
+            i++;
         }
 
         foreach (ReadOnlyMemory<Byte> chunk in _rawData) {
