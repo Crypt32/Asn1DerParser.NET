@@ -89,7 +89,7 @@ public sealed class Asn1BitString : Asn1Universal {
     /// </summary>
     /// <returns>BIT_STRING value.</returns>
     public ReadOnlyMemory<Byte> GetValue() {
-        return GetInternalReader().GetPayloadAsMemory();
+        return GetInternalReader().GetPayloadAsMemory().Slice(1);
     }
 
     /// <summary>
