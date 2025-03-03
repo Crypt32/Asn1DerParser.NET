@@ -139,4 +139,11 @@ public abstract class Asn1Universal {
     public ReadOnlyMemory<Byte> GetRawDataAsMemory() {
         return asnReader!.GetTagRawDataAsMemory();
     }
+    /// <summary>
+    /// Gets the memory buffer that holds tag payload, excluding tag and length bytes.
+    /// </summary>
+    /// <returns>Raw payload value excluding tag and length bytes.</returns>
+    public ReadOnlyMemory<Byte> GetPayloadAsMemory() {
+        return asnReader!.GetPayloadAsMemory();
+    }
 }
