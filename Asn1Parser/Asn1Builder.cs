@@ -641,7 +641,7 @@ public class Asn1Builder {
     /// <returns>
     ///     ASN.1-encoded memory.
     /// </returns>
-    public ReadOnlyMemory<Byte> GetEncodedAsMemory(Byte outerTag) {
+    public ReadOnlyMemory<Byte> GetEncodedAsMemory(Byte outerTag = 0x30) {
         return getEncoded(outerTag, true);
     }
     /// <summary>
