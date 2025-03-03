@@ -53,6 +53,6 @@ public sealed class Asn1Enumerated : Asn1Universal {
         if (value > UInt64.MaxValue) {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
-        Value = Convert.ToUInt64(value);
+        Value = (UInt64)value;
     }
 }
