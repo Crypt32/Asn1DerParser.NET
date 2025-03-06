@@ -84,33 +84,33 @@ public class BinaryToHexStringTests {
 
     [TestMethod]
     public void TestComplexHexRaw() {
-        String str = AsnFormatter.BinaryToString(_complexRawData.AsSpan());
+        String str = AsnFormatter.BinaryToString(_complexRawData);
         Assert.AreEqual(COMPLEX_HEX_RAW, str.TrimEnd());
-        str = AsnFormatter.BinaryToString(_complexRawData.AsSpan(), forceUpperCase: true);
+        str = AsnFormatter.BinaryToString(_complexRawData, forceUpperCase: true);
         Assert.AreEqual(COMPLEX_HEX_RAW.ToUpper(), str.TrimEnd());
     }
     [TestMethod]
     public void TestComplexHex() {
-        String str = AsnFormatter.BinaryToString(_complexRawData.AsSpan(), EncodingType.Hex);
+        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.Hex);
         Assert.AreEqual(COMPLEX_HEX, str.TrimEnd());
-        str = AsnFormatter.BinaryToString(_complexRawData.AsSpan(), EncodingType.Hex, forceUpperCase: true);
+        str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.Hex, forceUpperCase: true);
         Assert.AreEqual(COMPLEX_HEX.ToUpper(), str.TrimEnd());
     }
     [TestMethod]
     public void TestComplexHexAddr() {
-        String str = AsnFormatter.BinaryToString(_complexRawData.AsSpan(), EncodingType.HexAddress);
+        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.HexAddress);
         Assert.AreEqual(COMPLEX_HEX_ADDR, str.TrimEnd());
-        str = AsnFormatter.BinaryToString(_complexRawData.AsSpan(), EncodingType.HexAddress, forceUpperCase: true);
+        str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.HexAddress, forceUpperCase: true);
         Assert.AreEqual(COMPLEX_HEX_ADDR.ToUpper(), str.TrimEnd());
     }
     [TestMethod]
     public void TestComplexHexAscii() {
-        String str = AsnFormatter.BinaryToString(_complexRawData.AsSpan(), EncodingType.HexAscii);
+        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.HexAscii);
         Assert.AreEqual(COMPLEX_HEX_ASCII, str.TrimEnd());
     }
     [TestMethod]
     public void TestComplexHexAddrAscii() {
-        String str = AsnFormatter.BinaryToString(_complexRawData.AsSpan(), EncodingType.HexAsciiAddress);
+        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.HexAsciiAddress);
         Assert.AreEqual(COMPLEX_HEX_ADDR_ASCII, str.TrimEnd());
     }
 }
