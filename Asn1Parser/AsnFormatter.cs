@@ -100,7 +100,7 @@ public static class AsnFormatter {
     ///     <see cref="BinaryToString(ReadOnlySpan{Byte}, EncodingType, EncodingFormat, Boolean)">BinaryToString</see>
     ///     method.
     /// <para>
-    ///     If encoding parameter is set to <strong>Base64Header</strong>, the method will accept any properly formatted PEM header
+    ///     If <strong>encoding</strong> parameter is set to <strong>Base64Header</strong>, the method will accept any PEM header
     ///     and footer.
     /// </para>
     /// </remarks>
@@ -108,10 +108,9 @@ public static class AsnFormatter {
         Byte[]? rawData;
         if (PemHeader.ContainsEncoding(encoding)) {
             var pemHeader = PemHeader.GetHeader(encoding);
-            rawData = StringToBinaryFormatter.FromBase64Header(input, pemHeader.GetHeader(), pemHeader.GetFooter());
+            rawData = StringToBinaryFormatter.FromBase64Header(input, pemHeader.Header);
         } else {
             rawData = encoding switch {
-
                 EncodingType.Binary    => StringToBinaryFormatter.FromBinary(input),
                 EncodingType.Base64    => StringToBinaryFormatter.FromBase64(input),
                 EncodingType.Base64Any => StringToBinaryFormatter.FromBase64Any(input),
@@ -139,15 +138,20 @@ public static class AsnFormatter {
     /// <returns>
     /// Resolved input string format. If format cannot be determined, <string>Binary</string> type is returned.
     /// </returns>
+    /// <remarks>
+    ///     Method returns <strong>Base64Header</strong> when input string contains
+    ///     <c>-----BEGIN ...-----</c> PEM header and <c>-----END ...-----</c> PEM footer which is not
+    ///     supported by <see cref="EncodingType"/> enumeration.
+    /// </remarks>
     public static EncodingType TestInputString(String input) {
         Byte[]? rawBytes;
         foreach (PemHeader pemHeader in PemHeader.GetPemHeaders()) {
-            rawBytes = StringToBinaryFormatter.FromBase64Header(input, pemHeader.GetHeader(), pemHeader.GetFooter());
+            rawBytes = StringToBinaryFormatter.FromBase64Header(input, pemHeader.Header);
             if (rawBytes is not null) {
                 return pemHeader.Encoding;
             }
         }
-        rawBytes = StringToBinaryFormatter.FromBase64Header(input);
+        rawBytes = StringToBinaryFormatter.FromBase64Header(input, String.Empty, true);
         if (rawBytes is not null) {
             return EncodingType.Base64Header;
         }
