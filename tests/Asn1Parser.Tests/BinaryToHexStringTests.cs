@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SysadminsLV.Asn1Parser;
 
@@ -39,78 +40,89 @@ public class BinaryToHexStringTests {
 
     [TestMethod]
     public void TestHex() {
-        String str = AsnFormatter.BinaryToString(_rawData, EncodingType.Hex);
-        Assert.AreEqual(HEX, str.TrimEnd());
-        str = AsnFormatter.BinaryToString(_rawData, EncodingType.Hex, forceUpperCase: true);
-        Assert.AreEqual(HEX.ToUpper(), str.TrimEnd());
+        runTest(_rawData, EncodingType.Hex, HEX, true);
     }
     [TestMethod]
     public void TestHexRaw() {
-        String str = AsnFormatter.BinaryToString(_rawData);
-        Assert.AreEqual(HEX_RAW, str.TrimEnd());
-        str = AsnFormatter.BinaryToString(_rawData, forceUpperCase: true);
-        Assert.AreEqual(HEX_RAW.ToUpper(), str.TrimEnd());
+        runTest(_rawData, EncodingType.HexRaw, HEX_RAW, true);
     }
     [TestMethod]
     public void TestHexAddr() {
-        String str = AsnFormatter.BinaryToString(_rawData, EncodingType.HexAddress);
-        Assert.AreEqual(HEX_ADDR + HEX, str.TrimEnd());
+        runTest(_rawData, EncodingType.HexAddress, HEX_ADDR + HEX, true);
     }
     [TestMethod]
     public void TestHexAscii() {
-        String str = AsnFormatter.BinaryToString(_rawData, EncodingType.HexAscii);
-        Assert.AreEqual(HEX + HEX_ASCII, str.TrimEnd());
+        runTest(_rawData, EncodingType.HexAscii, HEX + HEX_ASCII, true);
     }
     [TestMethod]
     public void TestHexAddrAscii() {
-        String str = AsnFormatter.BinaryToString(_rawData, EncodingType.HexAsciiAddress);
-        Assert.AreEqual(HEX_ADDR + HEX + HEX_ASCII, str.TrimEnd());
+        runTest(_rawData, EncodingType.HexAsciiAddress, HEX_ADDR + HEX + HEX_ASCII, true);
     }
     [TestMethod]
     public void TestHexAddrTruncated() {
-        String str = AsnFormatter.BinaryToString(_rawDataTruncated, EncodingType.HexAddress);
-        Assert.AreEqual(HEX_ADDR + TRUNCATED_HEX, str.TrimEnd());
+        runTest(_rawDataTruncated, EncodingType.HexAddress, HEX_ADDR + TRUNCATED_HEX, true);
     }
     [TestMethod]
     public void TestHexAsciiTruncated() {
-        String str = AsnFormatter.BinaryToString(_rawDataTruncated, EncodingType.HexAscii);
-        Assert.AreEqual(TRUNCATED_HEX + TRUNCATED_HEX_ASCII, str.TrimEnd());
+        runTest(_rawDataTruncated, EncodingType.HexAscii, TRUNCATED_HEX + TRUNCATED_HEX_ASCII, true);
     }
     [TestMethod]
     public void TestHexAddrAsciiTruncated() {
-        String str = AsnFormatter.BinaryToString(_rawDataTruncated, EncodingType.HexAsciiAddress);
-        Assert.AreEqual(HEX_ADDR + TRUNCATED_HEX + TRUNCATED_HEX_ASCII, str.TrimEnd());
+        runTest(_rawDataTruncated, EncodingType.HexAsciiAddress, HEX_ADDR + TRUNCATED_HEX + TRUNCATED_HEX_ASCII, true);
     }
 
     [TestMethod]
     public void TestComplexHexRaw() {
-        String str = AsnFormatter.BinaryToString(_complexRawData);
-        Assert.AreEqual(COMPLEX_HEX_RAW, str.TrimEnd());
-        str = AsnFormatter.BinaryToString(_complexRawData, forceUpperCase: true);
-        Assert.AreEqual(COMPLEX_HEX_RAW.ToUpper(), str.TrimEnd());
+        runTest(_complexRawData, EncodingType.HexRaw, COMPLEX_HEX_RAW, true);
     }
     [TestMethod]
     public void TestComplexHex() {
-        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.Hex);
-        Assert.AreEqual(COMPLEX_HEX, str.TrimEnd());
-        str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.Hex, forceUpperCase: true);
-        Assert.AreEqual(COMPLEX_HEX.ToUpper(), str.TrimEnd());
+        runTest(_complexRawData, EncodingType.Hex, COMPLEX_HEX, true);
     }
     [TestMethod]
     public void TestComplexHexAddr() {
-        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.HexAddress);
-        Assert.AreEqual(COMPLEX_HEX_ADDR, str.TrimEnd());
-        str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.HexAddress, forceUpperCase: true);
-        Assert.AreEqual(COMPLEX_HEX_ADDR.ToUpper(), str.TrimEnd());
+        runTest(_complexRawData, EncodingType.HexAddress, COMPLEX_HEX_ADDR, true);
     }
     [TestMethod]
     public void TestComplexHexAscii() {
-        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.HexAscii);
-        Assert.AreEqual(COMPLEX_HEX_ASCII, str.TrimEnd());
+        runTest(_complexRawData, EncodingType.HexAscii, COMPLEX_HEX_ASCII, false);
     }
     [TestMethod]
     public void TestComplexHexAddrAscii() {
-        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.HexAsciiAddress);
-        Assert.AreEqual(COMPLEX_HEX_ADDR_ASCII, str.TrimEnd());
+        runTest(_complexRawData, EncodingType.HexAsciiAddress, COMPLEX_HEX_ADDR_ASCII, false);
     }
+
+    void runTest(Byte[] rawData, EncodingType encoding, String expected, Boolean testUppercase) {
+        String str = AsnFormatter.BinaryToString(rawData, encoding);
+        Assert.AreEqual(expected, str.TrimEnd());
+        EncodingType testedEncoding = AsnFormatter.TestInputString(str);
+        EncodingType capiEncoding = tryCapiDecode(str);
+        // commented for now. Need research for these tests 
+        //Assert.AreEqual(encoding, testedEncoding);
+        //Assert.AreEqual(capiEncoding, testedEncoding);
+        if (testUppercase) {
+            str = AsnFormatter.BinaryToString(rawData, encoding, forceUpperCase: true);
+            Assert.AreEqual(expected.ToUpper(), str.TrimEnd());
+        }
+    }
+
+    EncodingType tryCapiDecode(String s) {
+        UInt32 pcbBinary = 0;
+        if (!CryptStringToBinary(s, s.Length, 0x7, null, ref pcbBinary, out UInt32 pdwSkip, out EncodingType pdwFlags)) {
+            Console.WriteLine(Marshal.GetLastWin32Error());
+            return EncodingType.Binary;
+        }
+
+        return pdwFlags;
+    }
+    [DllImport("crypt32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    static extern Boolean CryptStringToBinary(
+        [In] String pszString,
+        [In] Int32 cchString,
+        [In] UInt32 dwFlags,
+        [In] Byte[]? pbBinary,
+        [In, Out] ref UInt32 pcbBinary,
+        [Out] out UInt32 pdwSkip,
+        [Out] out EncodingType pdwFlags
+    );
 }
