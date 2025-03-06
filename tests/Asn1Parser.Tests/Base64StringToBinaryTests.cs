@@ -50,7 +50,23 @@ public class Base64StringToBinaryTests {
     [TestMethod]
     public void TestBase64HeaderToBinaryStrictValid() {
         foreach (EncodingType encoding in _b64Encodings) {
-            Byte[] actual = AsnFormatter.StringToBinary(AsnFormatter.BinaryToString(_rawData, encoding), encoding);
+            String input = AsnFormatter.BinaryToString(_rawData, encoding);
+            Byte[] actual = AsnFormatter.StringToBinary(input, encoding);
+
+            EncodingType expected;
+            switch (encoding) {
+                case EncodingType.Base64Header:
+                    expected = EncodingType.PemCert;
+                    break;
+                case EncodingType.Base64RequestHeader:
+                    expected = EncodingType.PemNewReq;
+                    break;
+                default:
+                    expected = encoding;
+                    break;
+            }
+            EncodingType suggestedEncoding = AsnFormatter.TestInputString(input);
+            Assert.AreEqual(expected, suggestedEncoding);
             validateBinary(actual);
         }
     }
@@ -70,5 +86,20 @@ public class Base64StringToBinaryTests {
         Assert.IsTrue(_rawData.SequenceEqual(actual));
     }
 
-
+    [TestMethod]
+    public void TestMismatchHeaderAndFooter() {
+        String pem = $"""
+                      -----BEGIN CERTIFICATE-----
+                      {_base64}
+                      -----END PKCS7-----
+                      """;
+        EncodingType encoding = AsnFormatter.TestInputString(pem);
+        Assert.AreEqual(EncodingType.Base64Header, encoding);
+    }
+    [TestMethod]
+    public void TestInvalidBase64() {
+        String base64 = "Xblue";
+        EncodingType encoding = AsnFormatter.TestInputString(base64);
+        Assert.AreEqual(EncodingType.Binary, encoding);
+    }
 }
