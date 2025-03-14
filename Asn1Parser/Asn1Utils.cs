@@ -48,6 +48,14 @@ public static class Asn1Utils {
         return retValue;
     }
     /// <summary>
+    /// Generates tag length header for specified size.
+    /// </summary>
+    /// <param name="payloadLength">A projected tag length.</param>
+    /// <returns>Encoded tag length header. Return value do not contain tag and payload.</returns>
+    public static ReadOnlyMemory<Byte> GetLengthBytesAsMemory(Int32 payloadLength) {
+        return GetLengthBytes(payloadLength);
+    }
+    /// <summary>
     /// Calculates the ASN.1 payload length from a given ASN.1 length header.
     /// </summary>
     /// <param name="asnHeader">A byte array that represents ASN.1 length header</param>
