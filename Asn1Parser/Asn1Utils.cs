@@ -122,10 +122,11 @@ public static class Asn1Utils {
         Byte[] retValue = new Byte[1 + pbHeader.Length + rawData.Length];
         // copy L component to destination array
         retValue[0] = enclosingTag;
+        Int32 shift = 1;
         for (Int32 i = 0; i < pbHeader.Length; i++) {
-            retValue[i + 1] = pbHeader[i];
+            retValue[i + shift] = pbHeader[i];
         }
-        Int32 shift = 1 + pbHeader.Length;
+        shift += pbHeader.Length;
         // copy V component to destination array
         for (Int32 i = 0; i < rawData.Length; i++) {
             retValue[i + shift] = rawData[i];
