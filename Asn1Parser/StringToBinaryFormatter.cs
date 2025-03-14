@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SysadminsLV.Asn1Parser;
 static class StringToBinaryFormatter {
     static readonly Char[] _delimiters = [' ', '-', ':', '\t', '\n', '\r'];
 
+    /// <summary>
+    /// Converts the specified string, which encodes binary data as base-64 digits, to
+    /// an equivalent 8-bit unsigned integer array.
+    /// </summary>
+    /// <param name="input">The string to convert.</param>
+    /// <returns>An array of 8-bit unsigned integers that is equivalent to <strong>input</strong>.</returns>
     public static Byte[]? FromBase64(String input) {
         try {
             return Convert.FromBase64String(input.Trim());
@@ -13,41 +18,75 @@ static class StringToBinaryFormatter {
             return null;
         }
     }
-    // accept any header, not only certificate
-    public static Byte[]? FromBase64Header(String input) {
-        const String header = "-----BEGIN ";
-        const String footer = "-----END ";
 
-        return FromBase64Header(input, header, footer, true);
-    }
-    public static Byte[]? FromBase64Header(String input, String header, String footer, Boolean skipHeaderValidation = false) {
-        if (skipHeaderValidation && (!input.ToUpper().Contains(header) || !input.Contains(footer))) {
+    /// <summary>
+    /// Attempts to convert the specified string, which encodes binary data as base-64 digits with PEM header and footer,
+    /// to an equivalent 8-bit unsigned integer array.
+    /// </summary>
+    /// <param name="input">The string to convert.</param>
+    /// <param name="headerName">
+    ///     Specifies the header name. This parameter MUS NOT include 5-dash sequence and BEGIN/END constants.
+    ///     This parameter is ignored if <strong>skipHeaderValidation</strong> parameter is set to <c>true</c>.
+    /// </param>
+    /// <param name="skipHeaderValidation">
+    ///     Skips strict PEM header and footer check. By default, this method checks for exact PEM header and footer
+    ///     specified in <strong>header</strong> parameter, which includes only name, without fixed (5-dash sequences,
+    ///     BEGIN and END constants).
+    ///     <para>
+    ///     When this parameter is set to <c>true</c>, then <strong>headerName</strong> parameter is ignored and method will
+    ///     attempt to find any properly PEM formatted header and footer, even if PEM header and footer names don't match.
+    ///     For example, the following sequence would also be considered valid:
+    ///     <code>
+    /// -----BEGIN CERTIFICATE-----
+    /// MIIDBjCCAm8CAQAwcTERMA8GA1UEAxMIcXV1eC5jb20xDzANBgNVBAsTBkJyYWlu
+    /// czEWMBQGA1UEChMNRGV2ZWxvcE1lbnRvcjERMA8GA1UEBxMIVG9ycmFuY2UxEzAR
+    /// BgNVBAgTCkNhbGlmb3JuaWExCzAJBgNVBAYTAlVTMIGfMA0GCSqGSIb3DQEBAQUA
+    /// &lt;...&gt;
+    /// -----END X509 CRL-----
+    ///     </code>
+    ///     </para>
+    /// </param>
+    /// <returns>An array of 8-bit unsigned integers that is equivalent to input, or <c>null</c> if no valid PEM header was found.</returns>
+    public static Byte[]? FromBase64Header(String input, String headerName, Boolean skipHeaderValidation = false) {
+        String header, footer;
+        if (skipHeaderValidation) {
+            header = "-----BEGIN ";
+            footer = "-----END ";
+        } else {
+            header = $"-----BEGIN {headerName.Trim()}-----";
+            footer = $"-----END {headerName.Trim()}-----";
+        }
+        // search for header (uppercase) start position
+        Int32 start = input.IndexOf(header, StringComparison.Ordinal);
+        if (start < 0) {
+            // if we don't find header, then it is not valid PEM header. End here.
             return null;
         }
-        Int32 start = input.IndexOf(header, StringComparison.Ordinal) + 10;
-        Int32 headerEndPos = input.IndexOf("-----", start, StringComparison.Ordinal) + 5;
-        Int32 footerStartPos = input.IndexOf(footer, StringComparison.Ordinal);
+        Int32 headerEndPos = skipHeaderValidation
+            // 10 is the length of mandatory '-----BEGIN' header part. Seek after mandatory part and look where
+            // terminating 5-dash sequence begins and append the length of 5-dash. This is the end of header and
+            // where body begins.
+            ? input.IndexOf("-----", start + 10, StringComparison.Ordinal) + 5
+            : start + header.Length;
+        // search for footer starting with  header end position. Empty 
+        Int32 footerStartPos = input.IndexOf(footer, headerEndPos, StringComparison.Ordinal);
+        if (footerStartPos < 0) {
+            // we found PEM header, but no PEM footer, or the order is wrong (footer defined before header)
+            return null;
+        }
+        
         try {
             return Convert.FromBase64String(input.Substring(headerEndPos, footerStartPos - headerEndPos));
         } catch {
             return null;
         }
     }
-    public static Byte[]? FromBase64Request(String input) {
-        String header;
-        String footer;
-        if (input.ToUpper().Contains(PemHeader.PEM_HEADER_REQ_NEW.GetHeader())) {
-            header = PemHeader.PEM_HEADER_REQ_NEW.GetHeader();
-            footer = PemHeader.PEM_HEADER_REQ_NEW.GetFooter();
-        } else if (input.ToUpper().Contains(PemHeader.PEM_HEADER_REQ.GetHeader())) {
-            header = PemHeader.PEM_HEADER_REQ.GetHeader();
-            footer = PemHeader.PEM_HEADER_REQ.GetFooter();
-        } else {
-            return null;
-        }
-
-        return FromBase64Header(input, header, footer, true);
-    }
+    /// <summary>
+    /// Attempts to convert input string into a 8bit byte array. This method converts each character of input
+    /// string to its 8bit numerical representation.
+    /// </summary>
+    /// <param name="input">String to convert.</param>
+    /// <returns>Decoded byte array. This method returns <c>null</c> if input string contains non-8bit characters.</returns>
     public static Byte[]? FromBinary(String input) {
         Byte[] rawBytes = new Byte[input.Length];
         for (Int32 i = 0; i < input.Length; i++) {
@@ -321,11 +360,29 @@ static class StringToBinaryFormatter {
         return bytes.ToArray();
     }
 
+    /// <summary>
+    /// Attempts to convert the specified string, which encodes binary data as base64 digits with
+    /// or without PEM header and footer, to an equivalent 8-bit unsigned integer array.
+    /// </summary>
+    /// <param name="input">Base64 formatted string with optional PEM header and footer.</param>
+    /// <returns>
+    ///     An array of 8-bit unsigned integers that is equivalent to input, or <c>null</c> if input string doesn't represent
+    ///     valid Base64 or PEM formatted string.
+    /// </returns>
     public static Byte[]? FromBase64Any(String input) {
-        return FromBase64Header(input) ?? FromBase64(input);
+        if (input.Contains("-----BEGIN ")) {
+            // if input string contains PEM begin sequence, then try only Base64 with header and footer
+            // without strict validation.
+            return FromBase64Header(input, String.Empty, true);
+        }
+        // if there is no PEM found, then try raw base64.
+        return FromBase64(input);
     }
     public static Byte[] FromStringAny(String input) {
-        return FromBase64Header(input) ?? FromBase64(input) ?? input.Select(Convert.ToByte).ToArray();
+        if (input.Contains("-----BEGIN ")) {
+            return FromBase64Header(input, String.Empty, true);
+        }
+        return FromBase64(input) ?? FromBinary(input);
     }
     public static Byte[]? FromHexAny(String input) {
         return FromHexAddr(input) ??

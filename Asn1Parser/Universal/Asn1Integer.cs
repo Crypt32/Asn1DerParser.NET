@@ -23,13 +23,13 @@ public sealed class Asn1Integer : Asn1Universal {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1Integer</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1Integer</strong> from a ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not valid <strong>INTEGER</strong> data type.
     /// </exception>
-    public Asn1Integer(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1Integer(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1Integer</strong> class from an integer value.
     /// </summary>
@@ -45,7 +45,7 @@ public sealed class Asn1Integer : Asn1Universal {
 
     void m_encode(BigInteger inputInteger) {
         Value = inputInteger;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(inputInteger.GetAsnBytes(), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(inputInteger.GetAsnBytes(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
         Value = new BigInteger(asn.GetPayload().Reverse().ToArray());

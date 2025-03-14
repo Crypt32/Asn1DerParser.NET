@@ -12,14 +12,6 @@ namespace SysadminsLV.Asn1Parser;
 /// Provides a set of properties and generic methods to work with ASN.1 structures in Distinguished Encoding
 /// Rules (<strong>DER</strong>) encoding.
 /// </summary>
-/// <remarks>
-/// Static methods of this class provides an encoders and decoders for the generic .NET types and unmanaged
-/// structures.
-/// <para>Static methods (except <see cref="Asn1Utils.Encode(Byte[], Byte)">Encode</see>) strictly verify
-/// whether the encoded or source data is valid for the specific ASN.1 type. If the data is not appropriate
-/// for the method, it throws <see cref="InvalidDataException"/>
-/// </para>
-/// </remarks>
 public class Asn1Reader {
     // a list of primitive tags. Source: http://en.wikipedia.org/wiki/Distinguished_Encoding_Rules#DER_encoding
     // although we actively do lookups, it is NOT recommended to use sets (HashSet<T>), because at current collection size
@@ -31,11 +23,11 @@ public class Asn1Reader {
         (Byte)Asn1Type.SET,
         (Byte)Asn1Type.SET | (Byte)Asn1Class.CONSTRUCTED
     ];
-    readonly List<Byte> _rawData = [];
+    ReadOnlyMemory<Byte> _rawData;
     readonly Dictionary<Int64, AsnInternalMap> _offsetMap = [];
     AsnInternalMap currentPosition;
     Int32 childCount;
-
+    
     /// <summary>
     /// Initializes a new instance of the <strong>ASN1</strong> class from an existing
     /// <strong>ASN1</strong> object.
@@ -44,14 +36,12 @@ public class Asn1Reader {
     /// <remarks>
     ///		This constructor creates a copy of a current position of an existing <strong>ASN1</strong> object.
     /// </remarks>
-    public Asn1Reader(Asn1Reader asn) : this(asn.GetTagRawData()) { }
+    [Obsolete("Consider using 'GetReader()' method on existing instance.", true)]
+    public Asn1Reader(Asn1Reader asn) : this(asn.GetTagRawDataAsMemory(), 0, true) { }
     /// <summary>
     /// Initializes a new instance of the <strong>ASN1</strong> class by using an ASN.1 encoded byte array.
     /// </summary>
     /// <param name="rawData">ASN.1-encoded byte array.</param>
-    /// <exception cref="ArgumentNullException">
-    ///     <strong>rawData</strong> parameter is null reference.
-    /// </exception>
     /// <exception cref="InvalidDataException">
     ///     The data in the <strong>rawData</strong> parameter is not valid ASN sequence.
     /// </exception>
@@ -59,18 +49,21 @@ public class Asn1Reader {
     ///     If <strong>rawData</strong> size is greater than outer structure size, constructor will take only
     ///     required bytes from input data.
     /// </remarks>
-    public Asn1Reader(Byte[] rawData) : this(rawData, 0) { }
+    public Asn1Reader(ReadOnlyMemory<Byte> rawData) : this(rawData, 0) { }
 
-    Asn1Reader(Byte[] rawData, Int32 offset) {
-        if (rawData == null) {
-            throw new ArgumentNullException(nameof(rawData));
-        }
+    Asn1Reader(ReadOnlyMemory<Byte> rawData, Int32 offset, Boolean skipCopy = false) {
         if (rawData.Length < 2) {
             throw new Win32Exception(ErrorCode.InvalidDataException);
         }
         currentPosition = new AsnInternalMap(0, 0);
         _offsetMap.Add(0, currentPosition);
-        decode(rawData, offset);
+        decode(rawData, offset, skipCopy);
+    }
+    // this constructor is used for clone purposes only.
+    Asn1Reader(ReadOnlyMemory<Byte> rawData, AsnInternalMap position, Int32 childCount) {
+        _rawData = rawData;
+        currentPosition = new AsnInternalMap(position.LevelStart, position.LevelEnd);
+        this.childCount = childCount;
     }
 
     /// <summary>
@@ -100,7 +93,7 @@ public class Asn1Reader {
     /// <summary>
     /// Gets the internal ASN.1 stream length in bytes.
     /// </summary>
-    public Int32 Length => _rawData.Count;
+    public Int32 Length => _rawData.Length;
     /// <summary>
     /// Gets next structure's offset at same level (next sibling).
     /// </summary>
@@ -118,22 +111,24 @@ public class Asn1Reader {
     /// </summary>
     /// <param name="index">Binary array index to access.</param>
     /// <exception cref="IndexOutOfRangeException"><strong>index</strong> parameter is outside of binary array boundaries.</exception>
-    public Byte this[Int32 index] => _rawData[index];
+    public Byte this[Int32 index] => _rawData.Span[index];
 
-    void decode(Byte[]? raw, Int32 pOffset) {
+    void decode(ReadOnlyMemory<Byte> raw, Int32 pOffset, Boolean skipCopy = false) {
         IsConstructed = false;
         childCount = 0;
-        if (raw != null) {
-            _rawData.Clear();
-            _rawData.AddRange(raw);
+        if (!raw.IsEmpty) {
+            if (skipCopy) {
+                _rawData = raw;
+            } else {
+                _rawData = raw.ToArray();
+            }
         }
         Offset = pOffset;
-        Tag = _rawData[Offset];
+        Tag = _rawData.Span[Offset];
         calculateLength();
         // strip possible unnecessary bytes
-        if (raw != null && TagLength != _rawData.Count) {
-            _rawData.Clear();
-            _rawData.AddRange(raw.Take(TagLength).ToArray());
+        if (!raw.IsEmpty && TagLength != _rawData.Length) {
+            _rawData = raw.Slice(0, TagLength).ToArray();
         }
         TagName = GetTagName(Tag);
         // 0 Tag is reserved for BER and is not available in DER
@@ -148,7 +143,7 @@ public class Asn1Reader {
         }
         if (PayloadLength == 0) {
             // if current node is the last node in binary data, set NextOffset to 0, this means EOF.
-            NextOffset = Offset + TagLength == _rawData.Count
+            NextOffset = Offset + TagLength == _rawData.Length
                 ? 0
                 : Offset + TagLength;
             NextSiblingOffset = currentPosition.LevelEnd == 0 || Offset - currentPosition.LevelStart + TagLength == currentPosition.LevelEnd
@@ -165,7 +160,7 @@ public class Asn1Reader {
                 // skip unused bits byte
                 ? PayloadStartOffset + 1
                 : PayloadStartOffset
-            : Offset + TagLength < _rawData.Count
+            : Offset + TagLength < _rawData.Length
                 ? Offset + TagLength
                 : 0;
     }
@@ -212,7 +207,7 @@ public class Asn1Reader {
         if (start > Int32.MaxValue) {
             return false;
         }
-        return start >= 0 && start < _rawData.Count && _rawData[(Int32)start] != 0;
+        return start >= 0 && start < _rawData.Length && _rawData.Span[(Int32)start] != 0;
     }
     /// <summary>
     /// Checks if current primitive type is sub-typed (contains nested types) or not.
@@ -229,7 +224,7 @@ public class Asn1Reader {
             return false;
         }
         // if current type is primitive, then nested type can be either, primitive or constructed only.
-        if (_rawData[(Int32)start] >= (Byte)Asn1Class.APPLICATION) {
+        if (_rawData.Span[(Int32)start] >= (Byte)Asn1Class.APPLICATION) {
             return false;
         }
         // otherwise, attempt to resolve nested type. Only single nested type is allowed for primitive types.
@@ -264,20 +259,20 @@ public class Asn1Reader {
         return sum == projectedLength;
     }
     void calculateLength() {
-        if (_rawData[Offset + 1] < 128) {
+        if (_rawData.Span[Offset + 1] < 128) {
             PayloadStartOffset = Offset + 2;
-            PayloadLength = _rawData[Offset + 1];
+            PayloadLength = _rawData.Span[Offset + 1];
             TagLength = PayloadLength + 2;
         } else {
-            Int32 lengthBytes = _rawData[Offset + 1] - 128;
+            Int32 lengthBytes = _rawData.Span[Offset + 1] - 128;
             // max length can be encoded by using 4 bytes.
             if (lengthBytes > 4) {
                 throw new OverflowException("Data length is too large.");
             }
             PayloadStartOffset = Offset + 2 + lengthBytes;
-            PayloadLength = _rawData[Offset + 2];
+            PayloadLength = _rawData.Span[Offset + 2];
             for (Int32 i = Offset + 3; i < PayloadStartOffset; i++) {
-                PayloadLength = (PayloadLength << 8) | _rawData[i];
+                PayloadLength = (PayloadLength << 8) | _rawData.Span[i];
             }
             TagLength = PayloadLength + lengthBytes + 2;
         }
@@ -288,27 +283,27 @@ public class Asn1Reader {
     /// <param name="offset">Start offset for suggested nested type.</param>
     /// <returns>Estimated full tag length for nested type.</returns>
     Int64 calculatePredictLength(Int64 offset) {
-        if (offset + 1 >= _rawData.Count || offset < 0) {
+        if (offset + 1 >= _rawData.Length || offset < 0) {
             return Int32.MaxValue;
         }
 
-        if (_rawData[(Int32)(offset + 1)] < 128) {
-            return _rawData[(Int32) (offset + 1)] + 2;
+        if (_rawData.Span[(Int32)(offset + 1)] < 128) {
+            return _rawData.Span[(Int32) (offset + 1)] + 2;
         }
-        Int32 lengthBytes = _rawData[(Int32)(offset + 1)] - 128;
+        Int32 lengthBytes = _rawData.Span[(Int32)(offset + 1)] - 128;
         // max length can be encoded by using 4 bytes.
-        if (lengthBytes > 4 || offset + 2 >= _rawData.Count) {
+        if (lengthBytes > 4 || offset + 2 >= _rawData.Length) {
             return Int32.MaxValue;
         }
-        Int32 pPayloadLength = _rawData[(Int32)(offset + 2)];
+        Int32 pPayloadLength = _rawData.Span[(Int32)(offset + 2)];
         for (Int32 i = (Int32)(offset + 3); i < offset + 2 + lengthBytes; i++) {
-            pPayloadLength = (pPayloadLength << 8) | _rawData[i];
+            pPayloadLength = (pPayloadLength << 8) | _rawData.Span[i];
         }
         // 2 -- transitional + tag
         return pPayloadLength + lengthBytes + 2;
     }
     void moveAndExpectTypes(Func<Boolean> action, params Byte[] expectedTypes) {
-        if (expectedTypes == null) {
+        if (expectedTypes is null) {
             throw new ArgumentNullException(nameof(expectedTypes));
         }
         var set = new HashSet<Byte>();
@@ -332,9 +327,19 @@ public class Asn1Reader {
         Int32 headerLength = PayloadStartOffset - Offset;
         Byte[] array = new Byte[headerLength];
         for (Int32 i = 0; i < headerLength; i++) {
-            array[i] = _rawData[Offset + i];
+            array[i] = _rawData.Span[Offset + i];
         }
+
         return array;
+    }
+    /// <summary>
+    /// Gets current structure header. Header contains tag and tag length byte (or bytes).
+    /// </summary>
+    /// <returns>Current structure header. Header contains tag and tag length byte (or bytes).</returns>
+    public ReadOnlyMemory<Byte> GetHeaderAsMemory() {
+        Int32 headerLength = PayloadStartOffset - Offset;
+
+        return _rawData.Slice(Offset, headerLength);
     }
     /// <summary>
     /// Gets the byte array of the current structure's payload.
@@ -343,9 +348,16 @@ public class Asn1Reader {
     public Byte[] GetPayload() {
         Byte[] array = new Byte[PayloadLength];
         for (Int32 i = 0; i < PayloadLength; i++) {
-            array[i] = _rawData[PayloadStartOffset + i];
+            array[i] = _rawData.Span[PayloadStartOffset + i];
         }
         return array;
+    }
+    /// <summary>
+    /// Gets the byte array of the current structure's payload.
+    /// </summary>
+    /// <returns>Memory span of the current structure's payload.</returns>
+    public ReadOnlyMemory<Byte> GetPayloadAsMemory() {
+        return _rawData.Slice(PayloadStartOffset, PayloadLength);
     }
     /// <summary>
     /// Gets the raw data of the tag, which includes tag, length bytes and payload.
@@ -354,7 +366,25 @@ public class Asn1Reader {
     public Byte[] GetTagRawData() {
         Byte[] array = new Byte[TagLength];
         for (Int32 i = 0; i < TagLength; i++) {
-            array[i] = _rawData[Offset + i];
+            array[i] = _rawData.Span[Offset + i];
+        }
+        return array;
+    }
+    /// <summary>
+    /// Gets the raw data of the tag, which includes tag, length bytes and payload.
+    /// </summary>
+    /// <returns>A full binary copy of the tag.</returns>
+    public ReadOnlyMemory<Byte> GetTagRawDataAsMemory() {
+        return _rawData.Slice(Offset, TagLength);
+    }
+    /// <summary>
+    /// Gets a copy of internal ASN.1 stream. The size of the stream is equals to <see cref="Length"/> member value.
+    /// </summary>
+    /// <returns>A full binary copy of the internal byte stream.</returns>
+    public Byte[] GetRawData() {
+        Byte[] array = new Byte[_rawData.Length];
+        for (Int32 i = 0; i < _rawData.Length; i++) {
+            array[i] = _rawData.Span[i];
         }
         return array;
     }
@@ -362,12 +392,8 @@ public class Asn1Reader {
     /// Gets a copy of internal ASN.1 stream. The size of the stream is equals to <see cref="Length"/> member value.
     /// </summary>
     /// <returns>A full binary copy of the internal byte stream.</returns>
-    public Byte[] GetRawData() {
-        Byte[] array = new Byte[_rawData.Count];
-        for (Int32 i = 0; i < _rawData.Count; i++) {
-            array[i] = _rawData[i];
-        }
-        return array;
+    public ReadOnlyMemory<Byte> GetRawDataAsMemory() {
+        return _rawData;
     }
     /// <summary>
     /// Gets the count of nested nodes under node in the current position.
@@ -517,14 +543,12 @@ public class Asn1Reader {
     /// method calls are not necessary.
     /// </remarks>
     public Boolean Seek(Int32 newPosition) {
-        if (_offsetMap == null) {
-            throw new InvalidOperationException();
-        }
-        if (!_offsetMap.TryGetValue(newPosition, out AsnInternalMap value)) {
+        if (!_offsetMap.TryGetValue(newPosition, out AsnInternalMap? value)) {
             return false;
         }
         currentPosition = value;
         decode(null, newPosition);
+
         return true;
     }
 
@@ -562,6 +586,34 @@ public class Asn1Reader {
             (Byte)Asn1Type.BMPString         => new Asn1BMPString(this),
             _                                => new Asn1AnyType(this)
         };
+    }
+    /// <summary>
+    /// Returns a new instance of <see cref="Asn1Reader"/> that is sourced from the current tag.
+    /// </summary>
+    /// <returns>A new instance of <see cref="Asn1Reader"/>.</returns>
+    public Asn1Reader GetReader() {
+        return new Asn1Reader(GetTagRawDataAsMemory(), 0, true);
+    }
+    /// <summary>
+    /// Returns a cloned instance of current object and current state.
+    /// </summary>
+    /// <returns>A cloned instance of <see cref="Asn1Reader"/>.</returns>
+    public Asn1Reader Clone() {
+        var reader = new Asn1Reader(_rawData, currentPosition, childCount) {
+            Tag = Tag,
+            TagName = TagName,
+            TagLength = TagLength,
+            PayloadStartOffset = PayloadStartOffset,
+            PayloadLength = PayloadLength,
+            NextSiblingOffset = NextSiblingOffset,
+            NextOffset = NextOffset,
+            IsConstructed = IsConstructed
+        };
+        foreach (KeyValuePair<Int64, AsnInternalMap> mapEntry in _offsetMap) {
+            reader._offsetMap.Add(mapEntry.Key, mapEntry.Value);
+        }
+
+        return reader;
     }
     /// <summary>
     /// Recursively processes ASN tree and builds internal offset map.

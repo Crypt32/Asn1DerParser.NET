@@ -26,7 +26,7 @@ public abstract class Asn1DateTime : Asn1Universal {
         if (type is not (Asn1Type.UTCTime or Asn1Type.GeneralizedTime)) {
             throw new ArgumentException("Invalid ASN type. Must be either, UTCTime or GeneralizedTime.");
         }
-        m_decode(asn.GetTagRawData());
+        m_decode(asn.GetTagRawDataAsMemory());
     }
     protected Asn1DateTime(Asn1Type type, DateTime time, TimeZoneInfo? zone = null, Boolean preciseTime = false) : this(type) {
         m_encode(type, time, zone, preciseTime);
@@ -43,18 +43,18 @@ public abstract class Asn1DateTime : Asn1Universal {
 
     void m_encode(Asn1Type type, DateTime time, TimeZoneInfo? zone, Boolean preciseTime) {
         zone = DateTimeUtils.CoerceTimeZone(zone);
-        time = zone == null
+        time = zone is null
             ? DateTime.SpecifyKind(time, DateTimeKind.Local)
             : TimeZoneInfo.ConvertTimeToUtc(time, zone).ToLocalTime();
         Value = time;
         Boolean utcTime = type == Asn1Type.UTCTime;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(DateTimeUtils.Encode(time, ref zone, utcTime, preciseTime), type)));
+        Initialize(Asn1Utils.EncodeAsReader(DateTimeUtils.Encode(time, ref zone, utcTime, preciseTime), type));
         ZoneInfo = zone;
     }
-    void m_decode(Byte[] rawData) {
+    void m_decode(ReadOnlyMemory<Byte> rawData) {
         var asn = new Asn1Reader(rawData);
         Initialize(asn);
-        Value = DateTimeUtils.Decode(asn, out TimeZoneInfo zoneInfo);
+        Value = DateTimeUtils.Decode(asn, out TimeZoneInfo? zoneInfo);
         ZoneInfo = zoneInfo;
     }
 

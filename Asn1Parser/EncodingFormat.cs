@@ -4,6 +4,7 @@ namespace SysadminsLV.Asn1Parser;
 
 /// <summary>
 /// Contains values that specify how line breaks are handled during byte array formatting.
+/// <para>This enumeration has a <see cref="FlagsAttribute"/> attribute that allows a bitwise combination of its member values.</para>
 /// </summary>
 [Flags]
 public enum EncodingFormat : UInt32 {

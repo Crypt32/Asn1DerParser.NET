@@ -27,16 +27,16 @@ public sealed class Asn1UTF8String : Asn1String {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1UTF8String</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1UTF8String</strong> from a ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>UTF8String</strong> data type.
     /// </exception>
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid UTF8String character.
     /// </exception>
-    public Asn1UTF8String(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1UTF8String(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1UTF8String</strong> class from a unicode string.
     /// </summary>
@@ -53,17 +53,12 @@ public sealed class Asn1UTF8String : Asn1String {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
         Value = inputString;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.UTF8.GetBytes(inputString), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(Encoding.UTF8.GetBytes(inputString).AsMemory().Span, TYPE));
     }
     void m_decode(Asn1Reader asn) {
         Value = Encoding.UTF8.GetString(asn.GetPayload());
     }
     static Boolean testValue(String str) {
         return str.All(x => Convert.ToUInt32(x) <= 255);
-    }
-
-    /// <inheritdoc/>
-    public override String GetDisplayValue() {
-        return Value;
     }
 }

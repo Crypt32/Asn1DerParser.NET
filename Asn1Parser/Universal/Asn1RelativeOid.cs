@@ -24,11 +24,11 @@ public class Asn1RelativeOid : Asn1Universal {
         Value = decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of the <strong>Asn1RelativeOid</strong> class from a byte array
+    /// Initializes a new instance of the <strong>Asn1RelativeOid</strong> class from a memory buffer
     /// that represents encoded relative object identifier.
     /// </summary>
-    /// <param name="rawData">Byte array that represents encoded relative object identifier.</param>
-    public Asn1RelativeOid(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    /// <param name="rawData">Memory buffer that represents encoded relative object identifier.</param>
+    public Asn1RelativeOid(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1RelativeOid</strong> class from a string
     /// that represents relative object identifier value.
@@ -41,7 +41,7 @@ public class Asn1RelativeOid : Asn1Universal {
     /// <exception cref="OverflowException">The string is too large.</exception>
     /// <remarks>Maximum relative object identifier string is 8kb.</remarks>
     public Asn1RelativeOid(String relativeOid) : base(TYPE) {
-        if (relativeOid == null) {
+        if (relativeOid is null) {
             throw new ArgumentNullException(nameof(relativeOid));
         }
         m_encode(relativeOid);
@@ -59,7 +59,7 @@ public class Asn1RelativeOid : Asn1Universal {
 
     void m_encode(String oidString) {
         if (String.IsNullOrWhiteSpace(oidString)) {
-            Initialize(new Asn1Reader([Tag, 0]));
+            Initialize(new Asn1Reader(new Byte[] { Tag, 0 }.AsMemory()));
             Value = String.Empty;
             return;
         }
@@ -70,9 +70,9 @@ public class Asn1RelativeOid : Asn1Universal {
         IEnumerable<BigInteger> tokens = oidString
             .Split(['.'], StringSplitOptions.RemoveEmptyEntries)
             .Select(BigInteger.Parse);
-        Initialize(new Asn1Reader(Asn1Utils.Encode(encode(tokens), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(encode(tokens), TYPE));
     }
-    static Byte[] encode(IEnumerable<BigInteger> tokens) {
+    static ReadOnlySpan<Byte> encode(IEnumerable<BigInteger> tokens) {
         var rawOid = new List<Byte>();
         foreach (BigInteger token in tokens) {
             rawOid.AddRange(OidUtils.EncodeOidArc(token));

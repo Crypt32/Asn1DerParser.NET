@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace SysadminsLV.Asn1Parser.Universal;
@@ -39,12 +40,33 @@ public abstract class Asn1String : Asn1Universal {
     /// </summary>
     /// <param name="asn"><see cref="Asn1Reader"/> object in the position that represents ASN.1 date/time object.</param>
     /// <param name="type">Optional expected ASN.1 type.</param>
-    protected Asn1String(Asn1Reader asn, Asn1Type? type) : base(asn, type) { }
+    protected Asn1String(Asn1Reader asn, Asn1Type type) : base(asn, type) {
+        decode(asn, type);
+    }
 
     /// <summary>
     /// Gets value associated with the current object.
     /// </summary>
     public String Value { get; protected set; } = String.Empty;
+
+    void decode(Asn1Reader reader, Asn1Type type) {
+        ReadOnlyMemory<Byte> payload = reader.GetPayloadAsMemory();
+        if (!IsValidString(payload.Span)) {
+            throw new InvalidDataException(String.Format(InvalidType, type));
+        }
+
+        Value = Decode(payload.Span);
+    }
+
+    protected virtual Boolean IsValidString(ReadOnlySpan<Byte> value) {
+        return true;
+    }
+    protected virtual String Decode(ReadOnlySpan<Byte> payload) {return String.Empty;}
+
+    /// <inheritdoc/>
+    public sealed override String GetDisplayValue() {
+        return Value;
+    }
 
     /// <summary>
     /// Decodes any ASN.1-encoded binary string into ASN.1 string type instance.
@@ -61,19 +83,16 @@ public abstract class Asn1String : Asn1Universal {
     /// <exception cref="Asn1InvalidTagException">
     ///     Input data is not valid string type.
     /// </exception>
-    public static Asn1String DecodeAnyString(Byte[] rawData, IEnumerable<Asn1Type>? allowedStringTypes = null) {
-        if (rawData == null) {
-            throw new ArgumentNullException(nameof(rawData));
-        }
+    public static Asn1String DecodeAnyString(ReadOnlyMemory<Byte> rawData, IEnumerable<Asn1Type>? allowedStringTypes = null) {
         if (rawData.Length < 2) {
             throw new ArgumentException("Raw data must have at least tag (1 byte) and length components (1 byte) in TLV structure.");
         }
 
-        IEnumerable<Asn1Type> asn1Types = allowedStringTypes?.ToList();
-        if (asn1Types != null && !asn1Types.Contains((Asn1Type)rawData[0])) {
+        IEnumerable<Asn1Type>? asn1Types = allowedStringTypes?.ToList();
+        if (asn1Types is not null && !asn1Types.Contains((Asn1Type)rawData.Span[0])) {
             throw new ArgumentException("Input string is not permitted by restriction.");
         }
-        var tag = (Asn1Type)(rawData[0] & (Int32)Asn1Type.TAG_MASK);
+        var tag = (Asn1Type)(rawData.Span[0] & (Int32)Asn1Type.TAG_MASK);
         return tag switch {
             Asn1Type.IA5String       => new Asn1IA5String(rawData),
             Asn1Type.PrintableString => new Asn1PrintableString(rawData),

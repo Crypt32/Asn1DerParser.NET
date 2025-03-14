@@ -24,13 +24,13 @@ public sealed class Asn1Enumerated : Asn1Universal {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1Enumerated</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1Enumerated</strong> from a ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not valid <strong>INTEGER</strong> data type.
     /// </exception>
-    public Asn1Enumerated(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1Enumerated(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1Enumerated</strong> class from an integer value.
     /// </summary>
@@ -46,13 +46,13 @@ public sealed class Asn1Enumerated : Asn1Universal {
 
     void m_encode(BigInteger inputInteger) {
         Value = (UInt64)inputInteger;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(inputInteger.GetAsnBytes(), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(inputInteger.GetAsnBytes(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
         var value = new BigInteger(asn.GetPayload().Reverse().ToArray());
         if (value > UInt64.MaxValue) {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
-        Value = Convert.ToUInt64(value);
+        Value = (UInt64)value;
     }
 }

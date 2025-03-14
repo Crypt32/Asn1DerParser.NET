@@ -27,16 +27,16 @@ public sealed class Asn1IA5String : Asn1String {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1IA5String</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1IA5String</strong> from a ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>IA5String</strong> data type.
     /// </exception>
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid IA5String character.
     /// </exception>
-    public Asn1IA5String(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1IA5String(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1IA5String</strong> class from a unicode string.
     /// </summary>
@@ -53,17 +53,12 @@ public sealed class Asn1IA5String : Asn1String {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
         Value = inputString;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
         if (asn.GetPayload().Any(b => b > 127)) {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
         Value = Encoding.ASCII.GetString(asn.GetPayload());
-    }
-        
-    /// <inheritdoc/>
-    public override String GetDisplayValue() {
-        return Value;
     }
 }

@@ -28,11 +28,11 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
         Value = new Oid(decode(asn));
     }
     /// <summary>
-    /// Initializes a new instance of the <strong>Asn1ObjectIdentifier</strong> class from a byte array
+    /// Initializes a new instance of the <strong>Asn1ObjectIdentifier</strong> class from a memory buffer
     /// that represents encoded object identifier.
     /// </summary>
-    /// <param name="rawData">Byte array that represents encoded object identifier.</param>
-    public Asn1ObjectIdentifier(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    /// <param name="rawData">Memory buffer that represents encoded object identifier.</param>
+    public Asn1ObjectIdentifier(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1ObjectIdentifier</strong> class from a string
     /// that represents object identifier value.
@@ -50,7 +50,7 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
     /// <exception cref="InvalidDataException">The string is not valid object identifier.</exception>
     /// <exception cref="OverflowException">The string is too large.</exception>
     public Asn1ObjectIdentifier(Oid oid) : base(TYPE) {
-        if (oid == null) {
+        if (oid is null) {
             throw new ArgumentNullException(nameof(oid));
         }
         m_encode(oid);
@@ -63,7 +63,7 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
 
     void m_encode(Oid oid) {
         if (String.IsNullOrWhiteSpace(oid.Value)) {
-            Initialize(new Asn1Reader([Tag, 0]));
+            Initialize(new Asn1Reader(new Byte[] { Tag, 0 }.AsMemory()));
             Value = new Oid();
             return;
         }
@@ -74,10 +74,10 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
         Value = oid;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(encode(tokens), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(encode(tokens), TYPE));
     }
 
-    static Byte[] encode(IList<BigInteger> tokens) {
+    static ReadOnlySpan<Byte> encode(IList<BigInteger> tokens) {
         var rawOid = new List<Byte>();
         for (Int32 tokenIndex = 0; tokenIndex < tokens.Count; tokenIndex++) {
             BigInteger token = tokens[tokenIndex];
@@ -170,7 +170,7 @@ public sealed class Asn1ObjectIdentifier : Asn1Universal {
     /// <inheritdoc/>
     public override String GetDisplayValue() {
         return String.IsNullOrEmpty(Value.FriendlyName)
-            ? Value.Value
+            ? Value.Value!
             : $"{Value.FriendlyName} ({Value.Value})";
     }
 }

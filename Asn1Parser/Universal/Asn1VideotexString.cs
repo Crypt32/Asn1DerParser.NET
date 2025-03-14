@@ -21,20 +21,18 @@ public sealed class Asn1VideotexString : Asn1String {
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid VideotexString character.
     /// </exception>
-    public Asn1VideotexString(Asn1Reader asn) : base(asn, TYPE) {
-        decode(asn);
-    }
+    public Asn1VideotexString(Asn1Reader asn) : base(asn, TYPE) { }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1VideotexString</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1VideotexString</strong> from a ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>VideotexString</strong> data type.
     /// </exception>
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid VideotexString character.
     /// </exception>
-    public Asn1VideotexString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1VideotexString(ReadOnlyMemory<Byte> rawData) : base(new Asn1Reader(rawData), TYPE) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1VideotexString</strong> class from a unicode string.
     /// </summary>
@@ -47,15 +45,15 @@ public sealed class Asn1VideotexString : Asn1String {
     }
 
     void encode(String inputString) {
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE));
         Value = inputString;
     }
-    void decode(Asn1Reader asn) {
-        Value = Encoding.ASCII.GetString(asn.GetPayload());
-    }
+    protected override String Decode(ReadOnlySpan<Byte> payload) {
+        var sb = new StringBuilder(payload.Length);
+        foreach (Byte b in payload) {
+            sb.Append((Char)b);
+        }
 
-    /// <inheritdoc/>
-    public override String GetDisplayValue() {
-        return Value;
+        return sb.ToString();
     }
 }

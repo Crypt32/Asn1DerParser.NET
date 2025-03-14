@@ -24,9 +24,9 @@ public sealed class Asn1OctetString : Asn1Universal {
         Value = asn.GetPayload();
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1NumericString</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1NumericString</strong> from a ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <param name="tagged">Boolean value that indicates whether the byte array in <strong>rawData</strong> parameter is encoded or not.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>NumericString</strong> data type.
@@ -34,7 +34,7 @@ public sealed class Asn1OctetString : Asn1Universal {
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid NumericString character.
     /// </exception>
-    public Asn1OctetString(Byte[] rawData, Boolean tagged) : base(TYPE) {
+    public Asn1OctetString(ReadOnlyMemory<Byte> rawData, Boolean tagged) : base(TYPE) {
         if (tagged) {
             var asn = new Asn1Reader(rawData);
             if (asn.Tag != Tag) {
@@ -43,13 +43,21 @@ public sealed class Asn1OctetString : Asn1Universal {
             Value = asn.GetPayload();
             Initialize(asn);
         } else {
-            Value = rawData;
-            Initialize(new Asn1Reader(Asn1Utils.Encode(rawData, TYPE)));
+            Value = rawData.ToArray();
+            Initialize(Asn1Utils.EncodeAsReader(rawData.Span, TYPE));
         }
     }
 
     /// <summary>
     /// Gets value associated with the current object.
     /// </summary>
+    [Obsolete("Use 'GetValue()' method instead.")]
     public Byte[] Value { get; private set; }
+
+    /// <summary>
+    /// Gets value associated with the current object.
+    /// </summary>
+    public ReadOnlyMemory<Byte> GetValue() {
+        return GetInternalReader().GetPayloadAsMemory();
+    }
 }

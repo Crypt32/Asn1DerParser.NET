@@ -40,12 +40,12 @@ public sealed class Asn1GeneralizedTime : Asn1DateTime {
     /// </exception>
     public Asn1GeneralizedTime(Asn1Reader asn) : base(asn, TYPE) { }
     /// <summary>
-    /// Initializes a new instance of the <strong>Asn1GeneralizedTime</strong> class from a byte array that
+    /// Initializes a new instance of the <strong>Asn1GeneralizedTime</strong> class from a memory buffer that
     /// represents encoded UTC time.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// The current state of <strong>ASN1</strong> object is not Generalized Time.
     /// </exception>
-    public Asn1GeneralizedTime(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1GeneralizedTime(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
 }

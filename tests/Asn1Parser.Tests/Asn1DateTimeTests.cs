@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SysadminsLV.Asn1Parser;
@@ -66,14 +65,14 @@ public class Asn1DateTimeTests {
         Assert.AreEqual((Byte)expectedType, adt.Tag);
         Assert.AreEqual(DateTimeKind.Local, adt.Value.Kind);
 
-        String gts = Encoding.ASCII.GetString(adt.GetRawData().Skip(2).ToArray());
+        String gts = Encoding.ASCII.GetString(adt.GetRawDataAsMemory()[2..].ToArray());
         Assert.AreEqual(dt, adt.Value);
-        if (adt.ZoneInfo == null) {
+        if (adt.ZoneInfo is null) {
             dt = dt.ToUniversalTime();
         }
         Assert.AreEqual(dt.ToString(expectedFormat), gts);
         if (!decode) {
-            if (adt.ZoneInfo == null) {
+            if (adt.ZoneInfo is null) {
                 dt = dt.ToLocalTime();
             }
             assertDateTimeDecode(expectedType, adt, dt, expectedFormat);
@@ -81,8 +80,8 @@ public class Asn1DateTimeTests {
     }
     static void assertDateTimeDecode(Asn1Type expectedTime, Asn1DateTime adt, DateTime dt, String expectedFormat) {
         adt = expectedTime == Asn1Type.UTCTime
-            ? new Asn1UtcTime(adt.GetRawData())
-            : new Asn1GeneralizedTime(adt.GetRawData());
+            ? new Asn1UtcTime(adt.GetRawDataAsMemory())
+            : new Asn1GeneralizedTime(adt.GetRawDataAsMemory());
         assertDateTimeEncode(expectedTime, adt, dt, expectedFormat, true);
     }
 }

@@ -24,13 +24,13 @@ public sealed class Asn1UniversalString : Asn1String {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1UniversalString</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1UniversalString</strong> from a ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>UniversalString</strong> data type.
     /// </exception>
-    public Asn1UniversalString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1UniversalString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1UniversalString</strong> class from a unicode string.
     /// </summary>
@@ -44,14 +44,13 @@ public sealed class Asn1UniversalString : Asn1String {
 
     void m_encode(String inputString) {
         Value = inputString;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.UTF32.GetBytes(inputString.Reverse().ToArray()).Reverse().ToArray(), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(Encoding.UTF32.GetBytes(inputString.Reverse().ToArray())
+                .Reverse()
+                .ToArray()
+                .AsSpan(),
+            TYPE));
     }
     void m_decode(Asn1Reader asn) {
         Value = new String(Encoding.UTF32.GetString(asn.GetPayload().Reverse().ToArray()).Reverse().ToArray());
-    }
-
-    /// <inheritdoc/>
-    public override String GetDisplayValue() {
-        return Value;
     }
 }

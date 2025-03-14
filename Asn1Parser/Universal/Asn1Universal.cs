@@ -13,7 +13,7 @@ public abstract class Asn1Universal {
     protected Asn1Universal(Asn1Type type) {
         Tag = (Byte)type;
         TagName = Asn1Reader.GetTagName(Tag);
-        IsContainer = (Tag & (Byte)Asn1Class.CONSTRUCTED) > 0;
+        IsConstructed = (Tag & (Byte)Asn1Class.CONSTRUCTED) > 0;
     }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1Universal</strong> from an existing <see cref="Asn1Reader"/>
@@ -23,7 +23,7 @@ public abstract class Asn1Universal {
     /// <param name="type">ASN.1 type.</param>
     /// <exception cref="Asn1Reader"><strong>asn</strong> parameter is null reference.</exception>
     protected Asn1Universal(Asn1Reader asn, Asn1Type? type) {
-        if (asn == null) {
+        if (asn is null) {
             throw new ArgumentNullException(nameof(asn));
         }
         if (type.HasValue && asn.Tag != (Byte)type.Value) {
@@ -74,11 +74,13 @@ public abstract class Asn1Universal {
     ///     <item>BMPString</item>
     /// </list>
     /// </remarks>
-    public Boolean IsContainer { get; private set; }
+    public Boolean IsConstructed { get; private set; }
+    [Obsolete("Use 'IsConstructed' member instead.", true)]
+    public Boolean IsContainer => IsConstructed;
     /// <summary>
     /// Gets the full tag raw data, including header and payload information.
     /// </summary>
-    [Obsolete("Use 'GetRawData()' method instead.", true)]
+    [Obsolete("Use 'GetRawDataAsMemory()' method instead.", true)]
     public Byte[] RawData => GetRawData();
 
     /// <summary>
@@ -86,10 +88,17 @@ public abstract class Asn1Universal {
     /// </summary>
     /// <param name="asn">Existing <see cref="Asn1Reader"/> object.</param>
     protected void Initialize(Asn1Reader asn) {
-        asnReader = new Asn1Reader(asn); // do not store external ASN reader reference.
+        asnReader = asn.GetReader(); // do not store external ASN reader reference.
         Tag = asn.Tag;
         TagName = asn.TagName;
-        IsContainer = asn.IsConstructed;
+        IsConstructed = asn.IsConstructed;
+    }
+    /// <summary>
+    /// Gets internal reader instance.
+    /// </summary>
+    /// <returns>ASN.1 reader.</returns>
+    protected Asn1Reader GetInternalReader() {
+        return asnReader!.GetReader();
     }
     /// <summary>
     /// Constant string to display error message for tag mismatch exceptions.
@@ -101,7 +110,7 @@ public abstract class Asn1Universal {
     /// </summary>
     /// <returns>Decoded type value.</returns>
     public virtual String GetDisplayValue() {
-        return asnReader == null
+        return asnReader is null
             ? String.Empty
             : AsnFormatter.BinaryToString(asnReader, EncodingType.HexRaw, EncodingFormat.NOCRLF);
     }
@@ -111,7 +120,7 @@ public abstract class Asn1Universal {
     /// <param name="encoding">Specifies the output encoding.</param>
     /// <returns>Encoded text value.</returns>
     public virtual String Format(EncodingType encoding = EncodingType.Base64) {
-        return asnReader == null
+        return asnReader is null
             ? String.Empty
             : AsnFormatter.BinaryToString(asnReader, encoding);
     }
@@ -119,7 +128,22 @@ public abstract class Asn1Universal {
     /// Gets the full tag raw data, including header and payload information.
     /// </summary>
     /// <returns>ASN.1-encoded type.</returns>
+    [Obsolete("Consider using 'GetRawDataAsMemory()' method instead.")]
     public Byte[] GetRawData() {
         return asnReader!.GetTagRawData();
+    }
+    /// <summary>
+    /// Gets the full tag raw data, including header and payload information.
+    /// </summary>
+    /// <returns>ASN.1-encoded type as span.</returns>
+    public ReadOnlyMemory<Byte> GetRawDataAsMemory() {
+        return asnReader!.GetTagRawDataAsMemory();
+    }
+    /// <summary>
+    /// Gets the memory buffer that holds tag payload, excluding tag and length bytes.
+    /// </summary>
+    /// <returns>Raw payload value excluding tag and length bytes.</returns>
+    public ReadOnlyMemory<Byte> GetPayloadAsMemory() {
+        return asnReader!.GetPayloadAsMemory();
     }
 }

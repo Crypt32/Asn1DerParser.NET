@@ -29,16 +29,16 @@ public sealed class Asn1PrintableString : Asn1String {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1PrintableString</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1PrintableString</strong> from a ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>PrintableString</strong> data type.
     /// </exception>
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid PrintableString character.
     /// </exception>
-    public Asn1PrintableString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1PrintableString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1PrintableString</strong> class from a unicode string.
     /// </summary>
@@ -55,7 +55,7 @@ public sealed class Asn1PrintableString : Asn1String {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
         Value = inputString;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
         if (!testValue(asn.GetPayload())) {
@@ -72,10 +72,5 @@ public sealed class Asn1PrintableString : Asn1String {
     static Boolean testValue(IEnumerable<Byte> rawData) {
         List<Byte> alphabet = StringUtils.GetAlphabet(TYPE);
         return rawData.All(alphabet.Contains);
-    }
-
-    /// <inheritdoc />
-    public override String GetDisplayValue() {
-        return Value;
     }
 }

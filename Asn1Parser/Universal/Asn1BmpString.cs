@@ -22,13 +22,13 @@ public sealed class Asn1BMPString : Asn1String {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1BitString</strong> from a ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1BitString</strong> from a ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// <strong>rawData</strong> is not <strong>BMPString</strong> data type.
     /// </exception>
-    public Asn1BMPString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1BMPString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of the <strong>Asn1BMPString</strong> class from a unicode string.
     /// </summary>
@@ -39,14 +39,9 @@ public sealed class Asn1BMPString : Asn1String {
 
     void m_encode(String inputString) {
         Value = inputString;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.BigEndianUnicode.GetBytes(inputString), TYPE)));
+        Initialize(Asn1Utils.EncodeAsReader(Encoding.BigEndianUnicode.GetBytes(inputString).AsSpan(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
         Value = Encoding.BigEndianUnicode.GetString(asn.GetPayload());
-    }
-
-    /// <inheritdoc/>
-    public override String GetDisplayValue() {
-        return Value;
     }
 }

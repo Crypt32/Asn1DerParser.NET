@@ -15,27 +15,25 @@ public sealed class Asn1TeletexString : Asn1String {
     /// <summary>
     /// Initializes a new instance of <strong>Asn1TeletexString</strong> from an ASN reader object.
     /// </summary>
-    /// <param name="asn">ASN.1-encoded byte array.</param>
+    /// <param name="asn">Existing <see cref="Asn1Reader"/> object.</param>
     /// <exception cref="Asn1InvalidTagException">
     /// Current position in the <strong>ASN.1</strong> object is not <strong>TeletexString</strong>.
     /// </exception>
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid TeletexString character.
     /// </exception>
-    public Asn1TeletexString(Asn1Reader asn) : base(asn, TYPE) {
-        m_decode(asn);
-    }
+    public Asn1TeletexString(Asn1Reader asn) : base(asn, TYPE) { }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1TeletexString</strong> from an ASN.1-encoded byte array.
+    /// Initializes a new instance of <strong>Asn1TeletexString</strong> from an ASN.1-encoded memory buffer.
     /// </summary>
-    /// <param name="rawData">ASN.1-encoded byte array.</param>
+    /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="InvalidDataException">
     /// <strong>rawData</strong> parameter represents different data type.
     /// </exception>
     /// <exception cref="InvalidDataException">
     /// Input data contains invalid TeletexString character.
     /// </exception>
-    public Asn1TeletexString(Byte[] rawData) : this(new Asn1Reader(rawData)) { }
+    public Asn1TeletexString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1TeletexString</strong> from a string that contains valid
     /// Teletex String characters.
@@ -53,17 +51,24 @@ public sealed class Asn1TeletexString : Asn1String {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
         Value = inputString;
-        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString), TYPE)));
+        Initialize(new Asn1Reader(Asn1Utils.Encode(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE)));
     }
-    void m_decode(Asn1Reader asn) {
-        if (asn.GetPayload().Any(b => b > 127)) {
-            throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
+
+    protected override Boolean IsValidString(ReadOnlySpan<Byte> value) {
+        foreach (Byte b in value) {
+            if (b > 127) {
+                return false;
+            }
         }
-        Value = Encoding.ASCII.GetString(asn.GetPayload());
+
+        return true;
     }
-        
-    /// <inheritdoc/>
-    public override String GetDisplayValue() {
-        return Value;
+    protected override String Decode(ReadOnlySpan<Byte> payload) {
+        var sb = new StringBuilder(payload.Length);
+        foreach (Byte b in payload) {
+            sb.Append((Char)b);
+        }
+
+        return sb.ToString();
     }
 }

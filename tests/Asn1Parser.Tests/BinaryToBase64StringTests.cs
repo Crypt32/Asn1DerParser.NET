@@ -8,9 +8,17 @@ namespace Asn1Parser.Tests;
 public class BinaryToBase64StringTests {
     readonly Byte[] _rawData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
     readonly String _base64;
+    readonly Byte[] _complexRawData;
+    readonly String _complexBase64 = """
+                                     MGMxCzAJBgNVBAYTAlVTMSEwHwYDVQQKExhUaGUgR28gRGFkZHkgR3JvdXAsIElu
+                                     Yy4xMTAvBgNVBAsTKEdvIERhZGR5IENsYXNzIDIgQ2VydGlmaWNhdGlvbiBBdXRo
+                                     b3JpdHk=
+                                     
+                                     """;
 
     public BinaryToBase64StringTests() {
         _base64 = Convert.ToBase64String(_rawData);
+        _complexRawData = Convert.FromBase64String(_complexBase64);
     }
     
     [TestMethod]
@@ -115,5 +123,39 @@ public class BinaryToBase64StringTests {
         String footerString = "-----END " + pemHeaderText + "-----";
         Assert.IsTrue(pemString.StartsWith(headerString));
         Assert.IsTrue(pemString.EndsWith(footerString));
+    }
+
+    [TestMethod]
+    public void TestBase64ComplexWithCRLF() {
+        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.Base64);
+        Assert.AreEqual(_complexBase64, str);
+    }
+    [TestMethod]
+    public void TestBase64ComplexWithLF() {
+        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.Base64, EncodingFormat.NOCR);
+        Assert.AreEqual(_complexBase64.Replace("\r", null), str);
+    }
+    [TestMethod]
+    public void TestBase64ComplexWithNoEOL() {
+        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.Base64, EncodingFormat.NOCRLF);
+        Assert.AreEqual(_complexBase64.Replace("\r\n", null), str);
+    }
+    [TestMethod]
+    public void TestPemComplexWithCRLF() {
+        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.Base64Header);
+        String expected = "-----BEGIN CERTIFICATE-----" + "\r\n" + _complexBase64 + "-----END CERTIFICATE-----" + "\r\n";
+        Assert.AreEqual(expected, str);
+    }
+    [TestMethod]
+    public void TestPemComplexWithLF() {
+        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.Base64Header, EncodingFormat.NOCR);
+        String expected = "-----BEGIN CERTIFICATE-----" + "\n" + _complexBase64.Replace("\r", null) + "-----END CERTIFICATE-----" + "\n";
+        Assert.AreEqual(expected, str);
+    }
+    [TestMethod]
+    public void TestPemComplexWithNoEOL() {
+        String str = AsnFormatter.BinaryToString(_complexRawData, EncodingType.Base64Header, EncodingFormat.NOCRLF);
+        String expected = "-----BEGIN CERTIFICATE-----" + _complexBase64.Replace("\r\n", null) + "-----END CERTIFICATE-----";
+        Assert.AreEqual(expected, str);
     }
 }

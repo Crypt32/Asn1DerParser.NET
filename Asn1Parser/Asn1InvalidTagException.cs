@@ -39,6 +39,7 @@ public sealed class Asn1InvalidTagException : Exception {
     /// <param name="info">The object that holds the serialized object data.</param>
     /// <param name="context">The contextual information about the source or destination.</param>
     /// <remarks>This constructor is called during deserialization to reconstitute the exception object transmitted over a stream.</remarks>
+    [Obsolete("This overload is obsolete by SYSLIB0051.", true)]
     public Asn1InvalidTagException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     /// <summary>
     /// Gets the offset at which invalid ASN tag appear.
