@@ -58,7 +58,7 @@ public static class Asn1Utils {
     /// <summary>
     /// Calculates the ASN.1 payload length from a given ASN.1 length header.
     /// </summary>
-    /// <param name="asnHeader">A byte array that represents ASN.1 length header</param>
+    /// <param name="asnHeader">A byte array that represents ASN.1 length header excluding tag and payload.</param>
     /// <exception cref="OverflowException">
     /// <strong>asnHeader</strong> parameter length is more than 4 bytes or is invalid value.
     /// </exception>
@@ -67,7 +67,7 @@ public static class Asn1Utils {
         if (asnHeader.Length == 0) {
             return 0;
         }
-        if (asnHeader[0] < 127) {
+        if (asnHeader[0] <= 127) {
             return asnHeader[0];
         }
         Int32 lengthBytes = asnHeader[0] - 128;
