@@ -114,48 +114,23 @@ public static class Asn1Utils {
     /// <returns>Wrapped encoded byte array.</returns>
     /// <remarks>If <strong>rawData</strong> is null, an empty tag is encoded.</remarks>
     public static ReadOnlyMemory<Byte> Encode(ReadOnlySpan<Byte> rawData, Byte enclosingTag) {
-        Byte[] retValue;
         if (rawData.Length == 0) {
-            retValue = [enclosingTag, 0];
-
-            return retValue;
+            return new Byte[] { enclosingTag, 0 };
         }
-        if (rawData.Length < 128) {
-            // pre-create destination array of fixed size.
-            retValue = new Byte[rawData.Length + 2];
-            // populate TL components of TLV
-            retValue[0] = enclosingTag;
-            retValue[1] = (Byte)rawData.Length;
-            // copy input buffer to V component
-            for (Int32 index = 0; index < rawData.Length; index++) {
-                retValue[index + 2] = rawData[index];
-            }
-        } else {
-            Byte[] lenBytes = new Byte[4];
-            Int32 num = rawData.Length;
-            Int32 counter = 0;
-            while (num >= 256) {
-                lenBytes[counter] = (Byte)(num & 255);
-                num >>= 8;
-                counter++;
-            }
-            // 3 is: len byte and enclosing tag
-            // pre-create destination array of fixed size.
-            retValue = new Byte[rawData.Length + 3 + counter];
-            // copy input buffer to V component
-            for (Int32 index = 0; index < rawData.Length; index++) {
-                retValue[index + 3 + counter] = rawData[index];
-            }
-            // populate TL components of TLV
-            retValue[0] = enclosingTag;
-            retValue[1] = (Byte)(129 + counter);
-            retValue[2] = (Byte)num;
-            Int32 n = 3;
-            for (Int32 i = counter - 1; i >= 0; i--) {
-                retValue[n] = lenBytes[i];
-                n++;
-            }
+        ReadOnlySpan<Byte> pbHeader = GetLengthBytesAsMemory(rawData.Length).Span;
+        // copy T component to destination array.
+        Byte[] retValue = new Byte[1 + pbHeader.Length + rawData.Length];
+        // copy L component to destination array
+        retValue[0] = enclosingTag;
+        for (Int32 i = 0; i < pbHeader.Length; i++) {
+            retValue[i + 1] = pbHeader[i];
         }
+        Int32 shift = 1 + pbHeader.Length;
+        // copy V component to destination array
+        for (Int32 i = 0; i < rawData.Length; i++) {
+            retValue[i + shift] = rawData[i];
+        }
+        
         return retValue;
     }
     /// <summary>
