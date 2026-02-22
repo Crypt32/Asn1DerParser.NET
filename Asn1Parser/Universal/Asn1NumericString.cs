@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using SysadminsLV.Asn1Parser.Utils.CLRExtensions;
 
 namespace SysadminsLV.Asn1Parser.Universal;
 
@@ -27,7 +28,7 @@ public sealed class Asn1NumericString : Asn1String {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1NumericString</strong> from a ASN.1-encoded memory buffer.
+    /// Initializes a new instance of <strong>Asn1NumericString</strong> from an ASN.1-encoded memory buffer.
     /// </summary>
     /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
@@ -38,7 +39,7 @@ public sealed class Asn1NumericString : Asn1String {
     /// </exception>
     public Asn1NumericString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
-    /// Initializes a new instance of the <strong>Asn1NumericString</strong> class from a unicode string.
+    /// Initializes a new instance of the <strong>Asn1NumericString</strong> class from a Unicode string.
     /// </summary>
     /// <param name="inputString">A unicode string to encode.</param>
     /// <exception cref="InvalidDataException">
@@ -59,6 +60,6 @@ public sealed class Asn1NumericString : Asn1String {
         if (asn.GetPayload().Any(b => b is < 48 or > 57 && b != 32)) {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
-        Value = Encoding.ASCII.GetString(asn.GetPayload());
+        Value = Encoding.ASCII.GetString(asn.GetPayloadAsMemory());
     }
 }
