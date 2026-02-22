@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using SysadminsLV.Asn1Parser.Utils.CLRExtensions;
 
@@ -55,7 +54,9 @@ public sealed class Asn1Enumerated : Asn1Universal {
         var value = new BigInteger(payload, isUnsigned: true, isBigEndian: true);
 #else
         // Fallback for .NET Framework: reverse to little-endian
-        var value = new BigInteger(payload.ToArray().Cast<Byte>().Reverse().ToArray());
+        Byte[] bytes = payload.ToArray();
+        Array.Reverse(bytes);
+        var value = new BigInteger(bytes);
 #endif
         if (value > UInt64.MaxValue) {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));

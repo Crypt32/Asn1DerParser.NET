@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Numerics;
 
 namespace SysadminsLV.Asn1Parser.Utils.CLRExtensions;
@@ -14,6 +13,8 @@ internal static class BigIntegerExtensions {
     /// <param name="bigInteger">An <see cref="BigInteger"/> class instance.</param>
     /// <returns>Byte array in a big-endian order.</returns>
     public static ReadOnlySpan<Byte> GetAsnBytes(this BigInteger bigInteger) {
-        return bigInteger.ToByteArray().Cast<Byte>().Reverse().ToArray();
+        Byte[] bytes = bigInteger.ToByteArray();
+        Array.Reverse(bytes); // In-place reverse, single allocation
+        return bytes;
     }
 }

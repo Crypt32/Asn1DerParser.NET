@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Numerics;
 using SysadminsLV.Asn1Parser.Utils.CLRExtensions;
 
@@ -48,6 +47,15 @@ public sealed class Asn1Integer : Asn1Universal {
         Initialize(Asn1Utils.EncodeAsReader(inputInteger.GetAsnBytes(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
-        Value = new BigInteger(asn.GetPayload().Cast<Byte>().Reverse().ToArray());
+        ReadOnlySpan<Byte> payload = asn.GetPayloadAsMemory().Span;
+#if NET8_0_OR_GREATER
+        // BigInteger constructor with isBigEndian parameter (available in .NET 5+)
+        Value = new BigInteger(payload, isUnsigned: false, isBigEndian: true);
+#else
+        // Fallback for .NET Framework: reverse to little-endian
+        Byte[] bytes = payload.ToArray();
+        Array.Reverse(bytes);
+        Value = new BigInteger(bytes);
+#endif
     }
 }
