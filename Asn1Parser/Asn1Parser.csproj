@@ -15,8 +15,13 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Nullable>enable</Nullable>
     <SignAssembly>True</SignAssembly>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <!--<AssemblyOriginatorKeyFile>strongname.snk</AssemblyOriginatorKeyFile>-->
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net8.0'">
     <DocumentationFile>bin\Release\net8.0\SysadminsLV.Asn1Parser.xml</DocumentationFile>
   </PropertyGroup>
