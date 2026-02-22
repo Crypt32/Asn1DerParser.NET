@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using SysadminsLV.Asn1Parser.Utils;
+using SysadminsLV.Asn1Parser.Utils.CLRExtensions;
 
 namespace SysadminsLV.Asn1Parser.Universal;
 
@@ -61,7 +62,7 @@ public sealed class Asn1PrintableString : Asn1String {
         if (!testValue(asn.GetPayload())) {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
-        Value = Encoding.ASCII.GetString(asn.GetPayload());
+        Value = Encoding.ASCII.GetString(asn.GetPayloadAsMemory());
     }
     static Boolean testValue(String str) {
         List<Byte> alphabet = StringUtils.GetAlphabet(TYPE);

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using SysadminsLV.Asn1Parser.Utils.CLRExtensions;
 
 namespace SysadminsLV.Asn1Parser.Universal;
 
@@ -38,7 +39,7 @@ public sealed class Asn1IA5String : Asn1String {
     /// </exception>
     public Asn1IA5String(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
-    /// Initializes a new instance of the <strong>Asn1IA5String</strong> class from a unicode string.
+    /// Initializes a new instance of the <strong>Asn1IA5String</strong> class from a Unicode string.
     /// </summary>
     /// <param name="inputString">A unicode string to encode.</param>
     /// <exception cref="InvalidDataException">
@@ -59,6 +60,6 @@ public sealed class Asn1IA5String : Asn1String {
         if (asn.GetPayload().Any(b => b > 127)) {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
-        Value = Encoding.ASCII.GetString(asn.GetPayload());
+        Value = Encoding.ASCII.GetString(asn.GetPayloadAsMemory());
     }
 }
