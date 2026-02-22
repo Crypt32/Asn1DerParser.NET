@@ -49,7 +49,14 @@ public sealed class Asn1Enumerated : Asn1Universal {
         Initialize(Asn1Utils.EncodeAsReader(inputInteger.GetAsnBytes(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
-        var value = new BigInteger(asn.GetPayload().Cast<Byte>().Reverse().ToArray());
+        ReadOnlySpan<Byte> payload = asn.GetPayloadAsMemory().Span;
+#if NET8_0_OR_GREATER
+        // BigInteger constructor with isBigEndian parameter (available in .NET 5+)
+        var value = new BigInteger(payload, isUnsigned: true, isBigEndian: true);
+#else
+        // Fallback for .NET Framework: reverse to little-endian
+        var value = new BigInteger(payload.ToArray().Cast<Byte>().Reverse().ToArray());
+#endif
         if (value > UInt64.MaxValue) {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }

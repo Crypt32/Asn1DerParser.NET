@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using SysadminsLV.Asn1Parser.Utils.CLRExtensions;
 
 namespace SysadminsLV.Asn1Parser.Universal;
 
@@ -58,9 +59,12 @@ public sealed class Asn1VisibleString : Asn1String {
         Initialize(Asn1Utils.EncodeAsReader(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
-        if (asn.GetPayload().Any(b => b is < 32 or > 126)) {
-            throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
+        ReadOnlySpan<Byte> payload = asn.GetPayloadAsMemory().Span;
+        foreach (Byte b in payload) {
+            if (b is < 32 or > 126) {
+                throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
+            }
         }
-        Value = Encoding.ASCII.GetString(asn.GetPayload());
+        Value = Encoding.ASCII.GetString(payload);
     }
 }

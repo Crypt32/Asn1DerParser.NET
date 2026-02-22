@@ -30,7 +30,7 @@ public sealed class Asn1PrintableString : Asn1String {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1PrintableString</strong> from a ASN.1-encoded memory buffer.
+    /// Initializes a new instance of <strong>Asn1PrintableString</strong> from an ASN.1-encoded memory buffer.
     /// </summary>
     /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
@@ -41,7 +41,7 @@ public sealed class Asn1PrintableString : Asn1String {
     /// </exception>
     public Asn1PrintableString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
-    /// Initializes a new instance of the <strong>Asn1PrintableString</strong> class from a unicode string.
+    /// Initializes a new instance of the <strong>Asn1PrintableString</strong> class from a string that contains printable characters.
     /// </summary>
     /// <param name="inputString">A unicode string to encode.</param>
     /// <exception cref="InvalidDataException">

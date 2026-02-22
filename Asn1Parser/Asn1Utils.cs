@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using SysadminsLV.Asn1Parser.Universal;
+using SysadminsLV.Asn1Parser.Utils.CLRExtensions;
 
 namespace SysadminsLV.Asn1Parser;
 
@@ -213,7 +214,7 @@ public static class Asn1Utils {
             EncodingFormat.NOCRLF);
     }
     static String decodeAsciiString(Asn1Reader asn) {
-        return Encoding.ASCII.GetString(asn.GetRawDataAsMemory().ToArray(), asn.PayloadStartOffset, asn.PayloadLength);
+        return Encoding.ASCII.GetString(asn.GetRawDataAsMemory().Slice(asn.PayloadStartOffset, asn.PayloadLength).Span);
     }
     static String decodeUtcTime(Asn1Reader asn) {
         DateTime dt = new Asn1UtcTime(asn).Value;
