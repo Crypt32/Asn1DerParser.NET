@@ -59,10 +59,11 @@ public sealed class Asn1PrintableString : Asn1String {
         Initialize(Asn1Utils.EncodeAsReader(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
-        if (!testValue(asn.GetPayload())) {
+        ReadOnlySpan<Byte> payload = asn.GetPayloadAsMemory().Span;
+        if (!testValue(payload)) {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }
-        Value = Encoding.ASCII.GetString(asn.GetPayloadAsMemory());
+        Value = Encoding.ASCII.GetString(payload);
     }
     static Boolean testValue(String str) {
         List<Byte> alphabet = StringUtils.GetAlphabet(TYPE);
@@ -70,8 +71,13 @@ public sealed class Asn1PrintableString : Asn1String {
             return str.All(c => alphabet.Contains(Convert.ToByte(c)));
         } catch { return false; }
     }
-    static Boolean testValue(IEnumerable<Byte> rawData) {
+    static Boolean testValue(ReadOnlySpan<Byte> rawData) {
         List<Byte> alphabet = StringUtils.GetAlphabet(TYPE);
-        return rawData.All(alphabet.Contains);
+        foreach (Byte b in rawData) {
+            if (!alphabet.Contains(b)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

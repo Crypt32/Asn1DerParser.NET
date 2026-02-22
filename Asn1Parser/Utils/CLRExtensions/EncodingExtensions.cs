@@ -14,9 +14,9 @@ static class EncodingExtensions {
     /// <param name="bytes">The byte sequence to decode, represented as a <see cref="ReadOnlyMemory{T}"/> of <see cref="Byte"/>.</param>
     /// <returns>A <see cref="String"/> that contains the decoded characters from the byte sequence.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="encoding"/> is <c>null</c>.</exception>
-    public static String GetString(this Encoding encoding, ReadOnlyMemory<Byte> bytes) {
+    public static String GetString(this Encoding encoding, ReadOnlySpan<Byte> bytes) {
 #if NET8_0_OR_GREATER
-        return encoding.GetString(bytes.Span);
+        return encoding.GetString(bytes);
 #else
         return encoding.GetString(bytes.ToArray());
 #endif
