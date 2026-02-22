@@ -45,12 +45,13 @@ public sealed class Asn1UniversalString : Asn1String {
     void m_encode(String inputString) {
         Value = inputString;
         Initialize(Asn1Utils.EncodeAsReader(Encoding.UTF32.GetBytes(inputString.Reverse().ToArray())
+                .Cast<Byte>()
                 .Reverse()
                 .ToArray()
                 .AsSpan(),
             TYPE));
     }
     void m_decode(Asn1Reader asn) {
-        Value = new String(Encoding.UTF32.GetString(asn.GetPayload().Reverse().ToArray()).Reverse().ToArray());
+        Value = new String(Encoding.UTF32.GetString(asn.GetPayload().Cast<Byte>().Reverse().ToArray()).Reverse().ToArray());
     }
 }

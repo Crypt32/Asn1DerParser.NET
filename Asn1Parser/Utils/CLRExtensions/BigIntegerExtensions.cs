@@ -14,6 +14,6 @@ internal static class BigIntegerExtensions {
     /// <param name="bigInteger">An <see cref="BigInteger"/> class instance.</param>
     /// <returns>Byte array in a big-endian order.</returns>
     public static ReadOnlySpan<Byte> GetAsnBytes(this BigInteger bigInteger) {
-        return bigInteger.ToByteArray().Reverse().ToArray();
+        return bigInteger.ToByteArray().Cast<Byte>().Reverse().ToArray();
     }
 }

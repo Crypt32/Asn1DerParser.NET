@@ -49,7 +49,7 @@ public sealed class Asn1Enumerated : Asn1Universal {
         Initialize(Asn1Utils.EncodeAsReader(inputInteger.GetAsnBytes(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
-        var value = new BigInteger(asn.GetPayload().Reverse().ToArray());
+        var value = new BigInteger(asn.GetPayload().Cast<Byte>().Reverse().ToArray());
         if (value > UInt64.MaxValue) {
             throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
         }

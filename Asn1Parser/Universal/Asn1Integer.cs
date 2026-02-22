@@ -48,6 +48,6 @@ public sealed class Asn1Integer : Asn1Universal {
         Initialize(Asn1Utils.EncodeAsReader(inputInteger.GetAsnBytes(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
-        Value = new BigInteger(asn.GetPayload().Reverse().ToArray());
+        Value = new BigInteger(asn.GetPayload().Cast<Byte>().Reverse().ToArray());
     }
 }
