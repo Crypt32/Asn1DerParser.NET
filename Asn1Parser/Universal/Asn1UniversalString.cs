@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
+using SysadminsLV.Asn1Parser.Utils.CLRExtensions;
 
 namespace SysadminsLV.Asn1Parser.Universal;
 
@@ -32,7 +32,7 @@ public sealed class Asn1UniversalString : Asn1String {
     /// </exception>
     public Asn1UniversalString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
-    /// Initializes a new instance of the <strong>Asn1UniversalString</strong> class from a unicode string.
+    /// Initializes a new instance of the <strong>Asn1UniversalString</strong> class from a Unicode string.
     /// </summary>
     /// <param name="inputString">A unicode string to encode.</param>
     /// <exception cref="InvalidDataException">
@@ -44,14 +44,14 @@ public sealed class Asn1UniversalString : Asn1String {
 
     void m_encode(String inputString) {
         Value = inputString;
-        Initialize(Asn1Utils.EncodeAsReader(Encoding.UTF32.GetBytes(inputString.Reverse().ToArray())
-                .Cast<Byte>()
-                .Reverse()
-                .ToArray()
-                .AsSpan(),
-            TYPE));
+        // UTF-32BE encoding (big-endian, no BOM)
+        var utf32be = new UTF32Encoding(bigEndian: true, byteOrderMark: false);
+        Initialize(Asn1Utils.EncodeAsReader(utf32be.GetBytes(inputString).AsSpan(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
-        Value = new String(Encoding.UTF32.GetString(asn.GetPayload().Cast<Byte>().Reverse().ToArray()).Reverse().ToArray());
+        // UTF-32BE decoding (big-endian, no BOM)
+        var utf32be = new UTF32Encoding(bigEndian: true, byteOrderMark: false);
+        ReadOnlySpan<Byte> payload = asn.GetPayloadAsMemory().Span;
+        Value = utf32be.GetString(payload);
     }
 }

@@ -28,7 +28,7 @@ public sealed class Asn1UTF8String : Asn1String {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1UTF8String</strong> from a ASN.1-encoded memory buffer.
+    /// Initializes a new instance of <strong>Asn1UTF8String</strong> from an ASN.1-encoded memory buffer.
     /// </summary>
     /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
@@ -39,7 +39,7 @@ public sealed class Asn1UTF8String : Asn1String {
     /// </exception>
     public Asn1UTF8String(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
-    /// Initializes a new instance of the <strong>Asn1UTF8String</strong> class from a Unicode string.
+    /// Initializes a new instance of the <strong>Asn1UTF8String</strong> class from a UTF-8 string.
     /// </summary>
     /// <param name="inputString">A unicode string to encode.</param>
     /// <exception cref="InvalidDataException">

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Text;
+using SysadminsLV.Asn1Parser.Utils.CLRExtensions;
 
 namespace SysadminsLV.Asn1Parser.Universal;
 
 /// <summary>
-/// Represents a <strong>BMPString</strong> ASN.1 tag object. <Strong>BMPString</Strong> is a 16-bit unicode
+/// Represents a <strong>BMPString</strong> ASN.1 tag object. <Strong>BMPString</Strong> is a 16-bit Unicode
 /// string where each character is encoded by using two bytes in Big-Endian encoding.
 /// </summary>
 public sealed class Asn1BMPString : Asn1String {
@@ -22,7 +23,7 @@ public sealed class Asn1BMPString : Asn1String {
         m_decode(asn);
     }
     /// <summary>
-    /// Initializes a new instance of <strong>Asn1BitString</strong> from a ASN.1-encoded memory buffer.
+    /// Initializes a new instance of <strong>Asn1BitString</strong> from an ASN.1-encoded memory buffer.
     /// </summary>
     /// <param name="rawData">ASN.1-encoded memory buffer.</param>
     /// <exception cref="Asn1InvalidTagException">
@@ -30,7 +31,7 @@ public sealed class Asn1BMPString : Asn1String {
     /// </exception>
     public Asn1BMPString(ReadOnlyMemory<Byte> rawData) : this(new Asn1Reader(rawData)) { }
     /// <summary>
-    /// Initializes a new instance of the <strong>Asn1BMPString</strong> class from a unicode string.
+    /// Initializes a new instance of the <strong>Asn1BMPString</strong> class from a Unicode Basic Multilingual Plane string.
     /// </summary>
     /// <param name="inputString">A unicode string to encode.</param>
     public Asn1BMPString(String inputString) : base(TYPE) {
@@ -42,6 +43,6 @@ public sealed class Asn1BMPString : Asn1String {
         Initialize(Asn1Utils.EncodeAsReader(Encoding.BigEndianUnicode.GetBytes(inputString).AsSpan(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
-        Value = Encoding.BigEndianUnicode.GetString(asn.GetPayload());
+        Value = Encoding.BigEndianUnicode.GetString(asn.GetPayloadAsMemory().Span);
     }
 }
