@@ -57,7 +57,7 @@ public sealed class Asn1UTF8String : Asn1String {
         Initialize(Asn1Utils.EncodeAsReader(Encoding.UTF8.GetBytes(inputString).AsMemory().Span, TYPE));
     }
     void m_decode(Asn1Reader asn) {
-        Value = Encoding.UTF8.GetString(asn.GetPayloadAsMemory());
+        Value = Encoding.UTF8.GetString(asn.GetPayloadAsMemory().Span);
     }
     static Boolean testValue(String str) {
         return str.All(x => Convert.ToUInt32(x) <= 255);

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 
 namespace SysadminsLV.Asn1Parser.Universal;
@@ -20,7 +19,7 @@ public sealed class Asn1BitString : Asn1Universal {
     /// </exception>
     public Asn1BitString(Asn1Reader asn) : base(asn, TYPE) {
         UnusedBits = asn[asn.PayloadStartOffset];
-        Value = asn.GetPayload().Skip(1).ToArray();
+        Value = asn.GetPayloadAsMemory().Slice(1).ToArray();
     }
     /// <summary>
     /// Initializes a new instance of <strong>Asn1BitString</strong> from an ASN.1-encoded memory buffer.

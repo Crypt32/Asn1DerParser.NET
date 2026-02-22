@@ -57,9 +57,12 @@ public sealed class Asn1NumericString : Asn1String {
         Initialize(Asn1Utils.EncodeAsReader(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
-        if (asn.GetPayload().Any(b => b is < 48 or > 57 && b != 32)) {
-            throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
+        ReadOnlySpan<Byte> payload = asn.GetPayloadAsMemory().Span;
+        foreach (Byte b in payload) {
+            if (b is < 48 or > 57 && b != 32) {
+                throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
+            }
         }
-        Value = Encoding.ASCII.GetString(asn.GetPayloadAsMemory());
+        Value = Encoding.ASCII.GetString(payload);
     }
 }

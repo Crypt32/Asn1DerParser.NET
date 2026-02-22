@@ -57,9 +57,12 @@ public sealed class Asn1IA5String : Asn1String {
         Initialize(Asn1Utils.EncodeAsReader(Encoding.ASCII.GetBytes(inputString).AsSpan(), TYPE));
     }
     void m_decode(Asn1Reader asn) {
-        if (asn.GetPayload().Any(b => b > 127)) {
-            throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
+        ReadOnlySpan<Byte> payload = asn.GetPayloadAsMemory().Span;
+        foreach (Byte b in payload) {
+            if (b > 127) {
+                throw new InvalidDataException(String.Format(InvalidType, TYPE.ToString()));
+            }
         }
-        Value = Encoding.ASCII.GetString(asn.GetPayloadAsMemory());
+        Value = Encoding.ASCII.GetString(payload);
     }
 }
