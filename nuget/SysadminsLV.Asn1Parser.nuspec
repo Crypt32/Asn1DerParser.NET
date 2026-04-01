@@ -16,13 +16,13 @@
       <group targetFramework="net472">
         <dependency id="System.Memory" version="4.6.0" />
       </group>
-      <group targetFramework="net8.0">
+      <group targetFramework="netstandard2.0">
         <dependency id="System.Memory" version="4.6.0" />
       </group>
     </dependencies>
   </metadata>
   <files>
     <file src="..\Asn1Parser\bin\Release\net472\SysadminsLV.*" target="lib/net472"/>
-    <file src="..\Asn1Parser\bin\Release\net8.0\SysadminsLV.*" target="lib/net8.0"/>
+    <file src="..\Asn1Parser\bin\Release\netstandard2.0\SysadminsLV.*" target="lib/netstandard2.0"/>
   </files>
 </package>
