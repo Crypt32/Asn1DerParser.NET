@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
@@ -176,10 +177,10 @@ public class Asn1Builder {
         return this;
     }
     /// <summary>
-    ///     Adds ASN.1 SET value.
+    ///     Adds ASN.1 SET value with proper DER canonical sorting.
     /// </summary>
     /// <param name="value">
-    ///     Value to encode.
+    ///     Value to encode. This should be the concatenated raw content (without SET tag/length wrapper).
     /// </param>
     /// <exception cref="ArgumentNullException">
     ///     <strong>value</strong> parameter is null.
@@ -187,9 +188,12 @@ public class Asn1Builder {
     /// <returns>Current instance with added value.</returns>
     /// <remarks>
     ///     In the current implementation, SET is encoded using constructed form only.
+    ///     According to DER (X.690), SET and SET OF elements are sorted in ascending order
+    ///     by their complete encoded representation (lexicographic ordering of DER encodings).
     /// </remarks>
     public Asn1Builder AddSet(ReadOnlySpan<Byte> value) {
-        _rawData.Add(Asn1Utils.Encode(value, 0x31));
+        ReadOnlyMemory<Byte> sortedElements = sortSetElements(new ReadOnlyMemory<Byte>(value.ToArray()));
+        _rawData.Add(Asn1Utils.Encode(sortedElements.Span, 0x31));
 
         return this;
     }
@@ -533,19 +537,24 @@ public class Asn1Builder {
         return this;
     }
     /// <summary>
-    /// Adds constructed SET.
+    /// Adds constructed SET with proper DER canonical sorting.
     /// </summary>
     /// <param name="selector">Lambda expression to fill nested content.</param>
     /// <exception cref="ArgumentNullException">
     ///     <strong>selector</strong> parameter is null.
     /// </exception>
     /// <returns>Current instance with added value.</returns>
+    /// <remarks>
+    ///     According to DER (X.690), SET and SET OF elements are sorted in ascending order
+    ///     by their complete encoded representation (lexicographic ordering of DER encodings).
+    /// </remarks>
     public Asn1Builder AddSet(Func<Asn1Builder, Asn1Builder> selector) {
         if (selector is null) {
             throw new ArgumentNullException(nameof(selector));
         }
         Asn1Builder b = selector(new Asn1Builder());
-        _rawData.Add(Asn1Utils.Encode(b.GetRawDataAsMemory().Span, 0x31));
+        ReadOnlyMemory<Byte> sortedElements = sortSetElements(b.GetRawDataAsMemory());
+        _rawData.Add(Asn1Utils.Encode(sortedElements.Span, 0x31));
         return this;
     }
     /// <summary>
@@ -661,6 +670,64 @@ public class Asn1Builder {
     /// </returns>
     public ReadOnlyMemory<Byte> GetRawDataAsMemory() {
         return getEncoded(0, false);
+    }
+
+    // Helper method to sort SET elements according to DER canonical ordering
+    static ReadOnlyMemory<Byte> sortSetElements(ReadOnlyMemory<Byte> rawElements) {
+        if (rawElements.Length == 0) {
+            return rawElements;
+        }
+
+        // rawElements is unencoded content (concatenated children without TL wrapper)
+        // Temporarily wrap in SEQUENCE to parse individual elements
+        ReadOnlyMemory<Byte> tempSequence = Asn1Utils.Encode(rawElements.Span, 0x30);
+
+        var elements = new List<ReadOnlyMemory<Byte>>();
+        var reader = new Asn1Reader(tempSequence);
+
+        if (!reader.IsConstructed || reader.GetNestedNodeCount() == 0) {
+            // No children to sort
+            return rawElements;
+        }
+
+        // Move into the SEQUENCE to access its children
+        if (!reader.MoveNext()) {
+            return rawElements;
+        }
+
+        // Collect all immediate child elements using MoveNextSibling
+        elements.Add(reader.GetTagRawDataAsMemory());
+        while (reader.MoveNextSibling()) {
+            elements.Add(reader.GetTagRawDataAsMemory());
+        }
+
+        // Sort elements lexicographically by their DER encoding
+        elements.Sort((a, b) => {
+            Int32 minLength = Math.Min(a.Length, b.Length);
+            ReadOnlySpan<Byte> spanA = a.Span;
+            ReadOnlySpan<Byte> spanB = b.Span;
+
+            for (Int32 i = 0; i < minLength; i++) {
+                Int32 cmp = spanA[i].CompareTo(spanB[i]);
+                if (cmp != 0) {
+                    return cmp;
+                }
+            }
+            // If all bytes are equal up to minLength, shorter comes first
+            return a.Length.CompareTo(b.Length);
+        });
+
+        // Concatenate sorted elements
+        Int32 totalLength = elements.Sum(element => element.Length);
+
+        Byte[] result = new Byte[totalLength];
+        Int32 offset = 0;
+        foreach (ReadOnlyMemory<Byte> element in elements) {
+            element.Span.CopyTo(result.AsSpan(offset));
+            offset += element.Length;
+        }
+
+        return result;
     }
 
     /// <summary>

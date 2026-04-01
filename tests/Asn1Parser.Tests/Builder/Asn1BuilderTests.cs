@@ -32,7 +32,9 @@ public class Asn1BuilderTests {
             .AddRelativeOid(".5")
             .AddSequence(builder => builder.AddInteger(1).AddInteger(2))
             .AddSequence(new Asn1Integer(5).GetRawDataAsMemory().Span)
-            .AddSet(builder => builder.AddInteger(1).AddInteger(2))
+            // in KAT data, SET is sorted, i.e. 1 is after 2. But we will add them in the order of 1, 2,
+            // and expect that builder will sort them correctly.
+            .AddSet(builder => builder.AddInteger(2).AddInteger(1))
             .AddSet(new Asn1Integer(5).GetRawDataAsMemory().Span)
             .AddNumericString("555 555")
             .AddPrintableString("PrintableString")
@@ -72,7 +74,7 @@ public class Asn1BuilderTests {
         Asn1BuilderTestBase.AssertNull(reader, useSibling: true);
         Asn1BuilderTestBase.AssertObjectIdentifier(reader, "1.3.6.1.5.5.7.3.1");
         Asn1BuilderTestBase.AssertEnumerated(reader, 3);
-        Asn1BuilderTestBase.AssertString(reader, Asn1Type.UTF8String, Asn1Type.UTF8String.ToString());
+        Asn1BuilderTestBase.AssertString(reader, Asn1Type.UTF8String, nameof(Asn1Type.UTF8String));
         Asn1BuilderTestBase.AssertRelativeOid(reader, ".5");
         Asn1BuilderTestBase.AssertSequence(reader);
         nestedReader = reader.GetReader();
@@ -89,14 +91,14 @@ public class Asn1BuilderTests {
         nestedReader = reader.GetReader();
         Asn1BuilderTestBase.AssertInteger(nestedReader, 5);
         Asn1BuilderTestBase.AssertString(reader, Asn1Type.NumericString, "555 555", useSibling: true);
-        Asn1BuilderTestBase.AssertString(reader, Asn1Type.PrintableString, Asn1Type.PrintableString.ToString());
-        Asn1BuilderTestBase.AssertString(reader, Asn1Type.TeletexString, Asn1Type.TeletexString.ToString());
-        Asn1BuilderTestBase.AssertString(reader, Asn1Type.VideotexString, Asn1Type.VideotexString.ToString());
-        Asn1BuilderTestBase.AssertString(reader, Asn1Type.IA5String, Asn1Type.IA5String.ToString());
+        Asn1BuilderTestBase.AssertString(reader, Asn1Type.PrintableString, nameof(Asn1Type.PrintableString));
+        Asn1BuilderTestBase.AssertString(reader, Asn1Type.TeletexString, nameof(Asn1Type.TeletexString));
+        Asn1BuilderTestBase.AssertString(reader, Asn1Type.VideotexString, nameof(Asn1Type.VideotexString));
+        Asn1BuilderTestBase.AssertString(reader, Asn1Type.IA5String, nameof(Asn1Type.IA5String));
         Asn1BuilderTestBase.AssertDateTime(reader, DateTime.Parse("2025-01-01 20:00:00"), true);
         Asn1BuilderTestBase.AssertDateTime(reader, DateTime.Parse("2025-01-01 20:00:00"), false);
-        Asn1BuilderTestBase.AssertString(reader, Asn1Type.VisibleString, Asn1Type.VisibleString.ToString());
-        Asn1BuilderTestBase.AssertString(reader, Asn1Type.UniversalString, Asn1Type.UniversalString.ToString());
-        Asn1BuilderTestBase.AssertString(reader, Asn1Type.BMPString, Asn1Type.BMPString.ToString());
+        Asn1BuilderTestBase.AssertString(reader, Asn1Type.VisibleString, nameof(Asn1Type.VisibleString));
+        Asn1BuilderTestBase.AssertString(reader, Asn1Type.UniversalString, nameof(Asn1Type.UniversalString));
+        Asn1BuilderTestBase.AssertString(reader, Asn1Type.BMPString, nameof(Asn1Type.BMPString));
     }
 }
