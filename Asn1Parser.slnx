@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/Solution Items/Nuget/">
+    <File Path="nuget/SysadminsLV.Asn1Parser.nuspec" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/Asn1Parser.Benchmark/Asn1Parser.Benchmark.csproj" />
+    <Project Path="tests/Asn1Parser.Tests/Asn1Parser.Tests.csproj" />
+  </Folder>
+  <Project Path="Asn1Parser/Asn1Parser.csproj" />
+</Solution>
