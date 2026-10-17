@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
     <AssemblyName>SysadminsLV.Asn1Parser</AssemblyName>
     <RootNamespace>SysadminsLV.Asn1Parser</RootNamespace>
 
